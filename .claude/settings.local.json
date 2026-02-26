@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add .gitignore README.md render.yaml backend/.env.example backend/package.json backend/package-lock.json backend/tsconfig.json backend/src/index.ts backend/src/config/db.ts backend/src/middleware/auth.ts backend/src/routes/auth.ts backend/src/routes/teams.ts backend/src/routes/shifts.ts backend/src/routes/requests.ts backend/src/types/index.ts frontend/.env.local.example frontend/.eslintrc.json frontend/.gitignore frontend/next.config.ts frontend/next-env.d.ts frontend/package.json frontend/package-lock.json frontend/tsconfig.json frontend/public/ frontend/src/)",
+      "Bash(git add .gitignore README.md render.yaml backend/.env.example backend/package.json backend/package-lock.json backend/tsconfig.json backend/src/ frontend/.env.local.example frontend/next.config.ts frontend/next-env.d.ts frontend/package.json frontend/package-lock.json frontend/tsconfig.json frontend/public/ frontend/src/ frontend/eslint.config.mjs)",
+      "Bash(git add -f frontend/.env.local.example)",
+      "Bash(git add frontend/.gitignore)",
+      "Bash(git commit:*)"
+    ]
+  }
+}
