@@ -11,7 +11,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   text-decoration: none;
-  color: #0070f3;
+  color: #d4500a;
 }
 
 .links {
@@ -27,12 +27,12 @@
 }
 
 .registerBtn {
-  background-color: #0070f3;
+  background-color: #d4500a;
   color: white !important;
   padding: 0.5rem 1rem;
   border-radius: 6px;
 }
 
 .registerBtn:hover {
-  background-color: #005bb5;
+  background-color: #b04008;
 }

@@ -36,30 +36,30 @@ export default function DashboardPage() {
 
       {user.role === "manager" ? (
         <div className={styles.cards}>
-          <div className={styles.card}>
+          <div className={styles.card} onClick={() => router.push("/manager/teams")}>
             <h3>My Teams</h3>
             <p>Create and manage your teams</p>
           </div>
-          <div className={styles.card}>
+          <div className={styles.card} onClick={() => router.push("/manager/schedule")}>
             <h3>Schedule</h3>
             <p>Create and publish weekly shifts</p>
           </div>
-          <div className={styles.card}>
+          <div className={styles.card} onClick={() => router.push("/manager/requests")}>
             <h3>Requests</h3>
             <p>Review swap and time-off requests</p>
           </div>
         </div>
       ) : (
         <div className={styles.cards}>
-          <div className={styles.card}>
+          <div className={styles.card} onClick={() => router.push("/employee/schedule")}>
             <h3>My Schedule</h3>
             <p>View your upcoming shifts</p>
           </div>
-          <div className={styles.card}>
+          <div className={styles.card} onClick={() => router.push("/employee/requests")}>
             <h3>Requests</h3>
             <p>Request shift swaps or time off</p>
           </div>
-          <div className={styles.card}>
+          <div className={styles.card} onClick={() => router.push("/employee/join")}>
             <h3>Join Team</h3>
             <p>Enter a join code to join a team</p>
           </div>

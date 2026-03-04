@@ -40,12 +40,12 @@
 }
 
 .primary {
-  background-color: #0070f3;
+  background-color: #d4500a;
   color: white;
 }
 
 .primary:hover {
-  background-color: #005bb5;
+  background-color: #b04008;
 }
 
 .secondary {

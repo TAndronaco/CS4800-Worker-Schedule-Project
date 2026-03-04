@@ -24,7 +24,7 @@ router.post('/', authenticate, requireManager, async (req: AuthRequest, res: Res
 // GET /api/shifts?team_id=X&week=YYYY-MM-DD - Get shifts for a team/week
 router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { team_id, week } = req.query;
+    const { team_id, week, employee_id } = req.query;
 
     let query = 'SELECT s.*, u.first_name, u.last_name FROM shifts s JOIN users u ON s.employee_id = u.id WHERE 1=1';
     const params: any[] = [];
@@ -32,6 +32,11 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<v
     if (team_id) {
       params.push(team_id);
       query += ` AND s.team_id = $${params.length}`;
+    }
+
+    if (employee_id) {
+      params.push(employee_id);
+      query += ` AND s.employee_id = $${params.length}`;
     }
 
     if (week) {

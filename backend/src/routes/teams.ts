@@ -46,11 +46,28 @@ router.post('/join', authenticate, async (req: AuthRequest, res: Response): Prom
   }
 });
 
+// GET /api/teams/:id/members - Get members of a team
+router.get('/:id/members', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const result = await pool.query(
+      `SELECT u.id, u.first_name, u.last_name, u.email
+       FROM users u
+       JOIN team_members tm ON u.id = tm.user_id
+       WHERE tm.team_id = $1`,
+      [req.params.id]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Get members error:', error);
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
 // GET /api/teams - Get user's teams
 router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const result = await pool.query(
-      `SELECT t.* FROM teams t
+      `SELECT DISTINCT t.* FROM teams t
        LEFT JOIN team_members tm ON t.id = tm.team_id
        WHERE t.manager_id = $1 OR tm.user_id = $1`,
       [req.user!.userId]
