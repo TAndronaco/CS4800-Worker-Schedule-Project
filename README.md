@@ -176,4 +176,4 @@ CREATE TABLE shift_requests (
 
 - [Nicolas Tran](https://github.com/chablades)
 - [Thaimas Andronaco](https://github.com/TAndronaco)
-- [Khine Zar Hein](https://github.com/khinezarheinrubyaura-3208)
+- [Khine Zar Hein](https://github.com/Khine12/Khine12)
