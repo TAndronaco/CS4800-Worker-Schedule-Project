@@ -1,13 +1,30 @@
-# ShiftSync - Employee Shift Scheduling
+# ShiftSync — Employee Shift Scheduling
 
-A web-based employee shift scheduling application for small and medium-sized businesses. Managers can assign shifts, handle schedule changes, and communicate updates. Employees can view schedules, request shift swaps, and manage availability.
+A web-based shift scheduling platform built for small and medium-sized businesses. ShiftSync lets managers create and manage schedules while giving employees the tools to view shifts, request swaps, and communicate with their team — all in one place.
+
+---
+
+## Features
+
+- **Authentication** — Secure JWT-based register and login for both managers and employees
+- **Team Management** — Managers can create teams and invite employees via a join code
+- **Shift Scheduling** — Managers can create, assign, and delete shifts
+- **Shift Requests** — Employees can request time off or shift swaps; managers can approve or deny
+- **In-App Messaging** *(coming soon)* — Team members will be able to message each other directly without switching to another platform
+
+---
 
 ## Tech Stack
 
-- **Frontend:** Next.js (TypeScript) with App Router
-- **Backend:** Express.js (TypeScript) REST API
-- **Database:** PostgreSQL
-- **Auth:** JWT-based authentication
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js (TypeScript) with App Router |
+| Backend | Express.js (TypeScript) REST API |
+| Database | PostgreSQL |
+| Auth | JWT-based authentication |
+| Deployment | Vercel (frontend) · Render (backend) |
+
+---
 
 ## Project Structure
 
@@ -17,6 +34,8 @@ A web-based employee shift scheduling application for small and medium-sized bus
 └── README.md
 ```
 
+---
+
 ## Getting Started
 
 ### Prerequisites
@@ -25,27 +44,82 @@ A web-based employee shift scheduling application for small and medium-sized bus
 - PostgreSQL installed and running
 - npm
 
-### Backend Setup
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/TAndronaco/CS4800-Worker-Schedule-Project.git
+cd CS4800-Worker-Schedule-Project
+```
+
+### 2. Backend Setup
 
 ```bash
 cd backend
-cp .env.example .env       # Edit with your database credentials
+cp .env.example .env
 npm install
-npm run dev                 # Starts on http://localhost:5000
+npm run dev        # Runs on http://localhost:5000
 ```
 
-### Frontend Setup
+Edit `.env` with your database credentials:
+
+```env
+DATABASE_URL=postgresql://postgres:yourpassword@localhost:5432/shiftsync
+JWT_SECRET=your-secret-key-here
+PORT=5000
+FRONTEND_URL=http://localhost:3000
+NODE_ENV=development
+```
+
+### 3. Frontend Setup
 
 ```bash
 cd frontend
 cp .env.local.example .env.local
 npm install
-npm run dev                 # Starts on http://localhost:3000
+npm run dev        # Runs on http://localhost:3000
 ```
 
-### Database Setup
+### 4. Database Setup
 
-Create a PostgreSQL database called `shiftsync`, then run:
+Create a PostgreSQL database called `shiftsync`:
+
+```bash
+psql -U postgres -c "CREATE DATABASE shiftsync;"
+```
+
+Then run the setup script to create all tables:
+
+```bash
+psql -U postgres -d shiftsync -f backend/db/schema.sql
+```
+
+> If a schema file is not available, see [Database Schema](#database-schema) below for the full SQL.
+
+---
+
+## API Endpoints
+
+| Method | Endpoint | Description | Access |
+|---|---|---|---|
+| GET | `/api/health` | Health check | Public |
+| POST | `/api/auth/register` | Register a new user | Public |
+| POST | `/api/auth/login` | Login | Public |
+| GET | `/api/teams` | Get user's teams | Auth |
+| POST | `/api/teams` | Create a team | Manager |
+| POST | `/api/teams/join` | Join a team via code | Auth |
+| GET | `/api/shifts` | Get shifts | Auth |
+| POST | `/api/shifts` | Create a shift | Manager |
+| DELETE | `/api/shifts/:id` | Delete a shift | Manager |
+| GET | `/api/requests` | Get requests | Auth |
+| POST | `/api/requests` | Create a request | Auth |
+| PATCH | `/api/requests/:id` | Approve or deny a request | Manager |
+
+---
+
+## Database Schema
+
+<details>
+<summary>Click to expand full SQL schema</summary>
 
 ```sql
 CREATE TABLE users (
@@ -94,25 +168,12 @@ CREATE TABLE shift_requests (
 );
 ```
 
-## API Endpoints
+</details>
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/health` | Health check |
-| POST | `/api/auth/register` | Register a new user |
-| POST | `/api/auth/login` | Login |
-| GET | `/api/teams` | Get user's teams |
-| POST | `/api/teams` | Create a team (manager) |
-| POST | `/api/teams/join` | Join a team via code |
-| GET | `/api/shifts` | Get shifts |
-| POST | `/api/shifts` | Create a shift (manager) |
-| DELETE | `/api/shifts/:id` | Delete a shift (manager) |
-| GET | `/api/requests` | Get requests |
-| POST | `/api/requests` | Create a request |
-| PATCH | `/api/requests/:id` | Approve/deny request (manager) |
+---
 
 ## Contributors
 
-- Nicolas Tran
-- Thaimas Andronaco
-- Khine Zar Hein
+- [Nicolas Tran](https://github.com/chablades)
+- [Thaimas Andronaco](https://github.com/TAndronaco)
+- [Khine Zar Hein](https://github.com/khinezarheinrubyaura-3208)
