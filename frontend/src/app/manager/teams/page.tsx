@@ -23,13 +23,15 @@ export default function TeamsPage() {
     if (!stored) { router.push("/login"); return; }
     const user = JSON.parse(stored);
     if (user.role !== "manager") { router.push("/dashboard"); return; }
-    fetchTeams();
+    apiFetch("/teams")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: Team[]) => { setTeams(data); setLoading(false); });
   }, [router]);
 
-  async function fetchTeams() {
-    const res = await apiFetch("/teams");
-    if (res.ok) setTeams(await res.json());
-    setLoading(false);
+  function fetchTeams() {
+    apiFetch("/teams")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: Team[]) => setTeams(data));
   }
 
   async function createTeam(e: React.FormEvent) {

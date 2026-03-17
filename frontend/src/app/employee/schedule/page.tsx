@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import styles from "./page.module.css";
@@ -60,7 +60,13 @@ function shiftsForCell(shifts: Shift[], day: string, hour: number): Shift[] {
 
 export default function EmployeeSchedulePage() {
   const router = useRouter();
-  const [userId, setUserId] = useState<number | null>(null);
+  const userId = useMemo<number | null>(() => {
+    if (typeof window === "undefined") return null;
+    const stored = localStorage.getItem("user");
+    if (!stored) return null;
+    const user = JSON.parse(stored);
+    return user.role === "employee" ? user.id : null;
+  }, []);
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
   const [shifts, setShifts] = useState<Shift[]>([]);
@@ -72,7 +78,6 @@ export default function EmployeeSchedulePage() {
     if (!stored) { router.push("/login"); return; }
     const user = JSON.parse(stored);
     if (user.role !== "employee") { router.push("/dashboard"); return; }
-    setUserId(user.id);
     apiFetch("/teams")
       .then((r) => r.json())
       .then((data: Team[]) => {
