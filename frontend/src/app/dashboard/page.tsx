@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
 
@@ -14,16 +14,17 @@ interface User {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const user = useMemo<User | null>(() => {
+    if (typeof window === "undefined") return null;
+    const stored = localStorage.getItem("user");
+    return stored ? JSON.parse(stored) : null;
+  }, []);
 
   useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (!stored) {
+    if (!user) {
       router.push("/login");
-      return;
     }
-    setUser(JSON.parse(stored));
-  }, [router]);
+  }, [user, router]);
 
   if (!user) return null;
 
