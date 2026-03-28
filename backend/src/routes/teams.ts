@@ -16,6 +16,12 @@ router.post('/', authenticate, requireManager, async (req: AuthRequest, res: Res
       [name, joinCode, req.user!.userId]
     );
 
+    // Automatically add manager to team_members
+    await pool.query(
+      'INSERT INTO team_members (team_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+      [result.rows[0].id, req.user!.userId]
+    );
+
     res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error('Create team error:', error);
