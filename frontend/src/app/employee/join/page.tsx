@@ -19,7 +19,6 @@ export default function JoinTeamPage() {
     const stored = localStorage.getItem("user");
     if (!stored) { router.push("/login"); return; }
     const user = JSON.parse(stored);
-    if (user.role !== "employee") { router.push("/dashboard"); return; }
     apiFetch("/teams")
       .then((res) => (res.ok ? res.json() : []))
       .then((data: Team[]) => { setTeams(data); setLoading(false); });
