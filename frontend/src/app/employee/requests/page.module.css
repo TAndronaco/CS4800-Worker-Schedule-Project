@@ -2,6 +2,7 @@
   max-width: 700px;
   margin: 0 auto;
   padding: 2rem;
+  animation: fadeIn 0.4s ease-out;
 }
 
 .back {
@@ -57,6 +58,7 @@
   border-radius: 10px;
   margin-bottom: 1.5rem;
   background: #fafafa;
+  animation: slideDown 0.4s ease-out;
 }
 
 .form label {
@@ -94,6 +96,7 @@
 .error {
   color: #e00;
   font-size: 0.9rem;
+  animation: shake 0.4s ease;
 }
 
 .empty {
@@ -124,6 +127,13 @@
   padding: 1.25rem 1.5rem;
   border: 1px solid #eee;
   border-radius: 12px;
+  animation: fadeInUp 0.4s ease-out both;
+  transition: all 0.2s ease;
+}
+
+.requestCard:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
 }
 
 .info {

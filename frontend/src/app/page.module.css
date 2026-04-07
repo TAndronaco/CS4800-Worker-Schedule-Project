@@ -11,6 +11,14 @@
   max-width: 600px;
 }
 
+.logo {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  margin-bottom: 1.5rem;
+  animation: fadeInUp 0.6s ease-out;
+}
+
 .main h1 {
   font-size: 3rem;
   margin-bottom: 1rem;
@@ -21,12 +29,14 @@
   color: #666;
   margin-bottom: 2rem;
   line-height: 1.6;
+  animation: fadeInUp 0.6s ease-out 0.15s both;
 }
 
 .ctas {
   display: flex;
   gap: 1rem;
   justify-content: center;
+  animation: fadeInUp 0.6s ease-out 0.3s both;
 }
 
 .primary,
@@ -36,7 +46,7 @@
   font-size: 1rem;
   text-decoration: none;
   font-weight: 500;
-  transition: background-color 0.2s;
+  transition: all 0.25s ease;
 }
 
 .primary {
@@ -46,6 +56,12 @@
 
 .primary:hover {
   background-color: #b04008;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 80, 10, 0.3);
+}
+
+.primary:active {
+  transform: translateY(0);
 }
 
 .secondary {
@@ -55,4 +71,47 @@
 
 .secondary:hover {
   background-color: #f5f5f5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.secondary:active {
+  transform: translateY(0);
+}
+
+.testButtons {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px dashed #ddd;
+  animation: fadeIn 0.6s ease-out 0.5s both;
+}
+
+.testLabel {
+  font-size: 0.85rem;
+  color: #999;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.testBtn {
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  text-decoration: none;
+  font-weight: 500;
+  border: 1px dashed #aaa;
+  color: #555;
+  transition: all 0.2s;
+}
+
+.testBtn:hover {
+  border-color: #d4500a;
+  color: #d4500a;
+  background-color: rgba(212, 80, 10, 0.05);
+  transform: translateY(-2px);
+}
+
+.testBtn:active {
+  transform: translateY(0);
 }

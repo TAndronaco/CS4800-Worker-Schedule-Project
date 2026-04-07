@@ -2,6 +2,7 @@
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
+  animation: fadeIn 0.4s ease-out;
 }
 
 .back {
@@ -48,6 +49,13 @@
   border: 1px solid #eee;
   border-radius: 12px;
   gap: 1rem;
+  animation: fadeInUp 0.4s ease-out both;
+  transition: all 0.2s ease;
+}
+
+.requestCard:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
 }
 
 .info {
@@ -124,6 +132,12 @@
 
 .approveBtn:hover {
   background: #b04008;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 80, 10, 0.3);
+}
+
+.approveBtn:active {
+  transform: translateY(0);
 }
 
 .denyBtn {
@@ -138,4 +152,10 @@
 
 .denyBtn:hover {
   background: #fff0f0;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(224, 0, 0, 0.15);
+}
+
+.denyBtn:active {
+  transform: translateY(0);
 }

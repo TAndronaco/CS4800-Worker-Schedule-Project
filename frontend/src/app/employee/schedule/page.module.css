@@ -2,6 +2,7 @@
   max-width: 1100px;
   margin: 0 auto;
   padding: 2rem;
+  animation: fadeIn 0.4s ease-out;
 }
 
 .back {
@@ -46,7 +47,14 @@
   font-size: 1.1rem;
 }
 
-.weekNav button:hover { background: #f5f5f5; }
+.weekNav button:hover {
+  background: #f5f5f5;
+  transform: scale(1.05);
+}
+
+.weekNav button:active {
+  transform: scale(0.95);
+}
 
 .weekNav span {
   font-size: 0.95rem;
@@ -83,6 +91,8 @@
   overflow-x: auto;
   border: 1px solid #e8e8e8;
   border-radius: 10px;
+  animation: fadeInUp 0.5s ease-out 0.1s both;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
 .grid {

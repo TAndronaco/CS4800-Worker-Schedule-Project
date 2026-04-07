@@ -15,6 +15,12 @@
   padding: 2rem;
   border: 1px solid #eee;
   border-radius: 12px;
+  animation: scaleIn 0.4s ease-out;
+  transition: box-shadow 0.3s ease;
+}
+
+.form:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
 }
 
 .form h2 {
@@ -35,6 +41,7 @@
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .form button {
@@ -50,10 +57,17 @@
 
 .form button:hover {
   background-color: #b04008;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 80, 10, 0.3);
+}
+
+.form button:active {
+  transform: translateY(0);
 }
 
 .error {
   color: #e00;
   text-align: center;
   font-size: 0.9rem;
+  animation: shake 0.4s ease;
 }

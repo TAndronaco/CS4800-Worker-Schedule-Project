@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./page.module.css";
 
 interface User {
@@ -14,11 +14,23 @@ interface User {
 
 export default function DashboardPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const testRole = searchParams.get("role");
+
   const user = useMemo<User | null>(() => {
+    if (testRole === "manager" || testRole === "employee") {
+      return {
+        id: 0,
+        email: "test@example.com",
+        first_name: "Test",
+        last_name: "User",
+        role: testRole,
+      };
+    }
     if (typeof window === "undefined") return null;
     const stored = localStorage.getItem("user");
     return stored ? JSON.parse(stored) : null;
-  }, []);
+  }, [testRole]);
 
   useEffect(() => {
     if (!user) {

@@ -1,6 +1,12 @@
 # ShiftSync — Employee Shift Scheduling
 
+<p align="center">
+  <img src="frontend/public/logo.png" alt="ShiftSync Logo" width="320" />
+</p>
+
 A web-based shift scheduling platform built for small and medium-sized businesses. ShiftSync lets managers create and manage schedules while giving employees the tools to view shifts, request swaps, and communicate with their team — all in one place.
+
+**Live Demo:** [shiftsync13.vercel.app](https://shiftsync13.vercel.app)
 
 ---
 
@@ -8,9 +14,10 @@ A web-based shift scheduling platform built for small and medium-sized businesse
 
 - **Authentication** — Secure JWT-based register and login for both managers and employees
 - **Team Management** — Managers can create teams and invite employees via a join code
-- **Shift Scheduling** — Managers can create, assign, and delete shifts
+- **Shift Scheduling** — Weekly grid view to create, assign, and delete shifts with density heat mapping
 - **Shift Requests** — Employees can request time off or shift swaps; managers can approve or deny
-- **In-App Messaging** *(coming soon)* — Team members will be able to message each other directly without switching to another platform
+- **Employee Schedule View** — Employees see their own shifts highlighted alongside coworker shifts
+- **Modern UI** — Smooth animations, glassmorphism navbar, responsive design with orange brand theme
 
 ---
 
@@ -18,9 +25,9 @@ A web-based shift scheduling platform built for small and medium-sized businesse
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js (TypeScript) with App Router |
+| Frontend | Next.js 16 (TypeScript) with App Router |
 | Backend | Express.js (TypeScript) REST API |
-| Database | PostgreSQL |
+| Database | PostgreSQL (Neon) |
 | Auth | JWT-based authentication |
 | Deployment | Vercel (frontend) · Render (backend) |
 
@@ -29,8 +36,15 @@ A web-based shift scheduling platform built for small and medium-sized businesse
 ## Project Structure
 
 ```
-├── frontend/    # Next.js app (port 3000)
-├── backend/     # Express API (port 5000)
+├── frontend/          # Next.js app (port 3000)
+│   ├── src/app/       # App Router pages
+│   ├── src/components/# Shared components (Navbar)
+│   └── public/        # Static assets (logo)
+├── backend/           # Express API (port 5000)
+│   ├── src/routes/    # API route handlers
+│   ├── src/middleware/ # Auth middleware
+│   └── src/config/    # Database config
+├── render.yaml        # Render deployment config
 └── README.md
 ```
 

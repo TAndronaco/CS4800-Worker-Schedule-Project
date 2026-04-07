@@ -2,15 +2,18 @@
   max-width: 900px;
   margin: 0 auto;
   padding: 2rem;
+  animation: fadeIn 0.4s ease-out;
 }
 
 .container h1 {
   margin-bottom: 0.5rem;
+  animation: fadeInUp 0.5s ease-out;
 }
 
 .role {
   color: #666;
   margin-bottom: 2rem;
+  animation: fadeInUp 0.5s ease-out 0.1s both;
 }
 
 .cards {
@@ -24,11 +27,39 @@
   border: 1px solid #eee;
   border-radius: 12px;
   cursor: pointer;
-  transition: box-shadow 0.2s;
+  transition: all 0.25s ease;
+  animation: fadeInUp 0.5s ease-out both;
+  position: relative;
+  overflow: hidden;
+}
+
+.card:nth-child(1) { animation-delay: 0.15s; }
+.card:nth-child(2) { animation-delay: 0.25s; }
+.card:nth-child(3) { animation-delay: 0.35s; }
+
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #d4500a, #ff8a50);
+  transition: width 0.3s ease;
 }
 
 .card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+  border-color: rgba(212, 80, 10, 0.2);
+}
+
+.card:hover::before {
+  width: 100%;
+}
+
+.card:active {
+  transform: translateY(0);
 }
 
 .card h3 {

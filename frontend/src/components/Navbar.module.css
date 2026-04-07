@@ -5,6 +5,13 @@
   padding: 1rem 2rem;
   border-bottom: 1px solid #eee;
   height: 64px;
+  position: sticky;
+  top: 0;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 100;
+  animation: slideDown 0.4s ease-out;
 }
 
 .logo {
@@ -12,6 +19,11 @@
   font-weight: 700;
   text-decoration: none;
   color: #d4500a;
+  transition: transform 0.2s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
 }
 
 .links {
@@ -24,6 +36,27 @@
   text-decoration: none;
   color: #333;
   font-weight: 500;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.links a::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #d4500a;
+  transition: width 0.25s ease;
+}
+
+.links a:hover {
+  color: #d4500a;
+}
+
+.links a:hover::after {
+  width: 100%;
 }
 
 .registerBtn {
@@ -31,8 +64,19 @@
   color: white !important;
   padding: 0.5rem 1rem;
   border-radius: 6px;
+  transition: all 0.2s ease;
 }
 
 .registerBtn:hover {
   background-color: #b04008;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(212, 80, 10, 0.3);
+}
+
+.registerBtn::after {
+  display: none;
+}
+
+.registerBtn:active {
+  transform: translateY(0);
 }
