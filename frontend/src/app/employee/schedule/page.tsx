@@ -107,9 +107,6 @@ export default function EmployeeSchedulePage() {
 
   return (
     <div className={styles.container}>
-      <button className={styles.back} onClick={() => router.push("/dashboard")}>
-        ← Back
-      </button>
       <h1>My Schedule</h1>
 
       {teams.length === 0 ? (

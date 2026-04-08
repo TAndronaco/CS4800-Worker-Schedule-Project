@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import ScheduleSummary from "@/components/ScheduleSummary";
 import styles from "./page.module.css";
 
 interface User {
@@ -29,6 +30,17 @@ export default function DashboardPage() {
 
   if (!user) return null;
 
+  // Employee view — schedule summary + quick actions (sidebar & chat are in EmployeeLayout)
+  if (user.role === "employee") {
+    return (
+      <div className={styles.container}>
+        <h1>Welcome back, {user.first_name}!</h1>
+        <ScheduleSummary userId={user.id} />
+      </div>
+    );
+  }
+
+  // Manager view — unchanged card grid
   return (
     <div className={styles.container}>
       <h1>Welcome, {user.first_name}!</h1>
@@ -36,57 +48,32 @@ export default function DashboardPage() {
         Role: <strong>{user.role}</strong>
       </p>
 
-      {user.role === "manager" ? (
-        <div className={styles.cards}>
-          <div className={styles.card} onClick={() => router.push("/manager/teams")}>
-            <h3>My Teams</h3>
-            <p>Create and manage your teams</p>
-          </div>
-          <div className={styles.card} onClick={() => router.push("/manager/schedule")}>
-            <h3>Schedule</h3>
-            <p>Create and publish weekly shifts</p>
-          </div>
-          <div className={styles.card} onClick={() => router.push("/manager/requests")}>
-            <h3>Requests</h3>
-            <p>Review swap and time-off requests</p>
-          </div>
-          <div className={styles.card} onClick={() => router.push("/messages")}>
-            <h3>Messages</h3>
-            <p>Chat with your team</p>
-          </div>
-          <div className={styles.card} onClick={() => router.push("/manager/performance")}>
-            <h3>Performance</h3>
-            <p>View and report employee metrics</p>
-          </div>
-          <div className={styles.card} onClick={() => router.push("/employee/join")}>
-            <h3>Join Team</h3>
-            <p>Join a team using a join code</p>
-          </div>
+      <div className={styles.cards}>
+        <div className={styles.card} onClick={() => router.push("/manager/teams")}>
+          <h3>My Teams</h3>
+          <p>Create and manage your teams</p>
         </div>
-      ) : (
-        <div className={styles.cards}>
-          <div className={styles.card} onClick={() => router.push("/employee/schedule")}>
-            <h3>My Schedule</h3>
-            <p>View your upcoming shifts</p>
-          </div>
-          <div className={styles.card} onClick={() => router.push("/employee/requests")}>
-            <h3>Requests</h3>
-            <p>Request shift swaps or time off</p>
-          </div>
-          <div className={styles.card} onClick={() => router.push("/employee/join")}>
-            <h3>Join Team</h3>
-            <p>Enter a join code to join a team</p>
-          </div>
-          <div className={styles.card} onClick={() => router.push("/messages")}>
-            <h3>Messages</h3>
-            <p>Chat with your team</p>
-          </div>
-          <div className={styles.card} onClick={() => router.push("/employee/performance")}>
-            <h3>Performance</h3>
-            <p>View your performance metrics</p>
-          </div>
+        <div className={styles.card} onClick={() => router.push("/manager/schedule")}>
+          <h3>Schedule</h3>
+          <p>Create and publish weekly shifts</p>
         </div>
-      )}
+        <div className={styles.card} onClick={() => router.push("/manager/requests")}>
+          <h3>Requests</h3>
+          <p>Review swap and time-off requests</p>
+        </div>
+        <div className={styles.card} onClick={() => router.push("/messages")}>
+          <h3>Messages</h3>
+          <p>Chat with your team</p>
+        </div>
+        <div className={styles.card} onClick={() => router.push("/manager/performance")}>
+          <h3>Performance</h3>
+          <p>View and report employee metrics</p>
+        </div>
+        <div className={styles.card} onClick={() => router.push("/employee/join")}>
+          <h3>Join Team</h3>
+          <p>Join a team using a join code</p>
+        </div>
+      </div>
     </div>
   );
 }

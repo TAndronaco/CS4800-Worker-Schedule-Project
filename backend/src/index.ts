@@ -7,6 +7,7 @@ import teamRoutes from './routes/teams';
 import shiftRoutes from './routes/shifts';
 import requestRoutes from './routes/requests';
 import messageRoutes from './routes/messages';
+import userRoutes from './routes/users';
 
 dotenv.config();
 
@@ -18,7 +19,7 @@ app.use(cors({
   origin: process.env.FRONTEND_URL?.split(',') || 'http://localhost:3000',
   credentials: true,
 }));
-app.use(express.json());
+app.use(express.json({ limit: '5mb' }));
 
 // Health check
 app.get('/api/health', (_req, res) => {
@@ -31,6 +32,7 @@ app.use('/api/teams', teamRoutes);
 app.use('/api/shifts', shiftRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/users', userRoutes);
 
 app.listen(PORT, () => {
   console.log(`ShiftSync API running on http://localhost:${PORT}`);

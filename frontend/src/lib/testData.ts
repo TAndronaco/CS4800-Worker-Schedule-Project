@@ -7,6 +7,7 @@ export interface TestUser {
   first_name: string;
   last_name: string;
   role: "manager" | "employee";
+  avatar_url?: string | null;
 }
 
 export const TEST_USERS: TestUser[] = [
@@ -363,6 +364,42 @@ export function resolveTestRequest(endpoint: string, options: RequestInit = {}):
     };
     MESSAGES.push(newMsg);
     return jsonResponse(newMsg);
+  }
+
+  // GET /users/:id/avatar
+  const getAvatarMatch = path.match(/^\/users\/(\d+)\/avatar$/);
+  if (getAvatarMatch && method === "GET") {
+    const userId = Number(getAvatarMatch[1]);
+    const user = TEST_USERS.find((u) => u.id === userId);
+    return jsonResponse({ avatar_url: user?.avatar_url || null });
+  }
+
+  // PUT /users/:id/avatar
+  if (getAvatarMatch && method === "PUT") {
+    const userId = Number(getAvatarMatch[1]);
+    const body = JSON.parse(options.body as string);
+    const user = TEST_USERS.find((u) => u.id === userId);
+    if (user) {
+      user.avatar_url = body.avatar_url;
+      // Also update localStorage
+      const stored = localStorage.getItem("user");
+      if (stored) {
+        const current = JSON.parse(stored);
+        if (current.id === userId) {
+          current.avatar_url = body.avatar_url;
+          localStorage.setItem("user", JSON.stringify(current));
+        }
+      }
+    }
+    return jsonResponse({ id: userId, avatar_url: body.avatar_url });
+  }
+
+  // DELETE /users/:id/avatar
+  if (getAvatarMatch && method === "DELETE") {
+    const userId = Number(getAvatarMatch[1]);
+    const user = TEST_USERS.find((u) => u.id === userId);
+    if (user) user.avatar_url = null;
+    return jsonResponse({ success: true });
   }
 
   // GET /health

@@ -23,7 +23,7 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
 
     // Create user
     const result = await pool.query(
-      'INSERT INTO users (email, password, first_name, last_name, role) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, first_name, last_name, role',
+      'INSERT INTO users (email, password, first_name, last_name, role) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, first_name, last_name, role, avatar_url',
       [email, hashedPassword, first_name, last_name, role || 'employee']
     );
 
@@ -79,6 +79,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
         first_name: user.first_name,
         last_name: user.last_name,
         role: user.role,
+        avatar_url: user.avatar_url,
       },
     });
   } catch (error) {

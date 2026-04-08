@@ -5,6 +5,7 @@ CREATE TABLE users (
   first_name VARCHAR(100) NOT NULL,
   last_name VARCHAR(100) NOT NULL,
   role VARCHAR(20) NOT NULL DEFAULT 'employee',
+  avatar_url TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
 
