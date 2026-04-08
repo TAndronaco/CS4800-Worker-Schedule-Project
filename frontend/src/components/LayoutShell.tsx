@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import EmployeeLayout from "./EmployeeLayout";
+import ManagerLayout from "./ManagerLayout";
 
 const EMPLOYEE_PATHS = [
   "/dashboard",
@@ -10,6 +11,15 @@ const EMPLOYEE_PATHS = [
   "/employee/requests",
   "/employee/join",
   "/employee/performance",
+  "/messages",
+];
+
+const MANAGER_PATHS = [
+  "/dashboard",
+  "/manager/schedule",
+  "/manager/requests",
+  "/manager/teams",
+  "/manager/performance",
   "/messages",
 ];
 
@@ -30,8 +40,16 @@ export default function LayoutShell({
     user?.role === "employee" &&
     EMPLOYEE_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
 
+  const isManagerPage =
+    user?.role === "manager" &&
+    MANAGER_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
+
   if (isEmployeePage) {
     return <EmployeeLayout>{children}</EmployeeLayout>;
+  }
+
+  if (isManagerPage) {
+    return <ManagerLayout>{children}</ManagerLayout>;
   }
 
   return <main>{children}</main>;

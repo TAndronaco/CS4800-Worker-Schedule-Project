@@ -105,6 +105,7 @@ export default function ManagerLayout({
       method: "PUT",
       body: JSON.stringify({ avatar_url: base64 }),
     });
+    // Update localStorage so it persists
     const stored = localStorage.getItem("user");
     if (stored) {
       const updated = { ...JSON.parse(stored), avatar_url: base64 };
@@ -179,6 +180,7 @@ export default function ManagerLayout({
           </div>
 
           {!selectedContact ? (
+            /* Contact list */
             <div className={styles.chatContacts}>
               {contacts.length === 0 ? (
                 <div className={styles.chatEmpty}>
@@ -207,6 +209,7 @@ export default function ManagerLayout({
               )}
             </div>
           ) : (
+            /* Conversation */
             <div className={styles.chatConversation}>
               <div className={styles.chatConvoHeader}>
                 <button
