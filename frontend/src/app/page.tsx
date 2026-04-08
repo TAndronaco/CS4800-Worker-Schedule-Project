@@ -14,9 +14,6 @@ export default function Home() {
           <Link href="/register" className={styles.primary}>
             Get Started
           </Link>
-          <Link href="/login" className={styles.secondary}>
-            Sign In
-          </Link>
         </div>
       </main>
     </div>
