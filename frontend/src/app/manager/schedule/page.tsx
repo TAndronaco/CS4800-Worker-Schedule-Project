@@ -23,9 +23,92 @@ interface TooltipState {
   shifts: Shift[];
 }
 
+interface ProposedShift {
+  employee_id: number;
+  employeeName: string;
+  date: string;
+  start_time: string;
+  end_time: string;
+}
+
 const HOURS = Array.from({ length: 17 }, (_, i) => i + 6); // 6 AM – 10 PM
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const EMPTY_FORM = { employee_id: "", date: "", start_time: "", end_time: "" };
+
+function pad2(n: number) { return String(n).padStart(2, "0"); }
+
+function buildAutoSchedule(
+  employees: Member[],
+  weekDays: string[],
+  activeDays: boolean[],
+  coverStart: number,
+  coverEnd: number
+): ProposedShift[] {
+  if (employees.length < 2 || coverEnd <= coverStart) return [];
+  const proposed: ProposedShift[] = [];
+
+  // Round-robin index across the whole week so different employees lead each day
+  let globalRoundRobin = 0;
+
+  for (let di = 0; di < weekDays.length; di++) {
+    if (!activeDays[di]) continue;
+    const date = weekDays[di];
+    // Track hours worked per employee this day (employee id -> hours)
+    const dayHours: Record<number, number> = {};
+    employees.forEach((e) => (dayHours[e.id] = 0));
+
+    const windowSize = coverEnd - coverStart;
+
+    if (windowSize <= 8) {
+      // One shift per assigned employee covering the entire window
+      let assigned = 0;
+      for (let attempt = 0; attempt < employees.length && assigned < 2; attempt++) {
+        const emp = employees[(globalRoundRobin + attempt) % employees.length];
+        if (dayHours[emp.id] + windowSize <= 8) {
+          proposed.push({
+            employee_id: emp.id,
+            employeeName: `${emp.first_name} ${emp.last_name}`,
+            date,
+            start_time: `${pad2(coverStart)}:00`,
+            end_time: `${pad2(coverEnd)}:00`,
+          });
+          dayHours[emp.id] += windowSize;
+          assigned++;
+        }
+      }
+      globalRoundRobin = (globalRoundRobin + 2) % employees.length;
+    } else {
+      // Split into max-8-hour segments and assign 2 employees per segment
+      let cursor = coverStart;
+      let segIndex = 0;
+      while (cursor < coverEnd) {
+        const segEnd = Math.min(cursor + 8, coverEnd);
+        const segLen = segEnd - cursor;
+        let assigned = 0;
+        const baseIdx = (globalRoundRobin + segIndex * 2) % employees.length;
+        for (let attempt = 0; attempt < employees.length && assigned < 2; attempt++) {
+          const emp = employees[(baseIdx + attempt) % employees.length];
+          if (dayHours[emp.id] + segLen <= 8) {
+            proposed.push({
+              employee_id: emp.id,
+              employeeName: `${emp.first_name} ${emp.last_name}`,
+              date,
+              start_time: `${pad2(cursor)}:00`,
+              end_time: `${pad2(segEnd)}:00`,
+            });
+            dayHours[emp.id] += segLen;
+            assigned++;
+          }
+        }
+        cursor = segEnd;
+        segIndex++;
+      }
+      globalRoundRobin = (globalRoundRobin + 2) % employees.length;
+    }
+  }
+
+  return proposed;
+}
 
 function getMondayOf(date: Date): string {
   const d = new Date(date);
@@ -78,6 +161,17 @@ export default function ManagerSchedulePage() {
   const [error, setError] = useState("");
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Auto-generate modal state
+  const [showAutoModal, setShowAutoModal] = useState(false);
+  const [autoStep, setAutoStep] = useState<"config" | "preview">("config");
+  const [autoEmployees, setAutoEmployees] = useState<number[]>([]);
+  const [autoCoverStart, setAutoCoverStart] = useState(9);
+  const [autoCoverEnd, setAutoCoverEnd] = useState(17);
+  const [autoDays, setAutoDays] = useState([true, true, true, true, true, false, false]);
+  const [proposedShifts, setProposedShifts] = useState<ProposedShift[]>([]);
+  const [autoSaving, setAutoSaving] = useState(false);
+  const [autoError, setAutoError] = useState("");
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
@@ -147,6 +241,80 @@ export default function ManagerSchedulePage() {
 
   const weekDays = getWeekDays(week);
 
+  function openAutoModal() {
+    setAutoEmployees(members.map((m) => m.id));
+    setAutoStep("config");
+    setProposedShifts([]);
+    setAutoError("");
+    setShowAutoModal(true);
+  }
+
+  function toggleAutoEmployee(id: number) {
+    setAutoEmployees((prev) =>
+      prev.includes(id) ? prev.filter((e) => e !== id) : [...prev, id]
+    );
+  }
+
+  function toggleAutoDay(i: number) {
+    setAutoDays((prev) => prev.map((v, idx) => (idx === i ? !v : v)));
+  }
+
+  function handleGenerate() {
+    setAutoError("");
+    if (autoEmployees.length < 2) {
+      setAutoError("Select at least 2 employees.");
+      return;
+    }
+    if (autoCoverEnd <= autoCoverStart) {
+      setAutoError("End hour must be after start hour.");
+      return;
+    }
+    if (!autoDays.some(Boolean)) {
+      setAutoError("Select at least one day.");
+      return;
+    }
+    const selectedMembers = members.filter((m) => autoEmployees.includes(m.id));
+    const proposed = buildAutoSchedule(
+      selectedMembers, weekDays, autoDays, autoCoverStart, autoCoverEnd
+    );
+    if (proposed.length === 0) {
+      setAutoError("Not enough employees to meet the 2-per-hour requirement. Add more employees or reduce coverage hours.");
+      return;
+    }
+    setProposedShifts(proposed);
+    setAutoStep("preview");
+  }
+
+  async function handleConfirmSave() {
+    setAutoSaving(true);
+    setAutoError("");
+    try {
+      for (const s of proposedShifts) {
+        const res = await apiFetch("/shifts", {
+          method: "POST",
+          body: JSON.stringify({
+            team_id: selectedTeam,
+            employee_id: String(s.employee_id),
+            date: s.date,
+            start_time: s.start_time,
+            end_time: s.end_time,
+          }),
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          setAutoError(data.error || "Failed to save one or more shifts.");
+          setAutoSaving(false);
+          return;
+        }
+      }
+      setShowAutoModal(false);
+      apiFetch(`/shifts?team_id=${selectedTeam}&week=${week}`).then((r) => r.json()).then(setShifts);
+    } catch {
+      setAutoError("An unexpected error occurred.");
+    }
+    setAutoSaving(false);
+  }
+
   return (
     <div className={styles.container}>
       <button className={styles.back} onClick={() => router.push("/dashboard")}>
@@ -173,6 +341,9 @@ export default function ManagerSchedulePage() {
           onClick={() => { setShowForm((v) => !v); setError(""); }}
         >
           {showForm ? "Cancel" : "+ Add Shift"}
+        </button>
+        <button className={styles.autoBtn} onClick={openAutoModal}>
+          ✦ Auto-Generate
         </button>
       </div>
 
@@ -281,6 +452,129 @@ export default function ManagerSchedulePage() {
               </button>
             </div>
           ))}
+        </div>
+      )}
+
+      {showAutoModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowAutoModal(false)}>
+          <div className={styles.autoModal} onClick={(e) => e.stopPropagation()}>
+            {autoStep === "config" ? (
+              <>
+                <h2 className={styles.modalTitle}>Auto-Generate Schedule</h2>
+                <p className={styles.modalSub}>
+                  Shifts will be generated for the week of <strong>{week}</strong>.
+                  At least 2 employees will be scheduled per hour, and no one will exceed 8 hours/day.
+                </p>
+
+                <div className={styles.autoSection}>
+                  <h3>Employees</h3>
+                  <div className={styles.empCheckList}>
+                    {members.map((m) => (
+                      <label key={m.id} className={styles.checkLabel}>
+                        <input
+                          type="checkbox"
+                          checked={autoEmployees.includes(m.id)}
+                          onChange={() => toggleAutoEmployee(m.id)}
+                        />
+                        {m.first_name} {m.last_name}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className={styles.autoSection}>
+                  <h3>Coverage Hours</h3>
+                  <div className={styles.hoursRow}>
+                    <label>
+                      From
+                      <select
+                        value={autoCoverStart}
+                        onChange={(e) => setAutoCoverStart(Number(e.target.value))}
+                      >
+                        {HOURS.map((h) => (
+                          <option key={h} value={h}>{formatHour(h)}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <span>to</span>
+                    <label>
+                      Until
+                      <select
+                        value={autoCoverEnd}
+                        onChange={(e) => setAutoCoverEnd(Number(e.target.value))}
+                      >
+                        {HOURS.filter((h) => h > autoCoverStart).map((h) => (
+                          <option key={h} value={h}>{formatHour(h)}</option>
+                        ))}
+                        <option value={23}>11 PM</option>
+                      </select>
+                    </label>
+                  </div>
+                </div>
+
+                <div className={styles.autoSection}>
+                  <h3>Days to Cover</h3>
+                  <div className={styles.dayCheckRow}>
+                    {DAY_NAMES.map((name, i) => (
+                      <label key={name} className={styles.dayCheckLabel}>
+                        <input
+                          type="checkbox"
+                          checked={autoDays[i]}
+                          onChange={() => toggleAutoDay(i)}
+                        />
+                        {name}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {autoError && <p className={styles.autoError}>{autoError}</p>}
+
+                <div className={styles.modalActions}>
+                  <button className={styles.cancelBtn} onClick={() => setShowAutoModal(false)}>
+                    Cancel
+                  </button>
+                  <button className={styles.generateBtn} onClick={handleGenerate}>
+                    Generate Preview →
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className={styles.modalTitle}>Preview Generated Shifts</h2>
+                <p className={styles.modalSub}>
+                  {proposedShifts.length} shifts will be created. Review and confirm.
+                </p>
+                <div className={styles.previewTable}>
+                  <div className={styles.previewHeader}>
+                    <span>Employee</span>
+                    <span>Day</span>
+                    <span>Hours</span>
+                  </div>
+                  {proposedShifts.map((s, i) => (
+                    <div key={i} className={styles.previewRow}>
+                      <span>{s.employeeName}</span>
+                      <span>{s.date.slice(5).replace("-", "/")}</span>
+                      <span>{formatTime(s.start_time)} – {formatTime(s.end_time)}</span>
+                    </div>
+                  ))}
+                </div>
+                {autoError && <p className={styles.autoError}>{autoError}</p>}
+                <div className={styles.modalActions}>
+                  <button className={styles.cancelBtn} onClick={() => setAutoStep("config")}>
+                    ← Back
+                  </button>
+                  <button
+                    className={styles.generateBtn}
+                    onClick={handleConfirmSave}
+                    disabled={autoSaving}
+                  >
+                    {autoSaving ? "Saving…" : "Confirm & Save All"}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
     </div>
