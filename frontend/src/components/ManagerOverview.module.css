@@ -1,0 +1,401 @@
+/* ── Stats Row ── */
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  animation: fadeInUp 0.5s ease-out both;
+}
+
+.statCard {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #d4500a;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: #888;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* ── Today Card ── */
+
+.todayCard {
+  background: linear-gradient(135deg, #d4500a, #ff8a50);
+  color: white;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: fadeInUp 0.5s ease-out 0.05s both;
+}
+
+.todayInfo h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.todayInfo p {
+  font-size: 0.82rem;
+  opacity: 0.9;
+}
+
+.todayIcon {
+  font-size: 1.8rem;
+}
+
+/* ── Card ── */
+
+.card {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  animation: fadeInUp 0.5s ease-out 0.1s both;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.cardTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e53e3e;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  padding: 0 6px;
+}
+
+.viewAll {
+  font-size: 0.8rem;
+  color: #d4500a;
+  cursor: pointer;
+  font-weight: 500;
+  background: none;
+  border: none;
+  transition: opacity 0.2s;
+}
+
+.viewAll:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+/* ── Week Coverage Strip ── */
+
+.weekStrip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.dayColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.dayName {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+}
+
+.dayDate {
+  font-size: 0.78rem;
+  color: #bbb;
+}
+
+.coveragePill {
+  width: 100%;
+  padding: 0.75rem 0.25rem;
+  border-radius: 10px;
+  text-align: center;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 48px;
+  justify-content: center;
+}
+
+.coveragePill.noCoverage {
+  background: #f8f8f8;
+  color: #ccc;
+  border: 1px solid #eee;
+}
+
+.coveragePill.lowCoverage {
+  background: rgba(234, 179, 8, 0.1);
+  color: #b45309;
+  border: 1px solid rgba(234, 179, 8, 0.25);
+}
+
+.coveragePill.goodCoverage {
+  background: rgba(34, 197, 94, 0.1);
+  color: #15803d;
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.coveragePill.today {
+  box-shadow: 0 0 0 2px #d4500a;
+}
+
+.coverageCount {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.coverageLabel {
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+/* ── Bottom Row (Requests + Quick Actions) ── */
+
+.bottomRow {
+  display: flex;
+  gap: 1rem;
+  animation: fadeInUp 0.5s ease-out 0.15s both;
+}
+
+/* ── Pending Requests ── */
+
+.requestList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.requestItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.6rem 0.25rem;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.requestItem:last-child {
+  border-bottom: none;
+}
+
+.requestDetails {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 1px;
+}
+
+.requestName {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.requestType {
+  font-size: 0.72rem;
+  color: #888;
+}
+
+.requestTime {
+  font-size: 0.72rem;
+  color: #bbb;
+}
+
+.emptyState {
+  padding: 1.5rem;
+  text-align: center;
+  color: #999;
+  font-size: 0.85rem;
+}
+
+/* ── Quick Actions ── */
+
+.quickActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 200px;
+}
+
+.quickCard {
+  padding: 1rem;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  background: white;
+}
+
+.quickCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #d4500a, #ff8a50);
+  transition: width 0.3s ease;
+}
+
+.quickCard:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+  border-color: rgba(212, 80, 10, 0.2);
+}
+
+.quickCard:hover::before {
+  width: 100%;
+}
+
+.quickCard h4 {
+  font-size: 0.88rem;
+  margin-bottom: 3px;
+  color: #333;
+}
+
+.quickCard p {
+  font-size: 0.78rem;
+  color: #888;
+}
+
+/* ── Team Roster ── */
+
+.rosterGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rosterItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.6rem 0.25rem;
+  border-bottom: 1px solid #f5f5f5;
+  transition: background 0.15s;
+}
+
+.rosterItem:last-child {
+  border-bottom: none;
+}
+
+.rosterItem:hover {
+  background: #fafafa;
+}
+
+.rosterInfo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 1px;
+}
+
+.rosterName {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.rosterStats {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.rosterStatus {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+.rosterStatus.active {
+  background: rgba(34, 197, 94, 0.1);
+  color: #15803d;
+}
+
+.rosterStatus.off {
+  background: #f5f5f5;
+  color: #bbb;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 900px) {
+  .statsRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bottomRow {
+    flex-direction: column;
+  }
+
+  .quickActions {
+    flex-direction: row;
+    min-width: unset;
+  }
+}
+
+@media (max-width: 600px) {
+  .statsRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .quickActions {
+    flex-direction: column;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
