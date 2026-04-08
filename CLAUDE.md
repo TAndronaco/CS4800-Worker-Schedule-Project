@@ -32,12 +32,9 @@ cd frontend && npm run lint
 - Render uses `render.yaml` at repo root
 - Backend API base path: `/api` (e.g., `/api/health`, `/api/auth/login`)
 
-## Git Remotes
+## Git Remote
 
-- `origin` — https://github.com/TAndronaco/CS4800-Worker-Schedule-Project.git (primary)
-- `shiftsync` — https://github.com/chablades/shiftsync.git (Nicolas's fork)
-
-Push to both remotes when deploying changes.
+- `origin` — https://github.com/TAndronaco/CS4800-Worker-Schedule-Project.git
 
 ## Conventions
 
