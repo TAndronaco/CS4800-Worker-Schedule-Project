@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import styles from "./page.module.css";
@@ -14,6 +14,12 @@ interface Shift {
   first_name: string;
   last_name: string;
   employee_id: number;
+}
+
+interface TooltipState {
+  top: number;
+  left: number;
+  shifts: Shift[];
 }
 
 const HOURS = Array.from({ length: 17 }, (_, i) => i + 6); // 6 AM – 10 PM
@@ -72,6 +78,8 @@ export default function EmployeeSchedulePage() {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [week, setWeek] = useState(getMondayOf(new Date()));
   const [loading, setLoading] = useState(true);
+  const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
@@ -101,12 +109,31 @@ export default function EmployeeSchedulePage() {
     setWeek(d.toISOString().split("T")[0]);
   }
 
+  function openTooltip(e: React.MouseEvent<HTMLTableCellElement>, cellShifts: Shift[]) {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    const rect = e.currentTarget.getBoundingClientRect();
+    const tooltipWidth = 260;
+    const left = Math.min(rect.left, window.innerWidth - tooltipWidth - 8);
+    setTooltip({ top: rect.bottom + 4, left, shifts: cellShifts });
+  }
+
+  function scheduleClose() {
+    closeTimer.current = setTimeout(() => setTooltip(null), 150);
+  }
+
+  function cancelClose() {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+  }
+
   const weekDays = getWeekDays(week);
 
   if (loading) return null;
 
   return (
     <div className={styles.container}>
+      <button className={styles.back} onClick={() => router.push("/dashboard")}>
+        ← Back
+      </button>
       <h1>My Schedule</h1>
 
       {teams.length === 0 ? (
@@ -145,6 +172,8 @@ export default function EmployeeSchedulePage() {
             </div>
           </div>
 
+          <p className={styles.hint}>Hover over a cell to see who is working.</p>
+
           <div className={styles.gridWrapper}>
             <table className={styles.grid}>
               <thead>
@@ -168,27 +197,24 @@ export default function EmployeeSchedulePage() {
                       const coworkerShifts = cellShifts.filter((s) => s.employee_id !== userId);
                       const hasOwn = myShifts.length > 0;
                       const hasCoworker = coworkerShifts.length > 0;
+                      const count = cellShifts.length;
 
                       let cellCls = styles.cell;
                       if (hasOwn) cellCls += ` ${styles.ownCell}`;
                       else if (hasCoworker) cellCls += ` ${styles.coworkerCell}`;
+                      
+                      if (count > 0) cellCls += ` ${styles.activeCell}`;
 
                       return (
-                        <td key={day} className={cellCls}>
-                          {myShifts
-                            .filter((s) => parseInt(s.start_time) === hour)
-                            .map((s) => (
-                              <div key={s.id} className={styles.ownLabel}>
-                                {formatTime(s.start_time)}–{formatTime(s.end_time)}
-                              </div>
-                            ))}
-                          {coworkerShifts
-                            .filter((s) => parseInt(s.start_time) === hour)
-                            .map((s) => (
-                              <div key={s.id} className={styles.coworkerLabel}>
-                                {s.first_name} {s.last_name[0]}.
-                              </div>
-                            ))}
+                        <td
+                          key={day}
+                          className={cellCls}
+                          onMouseEnter={count > 0 ? (e) => openTooltip(e, cellShifts) : undefined}
+                          onMouseLeave={count > 0 ? scheduleClose : undefined}
+                        >
+                          {count > 0 && (
+                            <span className={styles.countBadge}>{count}</span>
+                          )}
                         </td>
                       );
                     })}
@@ -197,6 +223,28 @@ export default function EmployeeSchedulePage() {
               </tbody>
             </table>
           </div>
+
+          {tooltip && tooltip.shifts.length > 0 && (
+            <div
+              className={styles.tooltip}
+              style={{ top: tooltip.top, left: tooltip.left }}
+              onMouseEnter={cancelClose}
+              onMouseLeave={scheduleClose}
+            >
+              {tooltip.shifts.map((s) => (
+                <div key={s.id} className={styles.tooltipRow}>
+                  <div className={styles.tooltipInfo}>
+                    <span className={styles.tooltipName}>
+                      {s.employee_id === userId ? "Me" : `${s.first_name} ${s.last_name}`}
+                    </span>
+                    <span className={styles.tooltipTime}>
+                      {formatTime(s.start_time)} – {formatTime(s.end_time)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </>
       )}
     </div>
