@@ -59,13 +59,6 @@ function getWeekDays(monday: string): string[] {
   });
 }
 
-function formatShortTime(time: string): string {
-  const [h, m] = time.split(":").map(Number);
-  const period = h < 12 ? "AM" : "PM";
-  const hour = h === 0 ? 12 : h > 12 ? h - 12 : h;
-  return `${hour}:${m.toString().padStart(2, "0")} ${period}`;
-}
-
 export default function ManagerOverview() {
   const router = useRouter();
   const monday = useMemo(() => getMondayOfCurrentWeek(), []);
