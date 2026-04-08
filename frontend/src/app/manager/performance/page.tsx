@@ -89,7 +89,7 @@ export default function ManagerPerformancePage() {
         ← Back to Dashboard
       </button>
       <h1>Employee Performance</h1>
-      <p className={styles.subtitle}>Monitor your team's performance metrics and add reports.</p>
+      <p className={styles.subtitle}>Monitor your team&apos;s performance metrics and add reports.</p>
 
       <div className={styles.tabs}>
         <button

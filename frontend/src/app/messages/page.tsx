@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch } from "@/lib/api";
 import styles from "./page.module.css";
 
 interface User {
@@ -31,29 +32,31 @@ interface Message {
 
 export default function MessagesPage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [token, setToken] = useState<string | null>(null);
+
+  const user = useMemo<User | null>(() => {
+    if (typeof window === "undefined") return null;
+    const stored = localStorage.getItem("user");
+    return stored ? JSON.parse(stored) : null;
+  }, []);
+
+  const token = useMemo<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("token");
+  }, []);
 
   useEffect(() => {
-    const stored = localStorage.getItem("user");
-    const storedToken = localStorage.getItem("token");
-    if (!stored || !storedToken) {
+    if (!user || !token) {
       router.push("/login");
-      return;
     }
-    setUser(JSON.parse(stored));
-    setToken(storedToken);
-  }, [router]);
+  }, [user, token, router]);
 
   useEffect(() => {
     if (!token || !user) return;
-    fetch(`http://localhost:5000/api/messages/contacts/list?userId=${user.id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    apiFetch(`/messages/contacts/list?userId=${user.id}`)
       .then((res) => res.json())
       .then((data) => setContacts(data))
       .catch(() => setContacts([]));
@@ -61,22 +64,16 @@ export default function MessagesPage() {
 
   useEffect(() => {
     if (!selectedContact || !token || !user) return;
-    fetch(`http://localhost:5000/api/messages/${selectedContact.id}?currentUserId=${user.id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    apiFetch(`/messages/${selectedContact.id}?currentUserId=${user.id}`)
       .then((res) => res.json())
       .then((data) => setMessages(data))
       .catch(() => setMessages([]));
-  }, [selectedContact, token]);
+  }, [selectedContact, token, user]);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedContact || !token || !user) return;
-    const res = await fetch("http://localhost:5000/api/messages", {
+    const res = await apiFetch("/messages", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
       body: JSON.stringify({
         receiver_id: selectedContact.id,
         sender_id: user.id,

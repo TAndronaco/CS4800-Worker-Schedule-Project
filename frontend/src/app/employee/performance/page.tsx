@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
 
@@ -51,14 +51,12 @@ const MOCK_REPORTS: PerformanceReport[] = [
 
 export default function EmployeePerformancePage() {
   const router = useRouter();
-  const [firstName, setFirstName] = useState("there");
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
     if (!stored) { router.push("/login"); return; }
     const user = JSON.parse(stored);
     if (user.role !== "employee") { router.push("/dashboard"); return; }
-    setFirstName(user.first_name);
   }, [router]);
 
   function getScoreColor(score: number) {

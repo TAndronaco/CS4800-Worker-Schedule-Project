@@ -84,34 +84,84 @@
   padding-top: 2rem;
   border-top: 1px dashed #ddd;
   animation: fadeIn 0.6s ease-out 0.5s both;
+  width: 100%;
 }
 
 .testLabel {
   font-size: 0.85rem;
   color: #999;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
+.testRow {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+.testGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1;
+  max-width: 240px;
+}
+
+.testGroupLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.testSelect {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  border: 1px dashed #aaa;
+  font-size: 0.85rem;
+  color: #555;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.testSelect:focus {
+  border-color: #d4500a;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(212, 80, 10, 0.1);
+}
+
 .testBtn {
+  width: 100%;
   padding: 0.6rem 1.5rem;
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   text-decoration: none;
   font-weight: 500;
   border: 1px dashed #aaa;
   color: #555;
+  background: #fff;
+  cursor: pointer;
   transition: all 0.2s;
 }
 
-.testBtn:hover {
+.testBtn:hover:not(:disabled) {
   border-color: #d4500a;
   color: #d4500a;
   background-color: rgba(212, 80, 10, 0.05);
   transform: translateY(-2px);
 }
 
-.testBtn:active {
+.testBtn:active:not(:disabled) {
   transform: translateY(0);
+}
+
+.testBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }

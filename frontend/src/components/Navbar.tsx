@@ -1,28 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useMemo, useReducer } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import styles from "./Navbar.module.css";
 
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const [user, setUser] = useState<{ first_name: string; role: string } | null>(null);
+  const [logoutCount, forceUpdate] = useReducer((x: number) => x + 1, 0);
 
-  useEffect(() => {
+  const user = useMemo<{ first_name: string; role: string } | null>(() => {
+    if (typeof window === "undefined") return null;
     const stored = localStorage.getItem("user");
-    if (stored) {
-      setUser(JSON.parse(stored));
-    } else {
-      setUser(null);
-    }
-  }, [pathname]);
+    return stored ? JSON.parse(stored) : null;
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- re-read localStorage on route change and logout
+  }, [pathname, logoutCount]);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    setUser(null);
+    forceUpdate();
     router.push("/");
   };
 
