@@ -6,6 +6,7 @@ import authRoutes from './routes/auth';
 import teamRoutes from './routes/teams';
 import shiftRoutes from './routes/shifts';
 import requestRoutes from './routes/requests';
+import messageRoutes from './routes/messages';
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/shifts', shiftRoutes);
 app.use('/api/requests', requestRoutes);
+app.use('/api/messages', messageRoutes);
 
 app.listen(PORT, () => {
   console.log(`ShiftSync API running on http://localhost:${PORT}`);
