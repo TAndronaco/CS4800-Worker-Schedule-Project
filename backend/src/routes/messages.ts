@@ -14,9 +14,13 @@ router.get("/contacts/list", async (req: Request, res: Response) => {
     const result = await pool.query(
       `SELECT DISTINCT u.id, u.first_name, u.last_name, u.role
        FROM users u
-       JOIN team_members tm1 ON u.id = tm1.user_id
-       JOIN team_members tm2 ON tm1.team_id = tm2.team_id
-       WHERE tm2.user_id = $1 AND u.id != $1`,
+       JOIN team_members tm ON u.id = tm.user_id
+       WHERE tm.team_id IN (
+         SELECT team_id FROM team_members WHERE user_id = $1
+         UNION
+         SELECT id FROM teams WHERE manager_id = $1
+       )
+       AND u.id != $1`,
       [currentUser]
     );
     res.json(result.rows);

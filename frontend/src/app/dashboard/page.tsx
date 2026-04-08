@@ -53,6 +53,10 @@ export default function DashboardPage() {
             <h3>Messages</h3>
             <p>Chat with your team</p>
           </div>
+          <div className={styles.card} onClick={() => router.push("/manager/performance")}>
+            <h3>Performance</h3>
+            <p>View and report employee metrics</p>
+          </div>
           <div className={styles.card} onClick={() => router.push("/employee/join")}>
             <h3>Join Team</h3>
             <p>Join a team using a join code</p>
@@ -75,6 +79,10 @@ export default function DashboardPage() {
           <div className={styles.card} onClick={() => router.push("/messages")}>
             <h3>Messages</h3>
             <p>Chat with your team</p>
+          </div>
+          <div className={styles.card} onClick={() => router.push("/employee/performance")}>
+            <h3>Performance</h3>
+            <p>View your performance metrics</p>
           </div>
         </div>
       )}
