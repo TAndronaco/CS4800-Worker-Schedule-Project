@@ -500,3 +500,121 @@
 .previewRow:nth-child(even) {
   background: #fafafa;
 }
+
+/* ── Responsive ── */
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1.25rem;
+  }
+
+  .controls {
+    gap: 0.5rem;
+  }
+
+  .form {
+    padding: 0.75rem;
+  }
+
+  .addBtn {
+    margin-left: 0;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.75rem;
+  }
+
+  .grid {
+    min-width: 480px;
+  }
+
+  .cornerCell {
+    width: 40px;
+    min-width: 40px;
+  }
+
+  .hourLabel {
+    width: 40px;
+    min-width: 40px;
+    font-size: 0.62rem;
+    padding: 2px 4px 0 0;
+  }
+
+  .dayHeader {
+    padding: 0.35rem 0.15rem;
+  }
+
+  .dayName {
+    font-size: 0.65rem;
+  }
+
+  .dayDate {
+    font-size: 0.72rem;
+  }
+
+  .cell {
+    height: 40px;
+  }
+
+  .countBadge {
+    font-size: 0.65rem;
+    padding: 0 3px;
+  }
+
+  .tooltip {
+    min-width: 160px;
+    max-width: 250px;
+  }
+
+  .weekNav span {
+    font-size: 0.82rem;
+  }
+
+  .weekNav button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .autoModal {
+    padding: 1.25rem;
+  }
+
+  .modalTitle {
+    font-size: 1.05rem;
+  }
+
+  .hoursRow {
+    flex-wrap: wrap;
+  }
+
+  .dayCheckRow {
+    gap: 0.35rem;
+  }
+
+  .dayCheckLabel {
+    font-size: 0.78rem;
+    padding: 0.25rem 0.4rem;
+  }
+
+  .previewHeader,
+  .previewRow {
+    grid-template-columns: 1.2fr 0.6fr 1.2fr;
+    font-size: 0.78rem;
+    padding: 0.4rem 0.5rem;
+  }
+
+  .form select,
+  .form input {
+    font-size: 0.85rem;
+    padding: 0.45rem 0.6rem;
+  }
+
+  .form button {
+    font-size: 0.85rem;
+    padding: 0.45rem 1rem;
+  }
+}

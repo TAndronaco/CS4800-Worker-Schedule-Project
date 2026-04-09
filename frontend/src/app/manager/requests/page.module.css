@@ -159,3 +159,26 @@
 .denyBtn:active {
   transform: translateY(0);
 }
+
+/* ── Responsive ── */
+
+@media (max-width: 600px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .requestCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .actions {
+    align-self: flex-start;
+  }
+
+  .name {
+    flex-wrap: wrap;
+  }
+}

@@ -183,3 +183,86 @@
 .sendButton:hover {
   background: #c44d14;
 }
+
+/* ── Responsive ── */
+
+@media (max-width: 768px) {
+  .container {
+    padding: 12px;
+  }
+
+  .header {
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-size: 1.2rem;
+  }
+
+  .chatLayout {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .contactsList {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+    max-height: 200px;
+    padding: 12px;
+  }
+
+  .chatWindow {
+    min-height: 300px;
+  }
+
+  .chatBox {
+    padding: 12px;
+  }
+
+  .inputArea {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .input {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+
+  .sendButton {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 8px;
+  }
+
+  .header h1 {
+    font-size: 1.05rem;
+  }
+
+  .contactsList {
+    max-height: 160px;
+    padding: 8px;
+  }
+
+  .contactItem {
+    padding: 8px;
+    margin-bottom: 4px;
+  }
+
+  .contactName {
+    font-size: 0.82rem;
+  }
+
+  .myMessage,
+  .otherMessage {
+    max-width: 85%;
+    padding: 8px 12px;
+  }
+}

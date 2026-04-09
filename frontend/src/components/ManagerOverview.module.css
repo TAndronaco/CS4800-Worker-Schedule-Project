@@ -382,10 +382,86 @@
 @media (max-width: 600px) {
   .statsRow {
     grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .statCard {
+    padding: 0.75rem;
+  }
+
+  .statValue {
+    font-size: 1.2rem;
+  }
+
+  .statLabel {
+    font-size: 0.65rem;
   }
 
   .quickActions {
     flex-direction: column;
+  }
+
+  .card {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .todayCard {
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .todayInfo h3 {
+    font-size: 0.85rem;
+  }
+
+  .todayInfo p {
+    font-size: 0.75rem;
+  }
+
+  .weekStrip {
+    gap: 3px;
+  }
+
+  .dayName {
+    font-size: 0.65rem;
+  }
+
+  .dayDate {
+    font-size: 0.65rem;
+  }
+
+  .coveragePill {
+    padding: 0.5rem 0.15rem;
+    min-height: 40px;
+  }
+
+  .coverageCount {
+    font-size: 0.9rem;
+  }
+
+  .coverageLabel {
+    font-size: 0.55rem;
+  }
+
+  .rosterItem {
+    padding: 0.5rem 0.15rem;
+  }
+
+  .rosterName {
+    font-size: 0.82rem;
+  }
+
+  .rosterStats {
+    font-size: 0.68rem;
+  }
+
+  .requestItem {
+    padding: 0.5rem 0.15rem;
+  }
+
+  .requestName {
+    font-size: 0.8rem;
   }
 }
 

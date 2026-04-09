@@ -78,3 +78,22 @@
   color: #666;
   font-size: 0.9rem;
 }
+
+/* ── Responsive ── */
+
+@media (max-width: 600px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .cards {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .card {
+    width: auto;
+    height: auto;
+    min-height: 100px;
+    padding: 1rem;
+  }
+}

@@ -455,4 +455,48 @@
     min-width: 0;
     border-left: none;
   }
+
+  .center {
+    padding: 1.25rem;
+  }
+
+  .wrapper {
+    height: calc(100vh - 56px);
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: 48px;
+    min-width: 48px;
+  }
+
+  .sidebar .navItem {
+    padding: 0.6rem 0;
+  }
+
+  .navIcon {
+    font-size: 1.05rem;
+  }
+
+  .userCard {
+    padding: 0.6rem 0.5rem;
+    justify-content: center;
+  }
+
+  .center {
+    padding: 0.75rem;
+  }
+
+  .chatFloatBtn {
+    bottom: 16px;
+    right: 16px;
+    width: 46px;
+    height: 46px;
+    font-size: 1.1rem;
+  }
+
+  .wrapper {
+    height: calc(100vh - 48px);
+  }
 }

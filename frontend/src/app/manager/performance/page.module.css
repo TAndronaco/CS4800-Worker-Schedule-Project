@@ -338,3 +338,64 @@
 .submitBtn:hover {
   background: #b04008;
 }
+
+/* ── Responsive ── */
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1.25rem;
+  }
+
+  .tabs {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .tab,
+  .activeTab {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .addReportBtn {
+    margin-left: 0;
+    width: 100%;
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.75rem;
+  }
+
+  .modal {
+    padding: 1.25rem;
+  }
+
+  .metricCard {
+    padding: 1rem;
+  }
+
+  .reportCard {
+    padding: 1rem;
+  }
+
+  .reportTop {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .statsRow {
+    gap: 0.5rem;
+  }
+
+  .statValue {
+    font-size: 0.95rem;
+  }
+}

@@ -51,7 +51,8 @@ export default function ManagerLayout({
     if (typeof window === "undefined") return null;
     const stored = localStorage.getItem("user");
     return stored && stored !== "undefined" && stored !== "null" ? JSON.parse(stored) : null;
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- re-read localStorage on route change
+  }, [pathname]);
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
