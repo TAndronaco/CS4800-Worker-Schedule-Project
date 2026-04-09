@@ -50,7 +50,7 @@ export default function ManagerLayout({
   const user = useMemo<User | null>(() => {
     if (typeof window === "undefined") return null;
     const stored = localStorage.getItem("user");
-    return stored ? JSON.parse(stored) : null;
+    return stored && stored !== "undefined" && stored !== "null" ? JSON.parse(stored) : null;
   }, []);
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -107,7 +107,7 @@ export default function ManagerLayout({
     });
     // Update localStorage so it persists
     const stored = localStorage.getItem("user");
-    if (stored) {
+    if (stored && stored !== "undefined" && stored !== "null") {
       const updated = { ...JSON.parse(stored), avatar_url: base64 };
       localStorage.setItem("user", JSON.stringify(updated));
     }

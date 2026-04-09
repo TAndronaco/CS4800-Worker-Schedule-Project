@@ -17,7 +17,7 @@ export default function JoinTeamPage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
-    if (!stored) { router.push("/login"); return; }
+    if (!stored || stored === "undefined" || stored === "null") { router.push("/login"); return; }
     apiFetch("/teams")
       .then((res) => (res.ok ? res.json() : []))
       .then((data: Team[]) => { setTeams(data); setLoading(false); });

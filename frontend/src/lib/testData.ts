@@ -171,7 +171,7 @@ function jsonResponse(data: unknown): Response {
 export function isTestMode(): boolean {
   if (typeof window === "undefined") return false;
   const stored = localStorage.getItem("user");
-  if (!stored) return false;
+  if (!stored || stored === "undefined" || stored === "null") return false;
   const user = JSON.parse(stored);
   return user.isTestUser === true;
 }
@@ -180,7 +180,7 @@ export function resolveTestRequest(endpoint: string, options: RequestInit = {}):
   if (!isTestMode()) return null;
 
   const stored = localStorage.getItem("user");
-  if (!stored) return null;
+  if (!stored || stored === "undefined" || stored === "null") return null;
   const currentUser: TestUser & { isTestUser: boolean } = JSON.parse(stored);
   const method = (options.method || "GET").toUpperCase();
 
@@ -383,7 +383,7 @@ export function resolveTestRequest(endpoint: string, options: RequestInit = {}):
       user.avatar_url = body.avatar_url;
       // Also update localStorage
       const stored = localStorage.getItem("user");
-      if (stored) {
+      if (stored && stored !== "undefined" && stored !== "null") {
         const current = JSON.parse(stored);
         if (current.id === userId) {
           current.avatar_url = body.avatar_url;

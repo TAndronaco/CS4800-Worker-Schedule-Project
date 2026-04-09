@@ -40,7 +40,7 @@ export default function MessagesPage() {
   const user = useMemo<User | null>(() => {
     if (typeof window === "undefined") return null;
     const stored = localStorage.getItem("user");
-    return stored ? JSON.parse(stored) : null;
+    return stored && stored !== "undefined" && stored !== "null" ? JSON.parse(stored) : null;
   }, []);
 
   const token = useMemo<string | null>(() => {

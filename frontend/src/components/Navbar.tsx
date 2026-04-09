@@ -13,7 +13,7 @@ export default function Navbar() {
   const user = useMemo<{ first_name: string; role: string } | null>(() => {
     if (typeof window === "undefined") return null;
     const stored = localStorage.getItem("user");
-    return stored ? JSON.parse(stored) : null;
+    return stored && stored !== "undefined" && stored !== "null" ? JSON.parse(stored) : null;
   // eslint-disable-next-line react-hooks/exhaustive-deps -- re-read localStorage on route change and logout
   }, [pathname, logoutCount]);
 

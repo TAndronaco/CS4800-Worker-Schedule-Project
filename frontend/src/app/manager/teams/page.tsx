@@ -20,7 +20,7 @@ export default function TeamsPage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
-    if (!stored) { router.push("/login"); return; }
+    if (!stored || stored === "undefined" || stored === "null") { router.push("/login"); return; }
     const user = JSON.parse(stored);
     if (user.role !== "manager") { router.push("/dashboard"); return; }
     apiFetch("/teams")

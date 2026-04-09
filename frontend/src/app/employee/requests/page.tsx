@@ -28,7 +28,7 @@ export default function EmployeeRequestsPage() {
   const userId = useMemo<number | null>(() => {
     if (typeof window === "undefined") return null;
     const stored = localStorage.getItem("user");
-    if (!stored) return null;
+    if (!stored || stored === "undefined" || stored === "null") return null;
     const user = JSON.parse(stored);
     return user.role === "employee" ? user.id : null;
   }, []);
@@ -43,7 +43,7 @@ export default function EmployeeRequestsPage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
-    if (!stored) { router.push("/login"); return; }
+    if (!stored || stored === "undefined" || stored === "null") { router.push("/login"); return; }
     const user = JSON.parse(stored);
     if (user.role !== "employee") { router.push("/dashboard"); return; }
 
