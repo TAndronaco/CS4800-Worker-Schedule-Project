@@ -9,6 +9,8 @@ import requestRoutes from './routes/requests';
 import messageRoutes from './routes/messages';
 import userRoutes from './routes/users';
 
+import pool from './config/db';
+
 dotenv.config();
 
 const app = express();
@@ -21,9 +23,18 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '5mb' }));
 
-// Health check
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+// Health check with DB ping
+app.get('/api/health', async (_req, res) => {
+  try {
+    const dbCheck = await pool.query('SELECT 1');
+    res.json({ 
+      status: 'ok', 
+      database: 'connected',
+      timestamp: new Date().toISOString() 
+    });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: 'Database connection failed' });
+  }
 });
 
 // Routes

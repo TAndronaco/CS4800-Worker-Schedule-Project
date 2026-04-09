@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { apiFetch } from "@/lib/api";
 import EmployeeLayout from "./EmployeeLayout";
 import ManagerLayout from "./ManagerLayout";
 
@@ -29,6 +30,21 @@ export default function LayoutShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+
+  // "Warm up" the backend and Neon database on app load
+  useEffect(() => {
+    const warmup = async () => {
+      try {
+        // Hitting the health endpoint (which now pings the DB) 
+        // will wake up both Render and Neon if they are sleeping.
+        await apiFetch("/health");
+      } catch (e) {
+        // Silently fail, it's just a warmup ping
+        console.log("Warmup ping failed (backend likely sleeping)");
+      }
+    };
+    warmup();
+  }, []);
 
   const user = useMemo<{ role: string } | null>(() => {
     if (typeof window === "undefined") return null;
