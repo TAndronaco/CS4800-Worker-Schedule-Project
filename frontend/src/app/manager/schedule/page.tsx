@@ -154,7 +154,8 @@ export default function ManagerSchedulePage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
-  const [shifts, setShifts] = useState<Shift[]>([]);
+  const [originalShifts, setOriginalShifts] = useState<Shift[]>([]); // From DB
+  const [shifts, setShifts] = useState<Shift[]>([]); // Local working copy
   const [week, setWeek] = useState(getMondayOf(new Date()));
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -170,8 +171,10 @@ export default function ManagerSchedulePage() {
   const [autoCoverEnd, setAutoCoverEnd] = useState(17);
   const [autoDays, setAutoDays] = useState([true, true, true, true, true, false, false]);
   const [proposedShifts, setProposedShifts] = useState<ProposedShift[]>([]);
-  const [autoSaving, setAutoSaving] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [autoError, setAutoError] = useState("");
+
+  const isDirty = JSON.stringify(originalShifts) !== JSON.stringify(shifts);
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
@@ -189,35 +192,93 @@ export default function ManagerSchedulePage() {
   useEffect(() => {
     if (!selectedTeam) return;
     apiFetch(`/teams/${selectedTeam}/members`).then((r) => r.json()).then(setMembers);
-    apiFetch(`/shifts?team_id=${selectedTeam}&week=${week}`).then((r) => r.json()).then(setShifts);
+    apiFetch(`/shifts?team_id=${selectedTeam}&week=${week}`).then((r) => r.json()).then((data) => {
+      setOriginalShifts(data);
+      setShifts(data);
+    });
   }, [selectedTeam, week]);
 
-  async function addShift(e: React.FormEvent) {
+  function addShift(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    const res = await apiFetch("/shifts", {
-      method: "POST",
-      body: JSON.stringify({ team_id: selectedTeam, ...form }),
+    
+    const emp = members.find(m => String(m.id) === form.employee_id);
+    if (!emp) return;
+
+    const newShift: Shift = {
+      id: Math.random() * -1, // Temporary negative ID for local-only shifts
+      date: form.date,
+      start_time: form.start_time,
+      end_time: form.end_time,
+      employee_id: Number(form.employee_id),
+      first_name: emp.first_name,
+      last_name: emp.last_name
+    };
+
+    // Replace if duplicate locally
+    setShifts(prev => {
+      const filtered = prev.filter(s => 
+        !(s.employee_id === newShift.employee_id && s.date.split('T')[0] === newShift.date.split('T')[0])
+      );
+      return [...filtered, newShift].sort((a, b) => a.date.localeCompare(b.date));
     });
-    if (res.ok) {
-      setForm(EMPTY_FORM);
-      setShowForm(false);
-      apiFetch(`/shifts?team_id=${selectedTeam}&week=${week}`).then((r) => r.json()).then(setShifts);
-    } else {
-      const data = await res.json();
-      setError(data.error || "Failed to add shift.");
-    }
+
+    setForm(EMPTY_FORM);
+    setShowForm(false);
   }
 
-  async function deleteShift(id: number) {
-    await apiFetch(`/shifts/${id}`, { method: "DELETE" });
+  function deleteShift(id: number) {
     setShifts((prev) => prev.filter((s) => s.id !== id));
     setTooltip((prev) =>
       prev ? { ...prev, shifts: prev.shifts.filter((s) => s.id !== id) } : null
     );
   }
 
+  async function persistChanges() {
+    setIsSaving(true);
+    try {
+      // 1. Clear the week first to make it a clean sync
+      await apiFetch(`/shifts/bulk?team_id=${selectedTeam}&week=${week}`, {
+        method: "DELETE",
+      });
+
+      // 2. Save all current local shifts
+      for (const s of shifts) {
+        await apiFetch("/shifts", {
+          method: "POST",
+          body: JSON.stringify({
+            team_id: selectedTeam,
+            employee_id: String(s.employee_id),
+            date: s.date,
+            start_time: s.start_time,
+            end_time: s.end_time,
+          }),
+        });
+      }
+
+      // 3. Refresh from server to get real IDs
+      const res = await apiFetch(`/shifts?team_id=${selectedTeam}&week=${week}`);
+      const data = await res.json();
+      setOriginalShifts(data);
+      setShifts(data);
+      alert("Changes saved successfully!");
+    } catch (e) {
+      alert("Failed to save changes.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  function discardChanges() {
+    if (confirm("Discard all unsaved changes?")) {
+      setShifts(originalShifts);
+    }
+  }
+
   function changeWeek(dir: number) {
+    if (isDirty && !confirm("You have unsaved changes. Change week anyway?")) {
+      return;
+    }
     const d = new Date(week);
     d.setDate(d.getDate() + dir * 7);
     setWeek(d.toISOString().split("T")[0]);
@@ -285,38 +346,56 @@ export default function ManagerSchedulePage() {
     setAutoStep("preview");
   }
 
-  async function handleConfirmSave() {
-    setAutoSaving(true);
-    setAutoError("");
-    try {
-      for (const s of proposedShifts) {
-        const res = await apiFetch("/shifts", {
-          method: "POST",
-          body: JSON.stringify({
-            team_id: selectedTeam,
-            employee_id: String(s.employee_id),
-            date: s.date,
-            start_time: s.start_time,
-            end_time: s.end_time,
-          }),
-        });
-        if (!res.ok) {
-          const data = await res.json();
-          setAutoError(data.error || "Failed to save one or more shifts.");
-          setAutoSaving(false);
-          return;
-        }
-      }
-      setShowAutoModal(false);
-      apiFetch(`/shifts?team_id=${selectedTeam}&week=${week}`).then((r) => r.json()).then(setShifts);
-    } catch {
-      setAutoError("An unexpected error occurred.");
+  function handleResetSchedule() {
+    if (confirm(`Clear all shifts locally? You must click "Save Changes" to apply this to the database.`)) {
+      setShifts([]);
     }
-    setAutoSaving(false);
+  }
+
+  function handleConfirmSave() {
+    // Add proposed shifts to local state
+    setShifts(prev => {
+      // Create a map of existing shifts for faster replacement
+      const current = [...prev];
+      proposedShifts.forEach(ps => {
+        // Remove any existing shift for this employee on this date
+        const idx = current.findIndex(s => 
+          s.employee_id === ps.employee_id && 
+          s.date.split('T')[0] === ps.date.split('T')[0]
+        );
+        const newS: Shift = {
+          id: Math.random() * -1,
+          date: ps.date,
+          start_time: ps.start_time,
+          end_time: ps.end_time,
+          employee_id: ps.employee_id,
+          first_name: ps.employeeName.split(' ')[0],
+          last_name: ps.employeeName.split(' ')[1] || ''
+        };
+        if (idx > -1) current[idx] = newS;
+        else current.push(newS);
+      });
+      return current.sort((a, b) => a.date.localeCompare(b.date));
+    });
+    setShowAutoModal(false);
   }
 
   return (
     <div className={styles.container}>
+      {isDirty && (
+        <div className={styles.dirtyBar}>
+          <span>⚠️ You have unsaved changes</span>
+          <div className={styles.dirtyActions}>
+            <button className={styles.discardBtn} onClick={discardChanges} disabled={isSaving}>
+              Discard
+            </button>
+            <button className={styles.saveBtn} onClick={persistChanges} disabled={isSaving}>
+              {isSaving ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        </div>
+      )}
+
       <button className={styles.back} onClick={() => router.push("/dashboard")}>
         ← Back
       </button>
@@ -344,6 +423,9 @@ export default function ManagerSchedulePage() {
         </button>
         <button className={styles.autoBtn} onClick={openAutoModal}>
           ✦ Auto-Generate
+        </button>
+        <button className={styles.resetBtn} onClick={handleResetSchedule}>
+          Reset Schedule
         </button>
       </div>
 
