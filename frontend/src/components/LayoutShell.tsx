@@ -38,7 +38,7 @@ export default function LayoutShell({
         // Hitting the health endpoint (which now pings the DB) 
         // will wake up both Render and Neon if they are sleeping.
         await apiFetch("/health");
-      } catch (e) {
+      } catch {
         // Silently fail, it's just a warmup ping
         console.log("Warmup ping failed (backend likely sleeping)");
       }

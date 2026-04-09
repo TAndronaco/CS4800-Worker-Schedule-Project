@@ -37,6 +37,12 @@ const EMPTY_FORM = { employee_id: "", date: "", start_time: "", end_time: "" };
 
 function pad2(n: number) { return String(n).padStart(2, "0"); }
 
+// Robust date normalization for reliable comparisons
+function normalizeDate(d: string | Date): string {
+  const dateStr = typeof d === "string" ? d : d.toISOString();
+  return dateStr.split("T")[0];
+}
+
 function buildAutoSchedule(
   employees: Member[],
   weekDays: string[],
@@ -218,7 +224,7 @@ export default function ManagerSchedulePage() {
     // Replace if duplicate locally
     setShifts(prev => {
       const filtered = prev.filter(s => 
-        !(s.employee_id === newShift.employee_id && s.date.split('T')[0] === newShift.date.split('T')[0])
+        !(s.employee_id === newShift.employee_id && normalizeDate(s.date) === normalizeDate(newShift.date))
       );
       return [...filtered, newShift].sort((a, b) => a.date.localeCompare(b.date));
     });
@@ -262,7 +268,7 @@ export default function ManagerSchedulePage() {
       setOriginalShifts(data);
       setShifts(data);
       alert("Changes saved successfully!");
-    } catch (e) {
+    } catch {
       alert("Failed to save changes.");
     } finally {
       setIsSaving(false);
@@ -355,15 +361,14 @@ export default function ManagerSchedulePage() {
   function handleConfirmSave() {
     // Add proposed shifts to local state
     setShifts(prev => {
-      // Create a map of existing shifts for faster replacement
-      const current = [...prev];
+      let current = [...prev];
       proposedShifts.forEach(ps => {
         // Remove any existing shift for this employee on this date
-        const idx = current.findIndex(s => 
-          s.employee_id === ps.employee_id && 
-          s.date.split('T')[0] === ps.date.split('T')[0]
+        current = current.filter(s => 
+          !(s.employee_id === ps.employee_id && normalizeDate(s.date) === normalizeDate(ps.date))
         );
-        const newS: Shift = {
+        
+        current.push({
           id: Math.random() * -1,
           date: ps.date,
           start_time: ps.start_time,
@@ -371,9 +376,7 @@ export default function ManagerSchedulePage() {
           employee_id: ps.employee_id,
           first_name: ps.employeeName.split(' ')[0],
           last_name: ps.employeeName.split(' ')[1] || ''
-        };
-        if (idx > -1) current[idx] = newS;
-        else current.push(newS);
+        });
       });
       return current.sort((a, b) => a.date.localeCompare(b.date));
     });
@@ -649,9 +652,9 @@ export default function ManagerSchedulePage() {
                   <button
                     className={styles.generateBtn}
                     onClick={handleConfirmSave}
-                    disabled={autoSaving}
+                    disabled={isSaving}
                   >
-                    {autoSaving ? "Saving…" : "Confirm & Save All"}
+                    {isSaving ? "Applying..." : "Apply to Draft"}
                   </button>
                 </div>
               </>
