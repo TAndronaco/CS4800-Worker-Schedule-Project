@@ -1,5 +1,7 @@
-import pool from "../config/db";
 import { Router, Request, Response } from "express";
+import { messageService } from "../services/messageService";
+import { getSingleValue } from "../utils/getSingleValue";
+import { handleRouteError } from "../utils/handleRouteError";
 
 const router = Router();
 
@@ -7,64 +9,42 @@ const router = Router();
 router.get("/contacts/list", async (req: Request, res: Response) => {
   try {
     const currentUser = req.query.userId;
-    if (!currentUser) {
+    if (!currentUser || typeof currentUser !== "string") {
       res.json([]);
       return;
     }
-    const result = await pool.query(
-      `SELECT DISTINCT u.id, u.first_name, u.last_name, u.role
-       FROM users u
-       JOIN team_members tm ON u.id = tm.user_id
-       WHERE tm.team_id IN (
-         SELECT team_id FROM team_members WHERE user_id = $1
-         UNION
-         SELECT id FROM teams WHERE manager_id = $1
-       )
-       AND u.id != $1`,
-      [currentUser]
-    );
-    res.json(result.rows);
+
+    const contacts = await messageService.getContacts(currentUser);
+    res.json(contacts);
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch contacts" });
+    handleRouteError(res, error, "Get contacts error:", "Failed to fetch contacts");
   }
 });
 
 // Get messages between two users - MUST BE AFTER contacts
 router.get("/:userId", async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const userId = getSingleValue(req.params.userId);
     const currentUser = req.query.currentUserId;
-    if (!currentUser) {
+    if (!currentUser || typeof currentUser !== "string" || !userId) {
       res.json([]);
       return;
     }
-    const result = await pool.query(
-      `SELECT m.*, u.first_name, u.last_name 
-       FROM messages m 
-       JOIN users u ON m.sender_id = u.id
-       WHERE (m.sender_id = $1 AND m.receiver_id = $2)
-       OR (m.sender_id = $2 AND m.receiver_id = $1)
-       ORDER BY m.created_at ASC`,
-      [currentUser, userId]
-    );
-    res.json(result.rows);
+
+    const messages = await messageService.getConversation(currentUser, userId);
+    res.json(messages);
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch messages" });
+    handleRouteError(res, error, "Get conversation error:", "Failed to fetch messages");
   }
 });
 
 // Send a message
 router.post("/", async (req: Request, res: Response) => {
   try {
-    const { receiver_id, content, sender_id } = req.body;
-    const result = await pool.query(
-      `INSERT INTO messages (sender_id, receiver_id, content) 
-       VALUES ($1, $2, $3) RETURNING *`,
-      [sender_id, receiver_id, content]
-    );
-    res.status(201).json(result.rows[0]);
+    const message = await messageService.sendMessage(req.body);
+    res.status(201).json(message);
   } catch (error) {
-    res.status(500).json({ error: "Failed to send message" });
+    handleRouteError(res, error, "Send message error:", "Failed to send message");
   }
 });
 
