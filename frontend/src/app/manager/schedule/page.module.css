@@ -300,6 +300,38 @@
   background: rgba(0, 0, 0, 0.18);
 }
 
+/* ── Availability Overlay ── */
+
+.availableCell {
+  background: rgba(46, 125, 50, 0.12) !important;
+}
+
+.availBtn {
+  background: none;
+  border: 1.5px solid #2e7d32;
+  color: #2e7d32;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.availBtn:hover {
+  background: #e8f5e9;
+  transform: translateY(-1px);
+}
+
+.availBtnActive {
+  background: #2e7d32;
+  color: white;
+}
+
+.availBtnActive:hover {
+  background: #1b5e20;
+}
+
 /* ── Hover Tooltip ── */
 
 .tooltip {

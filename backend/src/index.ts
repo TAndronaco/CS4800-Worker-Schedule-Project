@@ -8,6 +8,8 @@ import shiftRoutes from './routes/shifts';
 import requestRoutes from './routes/requests';
 import messageRoutes from './routes/messages';
 import userRoutes from './routes/users';
+import availabilityRoutes from './routes/availability';
+import notificationRoutes from './routes/notifications';
 
 import pool from './config/db';
 
@@ -44,6 +46,8 @@ app.use('/api/shifts', shiftRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/availability', availabilityRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.listen(PORT, () => {
   console.log(`ShiftSync API running on http://localhost:${PORT}`);

@@ -1,4 +1,5 @@
 import pool from '../config/db';
+import { notificationService } from './notificationService';
 
 interface ShiftInput {
   team_id: number | string;
@@ -47,6 +48,14 @@ class ShiftService {
       'INSERT INTO shifts (team_id, employee_id, date, start_time, end_time) VALUES ($1, $2, $3, $4, $5) RETURNING *',
       [team_id, employee_id, date, start_time, end_time]
     );
+
+    // Notify employee of new shift assignment
+    notificationService.create(
+      Number(employee_id),
+      'shift_assigned',
+      `You've been assigned a shift on ${date} (${start_time}–${end_time}).`,
+      insertResult.rows[0].id
+    ).catch(() => {}); // fire-and-forget
 
     return insertResult.rows[0];
   }

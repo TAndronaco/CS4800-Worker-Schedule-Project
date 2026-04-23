@@ -1,0 +1,238 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.back {
+  background: none;
+  border: none;
+  color: #d4500a;
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 0;
+  margin-bottom: 1rem;
+}
+
+.back:hover {
+  text-decoration: underline;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+
+.controls select {
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.empty {
+  color: #666;
+  margin-top: 1rem;
+}
+
+.link {
+  background: none;
+  border: none;
+  color: #d4500a;
+  cursor: pointer;
+  font-size: inherit;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.dayColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.dayHeader {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.hourBlock {
+  width: 100%;
+  height: 32px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: #999;
+  user-select: none;
+}
+
+.hourBlock:hover {
+  border-color: #d4500a;
+}
+
+.hourBlockActive {
+  background: #d4500a;
+  border-color: #d4500a;
+  color: white;
+}
+
+.hourLabel {
+  font-size: 0.7rem;
+  color: #888;
+  width: 50px;
+  text-align: right;
+  padding-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.timeRow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.gridWithLabels {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  overflow-x: auto;
+}
+
+.headerRow {
+  display: flex;
+  gap: 0;
+  margin-left: 50px;
+}
+
+.headerCell {
+  flex: 1;
+  min-width: 80px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #333;
+  padding: 0.5rem 0;
+}
+
+.cellInRow {
+  flex: 1;
+  min-width: 80px;
+  height: 28px;
+  border: 1px solid #e0e0e0;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  margin: 0 0.25rem;
+}
+
+.cellInRow:hover {
+  border-color: #d4500a;
+  background: rgba(212, 80, 10, 0.08);
+}
+
+.cellActive {
+  background: #d4500a !important;
+  border-color: #b04008 !important;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.saveBtn {
+  background: #d4500a;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.saveBtn:hover {
+  background: #b04008;
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.clearBtn {
+  background: none;
+  border: 1px solid #ccc;
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.clearBtn:hover {
+  border-color: #999;
+  color: #333;
+}
+
+.success {
+  color: #2e7d32;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.error {
+  color: #e00;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.hint {
+  color: #888;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 600px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .headerCell,
+  .cellInRow {
+    min-width: 40px;
+    font-size: 0.75rem;
+  }
+
+  .hourLabel {
+    width: 35px;
+    font-size: 0.6rem;
+  }
+
+  .cellInRow {
+    height: 24px;
+  }
+}

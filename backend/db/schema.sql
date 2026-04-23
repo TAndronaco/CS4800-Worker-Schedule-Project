@@ -39,7 +39,29 @@ CREATE TABLE shift_requests (
   requester_id INTEGER REFERENCES users(id),
   shift_id INTEGER REFERENCES shifts(id),
   target_shift_id INTEGER REFERENCES shifts(id),
+  target_employee_id INTEGER REFERENCES users(id),
   status VARCHAR(20) DEFAULT 'pending',
+  swap_status VARCHAR(20) DEFAULT 'pending',
   reason TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE availability (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id),
+  team_id INTEGER REFERENCES teams(id),
+  day_of_week INTEGER NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  UNIQUE(user_id, team_id, day_of_week, start_time)
+);
+
+CREATE TABLE notifications (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id),
+  type VARCHAR(50) NOT NULL,
+  message TEXT NOT NULL,
+  read BOOLEAN DEFAULT FALSE,
+  related_id INTEGER,
   created_at TIMESTAMP DEFAULT NOW()
 );

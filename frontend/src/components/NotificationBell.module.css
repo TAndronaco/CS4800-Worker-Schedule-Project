@@ -1,0 +1,155 @@
+.wrapper {
+  position: relative;
+}
+
+.bellBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  padding: 0.3rem;
+  position: relative;
+  color: #555;
+  transition: color 0.2s;
+}
+
+.bellBtn:hover {
+  color: #d4500a;
+}
+
+.badge {
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  background: #d4500a;
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1000;
+  animation: dropIn 0.2s ease-out;
+}
+
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdownHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.dropdownTitle {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.markAllBtn {
+  background: none;
+  border: none;
+  color: #d4500a;
+  cursor: pointer;
+  font-size: 0.78rem;
+  padding: 0;
+}
+
+.markAllBtn:hover {
+  text-decoration: underline;
+}
+
+.notifItem {
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid #f5f5f5;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.notifItem:hover {
+  background: #f9f9f9;
+}
+
+.notifItem:last-child {
+  border-bottom: none;
+}
+
+.unread {
+  background: #fff8f0;
+}
+
+.unread:hover {
+  background: #fff0e0;
+}
+
+.notifIcon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.notifContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.notifMessage {
+  font-size: 0.85rem;
+  color: #333;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.notifTime {
+  font-size: 0.72rem;
+  color: #999;
+  margin: 0.15rem 0 0;
+}
+
+.emptyDropdown {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: #999;
+  font-size: 0.88rem;
+}
+
+.viewAll {
+  display: block;
+  text-align: center;
+  padding: 0.6rem;
+  border-top: 1px solid #eee;
+  color: #d4500a;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.viewAll:hover {
+  background: #fafafa;
+}

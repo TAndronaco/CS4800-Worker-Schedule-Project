@@ -180,6 +180,102 @@
   color: #c62828;
 }
 
+/* ── Tabs ── */
+
+.tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1.25rem;
+  border-bottom: 2px solid #eee;
+}
+
+.tab {
+  background: none;
+  border: none;
+  padding: 0.6rem 1.25rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: #888;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  color: #555;
+}
+
+.tabActive {
+  color: #d4500a;
+  border-bottom-color: #d4500a;
+  font-weight: 600;
+}
+
+.incomingBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #d4500a;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  margin-left: 0.4rem;
+}
+
+/* ── Swap Details ── */
+
+.swapDetails {
+  font-size: 0.85rem;
+  color: #555;
+  margin: 0.15rem 0;
+}
+
+.swapStatus {
+  font-size: 0.8rem;
+  color: #b8860b;
+  font-style: italic;
+  margin: 0.15rem 0;
+}
+
+.swapActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.acceptBtn {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.acceptBtn:hover {
+  background: #1b5e20;
+}
+
+.rejectBtn {
+  background: none;
+  border: 1px solid #c62828;
+  color: #c62828;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.rejectBtn:hover {
+  background: #fce4ec;
+}
+
 /* ── Responsive ── */
 
 @media (max-width: 600px) {

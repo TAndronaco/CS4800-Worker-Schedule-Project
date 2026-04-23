@@ -10,10 +10,32 @@ interface ShiftRequest {
   id: number;
   type: "swap" | "time_off";
   status: "pending" | "approved" | "denied";
+  swap_status: "pending" | "accepted" | "rejected";
   reason: string | null;
   first_name: string;
   last_name: string;
+  target_first_name: string | null;
+  target_last_name: string | null;
+  shift_date: string | null;
+  shift_start_time: string | null;
+  shift_end_time: string | null;
+  target_shift_date: string | null;
+  target_shift_start_time: string | null;
+  target_shift_end_time: string | null;
   created_at: string;
+}
+
+function formatDate(d: string | null) {
+  if (!d) return "";
+  return d.split("T")[0];
+}
+
+function formatTime(t: string | null) {
+  if (!t) return "";
+  const [h, m] = t.split(":").map(Number);
+  const period = h < 12 ? "AM" : "PM";
+  const hour = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${hour}:${m.toString().padStart(2, "0")} ${period}`;
 }
 
 export default function RequestsPage() {
@@ -57,6 +79,21 @@ export default function RequestsPage() {
     }
   }
 
+  // Manager can only act on swap requests after target employee accepted
+  function canManagerAct(r: ShiftRequest): boolean {
+    if (r.status !== "pending") return false;
+    if (r.type === "swap") return r.swap_status === "accepted";
+    return true;
+  }
+
+  function swapStatusLabel(r: ShiftRequest): string {
+    if (r.type !== "swap") return "";
+    if (r.swap_status === "pending") return "Waiting for employee response";
+    if (r.swap_status === "accepted") return "Both employees agreed";
+    if (r.swap_status === "rejected") return "Declined by target employee";
+    return "";
+  }
+
   if (loading) return null;
 
   return (
@@ -90,6 +127,22 @@ export default function RequestsPage() {
                     {r.type === "time_off" ? "Time Off" : "Shift Swap"}
                   </span>
                 </p>
+                {r.shift_date && (
+                  <p className={styles.shiftInfo}>
+                    Shift: {formatDate(r.shift_date)} {formatTime(r.shift_start_time)}–{formatTime(r.shift_end_time)}
+                  </p>
+                )}
+                {r.type === "swap" && r.target_first_name && (
+                  <>
+                    <p className={styles.shiftInfo}>
+                      Swap with: {r.target_first_name} {r.target_last_name}
+                      {r.target_shift_date && (
+                        <> — {formatDate(r.target_shift_date)} {formatTime(r.target_shift_start_time)}–{formatTime(r.target_shift_end_time)}</>
+                      )}
+                    </p>
+                    <p className={styles.swapStatus}>{swapStatusLabel(r)}</p>
+                  </>
+                )}
                 {r.reason && <p className={styles.reason}>{r.reason}</p>}
                 <p className={styles.date}>
                   {new Date(r.created_at).toLocaleDateString()}
@@ -99,7 +152,7 @@ export default function RequestsPage() {
                 <span className={`${styles.badge} ${styles[r.status]}`}>
                   {r.status}
                 </span>
-                {r.status === "pending" && (
+                {canManagerAct(r) && (
                   <>
                     <button
                       className={styles.approveBtn}

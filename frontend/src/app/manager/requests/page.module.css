@@ -160,6 +160,21 @@
   transform: translateY(0);
 }
 
+/* ── Swap Details ── */
+
+.shiftInfo {
+  font-size: 0.85rem;
+  color: #555;
+  margin: 0.15rem 0;
+}
+
+.swapStatus {
+  font-size: 0.8rem;
+  color: #b8860b;
+  font-style: italic;
+  margin: 0.15rem 0;
+}
+
 /* ── Responsive ── */
 
 @media (max-width: 600px) {

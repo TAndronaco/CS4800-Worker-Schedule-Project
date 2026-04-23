@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useReducer } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import styles from "./Navbar.module.css";
+import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
   const router = useRouter();
@@ -32,6 +33,7 @@ export default function Navbar() {
       <div className={styles.links}>
         {user ? (
           <>
+            <NotificationBell />
             <span style={{ color: "#555", fontSize: "0.9rem" }}>
               Hi, {user.first_name}
             </span>

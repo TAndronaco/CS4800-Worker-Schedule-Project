@@ -1,0 +1,180 @@
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.back {
+  background: none;
+  border: none;
+  color: #d4500a;
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 0;
+  margin-bottom: 1rem;
+}
+
+.back:hover {
+  text-decoration: underline;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.header h1 {
+  margin: 0;
+}
+
+.markAllBtn {
+  background: #d4500a;
+  color: white;
+  border: none;
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.markAllBtn:hover {
+  background: #b04008;
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1.25rem;
+  border-bottom: 2px solid #eee;
+  overflow-x: auto;
+}
+
+.tab {
+  background: none;
+  border: none;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: #888;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: #555;
+}
+
+.tabActive {
+  color: #d4500a;
+  border-bottom-color: #d4500a;
+  font-weight: 600;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.notifCard {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  animation: fadeInUp 0.4s ease-out both;
+}
+
+.notifCard:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.unread {
+  background: #fff8f0;
+  border-color: #f5dcc8;
+}
+
+.read {
+  background: #fafafa;
+}
+
+.icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.message {
+  font-size: 0.92rem;
+  color: #333;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.unread .message {
+  font-weight: 500;
+}
+
+.meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 0.3rem;
+}
+
+.time {
+  font-size: 0.78rem;
+  color: #999;
+}
+
+.typeBadge {
+  font-size: 0.7rem;
+  background: #f0f0f0;
+  color: #666;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+
+.empty {
+  text-align: center;
+  color: #999;
+  padding: 2rem 1rem;
+  font-size: 0.95rem;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 600px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .notifCard {
+    padding: 0.75rem 1rem;
+  }
+
+  .tab {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.82rem;
+  }
+}

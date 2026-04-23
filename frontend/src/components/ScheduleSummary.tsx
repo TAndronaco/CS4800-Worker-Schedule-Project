@@ -170,6 +170,13 @@ export default function ScheduleSummary({ userId }: { userId: number }) {
         </div>
         <div
           className={styles.quickCard}
+          onClick={() => router.push("/employee/availability")}
+        >
+          <h4>📅 Availability</h4>
+          <p>Set when you can work</p>
+        </div>
+        <div
+          className={styles.quickCard}
           onClick={() => router.push("/employee/join")}
         >
           <h4>👥 Join Team</h4>

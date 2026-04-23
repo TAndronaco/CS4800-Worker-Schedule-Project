@@ -32,8 +32,29 @@ export interface ShiftRequest {
   requester_id: number;
   shift_id: number;
   target_shift_id?: number;
+  target_employee_id?: number;
   status: 'pending' | 'approved' | 'denied';
+  swap_status: 'pending' | 'accepted' | 'rejected';
   reason?: string;
+  created_at: Date;
+}
+
+export interface Availability {
+  id: number;
+  user_id: number;
+  team_id: number;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+}
+
+export interface Notification {
+  id: number;
+  user_id: number;
+  type: string;
+  message: string;
+  read: boolean;
+  related_id?: number;
   created_at: Date;
 }
 

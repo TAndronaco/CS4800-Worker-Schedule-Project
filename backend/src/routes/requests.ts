@@ -28,6 +28,28 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<v
   }
 });
 
+// PATCH /api/requests/:id/swap-respond - Target employee accepts/rejects a swap
+router.patch('/:id/swap-respond', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const requestId = getSingleValue(req.params.id);
+    if (!requestId) {
+      res.status(400).json({ error: 'Request id is required.' });
+      return;
+    }
+
+    const { accept } = req.body;
+    if (typeof accept !== 'boolean') {
+      res.status(400).json({ error: 'accept must be a boolean.' });
+      return;
+    }
+
+    const request = await requestService.respondToSwap(requestId, req.user!.userId, accept);
+    res.json(request);
+  } catch (error) {
+    handleRouteError(res, error, 'Swap respond error:', 'Server error.');
+  }
+});
+
 // PATCH /api/requests/:id - Approve or deny a request (manager only)
 router.patch('/:id', authenticate, requireManager, async (req: AuthRequest, res: Response): Promise<void> => {
   try {

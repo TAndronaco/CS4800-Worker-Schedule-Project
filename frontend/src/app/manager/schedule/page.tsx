@@ -7,6 +7,14 @@ import styles from "./page.module.css";
 
 interface Team { id: number; name: string; }
 interface Member { id: number; first_name: string; last_name: string; }
+interface AvailabilitySlot {
+  user_id: number;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  first_name: string;
+  last_name: string;
+}
 interface Shift {
   id: number;
   date: string;
@@ -180,6 +188,9 @@ export default function ManagerSchedulePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [autoError, setAutoError] = useState("");
 
+  const [availability, setAvailability] = useState<AvailabilitySlot[]>([]);
+  const [showAvailability, setShowAvailability] = useState(false);
+
   const isDirty = JSON.stringify(originalShifts) !== JSON.stringify(shifts);
 
   useEffect(() => {
@@ -198,6 +209,7 @@ export default function ManagerSchedulePage() {
   useEffect(() => {
     if (!selectedTeam) return;
     apiFetch(`/teams/${selectedTeam}/members`).then((r) => r.json()).then(setMembers);
+    apiFetch(`/availability?team_id=${selectedTeam}`).then((r) => r.json()).then(setAvailability).catch(() => setAvailability([]));
     apiFetch(`/shifts?team_id=${selectedTeam}&week=${week}`).then((r) => r.json()).then((data) => {
       setOriginalShifts(data);
       setShifts(data);
@@ -307,6 +319,28 @@ export default function ManagerSchedulePage() {
   }
 
   const weekDays = getWeekDays(week);
+
+  // Check if any team member is available at a given day index (0=Mon) and hour
+  function isAnyoneAvailable(dayIdx: number, hour: number): boolean {
+    return availability.some((a) => {
+      if (a.day_of_week !== dayIdx) return false;
+      const startH = parseInt(a.start_time.split(":")[0], 10);
+      const endH = parseInt(a.end_time.split(":")[0], 10);
+      return hour >= startH && hour < endH;
+    });
+  }
+
+  // Check if a specific employee is available
+  function isEmployeeAvailable(employeeId: number, dayIdx: number, hour: number): boolean {
+    return availability.some((a) => {
+      if (a.user_id !== employeeId || a.day_of_week !== dayIdx) return false;
+      const startH = parseInt(a.start_time.split(":")[0], 10);
+      const endH = parseInt(a.end_time.split(":")[0], 10);
+      return hour >= startH && hour < endH;
+    });
+  }
+
+  const selectedEmployeeId = form.employee_id ? Number(form.employee_id) : null;
 
   function openAutoModal() {
     setAutoEmployees(members.map((m) => m.id));
@@ -427,6 +461,12 @@ export default function ManagerSchedulePage() {
         <button className={styles.autoBtn} onClick={openAutoModal}>
           ✦ Auto-Generate
         </button>
+        <button
+          className={`${styles.availBtn} ${showAvailability ? styles.availBtnActive : ""}`}
+          onClick={() => setShowAvailability((v) => !v)}
+        >
+          {showAvailability ? "Hide Availability" : "Show Availability"}
+        </button>
         <button className={styles.resetBtn} onClick={handleResetSchedule}>
           Reset Schedule
         </button>
@@ -486,7 +526,7 @@ export default function ManagerSchedulePage() {
             {HOURS.map((hour) => (
               <tr key={hour}>
                 <td className={styles.hourLabel}>{formatHour(hour)}</td>
-                {weekDays.map((day) => {
+                {weekDays.map((day, dayIdx) => {
                   const cellShifts = shiftsForCell(shifts, day, hour);
                   const count = cellShifts.length;
                   const densityCls =
@@ -495,10 +535,22 @@ export default function ManagerSchedulePage() {
                     count === 2 ? styles.d2 :
                     styles.d3;
 
+                  // Availability overlay
+                  let availCls = "";
+                  if (showAvailability && count === 0) {
+                    if (selectedEmployeeId) {
+                      if (isEmployeeAvailable(selectedEmployeeId, dayIdx, hour)) {
+                        availCls = styles.availableCell;
+                      }
+                    } else if (isAnyoneAvailable(dayIdx, hour)) {
+                      availCls = styles.availableCell;
+                    }
+                  }
+
                   return (
                     <td
                       key={day}
-                      className={`${styles.cell} ${densityCls}`}
+                      className={`${styles.cell} ${densityCls} ${availCls}`}
                       onMouseEnter={count > 0 ? (e) => openTooltip(e, cellShifts) : undefined}
                       onMouseLeave={count > 0 ? scheduleClose : undefined}
                     >
