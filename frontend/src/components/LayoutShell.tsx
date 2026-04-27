@@ -11,8 +11,10 @@ const EMPLOYEE_PATHS = [
   "/employee/schedule",
   "/employee/requests",
   "/employee/join",
-  "/employee/performance",
+  "/employee/time-off",
+  "/employee/availability",
   "/messages",
+  "/notifications",
 ];
 
 const MANAGER_PATHS = [
@@ -20,8 +22,10 @@ const MANAGER_PATHS = [
   "/manager/schedule",
   "/manager/requests",
   "/manager/teams",
-  "/manager/performance",
+  "/manager/analytics",
+  "/manager/time-off",
   "/messages",
+  "/notifications",
 ];
 
 export default function LayoutShell({

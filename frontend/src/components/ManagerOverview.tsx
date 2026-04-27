@@ -298,10 +298,17 @@ export default function ManagerOverview() {
           </div>
           <div
             className={styles.quickCard}
-            onClick={() => router.push("/manager/performance")}
+            onClick={() => router.push("/manager/analytics")}
           >
-            <h4>📊 Performance</h4>
-            <p>Track employee metrics</p>
+            <h4>📊 Analytics</h4>
+            <p>Coverage gaps and overtime</p>
+          </div>
+          <div
+            className={styles.quickCard}
+            onClick={() => router.push("/manager/time-off")}
+          >
+            <h4>🏖️ Time Off</h4>
+            <p>Review PTO requests</p>
           </div>
         </div>
       </div>

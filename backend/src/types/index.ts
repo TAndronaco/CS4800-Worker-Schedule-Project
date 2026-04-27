@@ -58,6 +58,34 @@ export interface Notification {
   created_at: Date;
 }
 
+export interface TimeOffRequest {
+  id: number;
+  user_id: number;
+  team_id: number;
+  start_date: string;
+  end_date: string;
+  reason?: string;
+  status: 'pending' | 'approved' | 'denied';
+  reviewed_by?: number;
+  created_at: Date;
+}
+
+export interface ScheduleTemplate {
+  id: number;
+  team_id: number;
+  name: string;
+  created_by: number;
+  template_data: TemplateShift[];
+  created_at: Date;
+}
+
+export interface TemplateShift {
+  day_of_week: number;
+  employee_id: number;
+  start_time: string;
+  end_time: string;
+}
+
 export interface AuthPayload {
   userId: number;
   email: string;

@@ -1,0 +1,245 @@
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.back {
+  background: none;
+  border: none;
+  color: #d4500a;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+
+.back:hover {
+  text-decoration: underline;
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.controls select {
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+}
+
+.addBtn {
+  margin-left: auto;
+  background: #d4500a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.addBtn:hover {
+  background: #b04008;
+  transform: translateY(-1px);
+}
+
+.form {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.dateRow {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.dateRow label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #555;
+  flex: 1;
+}
+
+.dateRow input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.form textarea {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  min-height: 60px;
+  resize: vertical;
+}
+
+.formActions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.submitBtn {
+  background: #d4500a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1.25rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.submitBtn:hover {
+  background: #b04008;
+}
+
+.cancelBtn {
+  background: none;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  padding: 0.5rem 1.25rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.cancelBtn:hover {
+  border-color: #999;
+}
+
+.error {
+  color: #c62828;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.requestCard {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.requestCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.requestCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 12px 12px 0 0;
+  transition: width 0.3s;
+}
+
+.requestHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.requestDates {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.badge {
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badgePending {
+  background: #fff8e1;
+  color: #b8860b;
+}
+
+.badgeApproved {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badgeDenied {
+  background: #fce4ec;
+  color: #c62828;
+}
+
+.requestReason {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 0.35rem 0;
+}
+
+.requestMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  color: #888;
+  margin-top: 0.5rem;
+}
+
+.cancelRequestBtn {
+  background: none;
+  border: 1.5px solid #c62828;
+  color: #c62828;
+  border-radius: 6px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.cancelRequestBtn:hover {
+  background: #fce4ec;
+}
+
+.emptyState {
+  text-align: center;
+  color: #888;
+  padding: 3rem 1rem;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 1rem;
+  }
+  .dateRow {
+    flex-direction: column;
+  }
+}

@@ -25,6 +25,21 @@ interface Shift {
   employee_id: number;
 }
 
+interface TemplateShift {
+  day_of_week: number;
+  employee_id: number;
+  start_time: string;
+  end_time: string;
+}
+
+interface Template {
+  id: number;
+  team_id: number;
+  name: string;
+  template_data: TemplateShift[];
+  created_at: string;
+}
+
 interface TooltipState {
   top: number;
   left: number;
@@ -191,6 +206,10 @@ export default function ManagerSchedulePage() {
   const [availability, setAvailability] = useState<AvailabilitySlot[]>([]);
   const [showAvailability, setShowAvailability] = useState(false);
 
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [newTemplateName, setNewTemplateName] = useState("");
+
   const isDirty = JSON.stringify(originalShifts) !== JSON.stringify(shifts);
 
   useEffect(() => {
@@ -215,6 +234,67 @@ export default function ManagerSchedulePage() {
       setShifts(data);
     });
   }, [selectedTeam, week]);
+
+  function loadTemplates() {
+    if (!selectedTeam) return;
+    apiFetch(`/templates?team_id=${selectedTeam}`)
+      .then((r) => r.json())
+      .then(setTemplates)
+      .catch(() => setTemplates([]));
+  }
+
+  async function saveAsTemplate() {
+    if (!newTemplateName.trim() || shifts.length === 0) return;
+    const templateData: TemplateShift[] = shifts.map((s) => ({
+      day_of_week: new Date(s.date + "T00:00:00").getDay(),
+      employee_id: s.employee_id,
+      start_time: s.start_time,
+      end_time: s.end_time,
+    }));
+    try {
+      await apiFetch("/templates", {
+        method: "POST",
+        body: JSON.stringify({
+          team_id: selectedTeam,
+          name: newTemplateName.trim(),
+          template_data: templateData,
+        }),
+      });
+      setNewTemplateName("");
+      loadTemplates();
+    } catch {
+      alert("Failed to save template.");
+    }
+  }
+
+  function applyTemplate(template: Template) {
+    const templateShifts: Shift[] = template.template_data.map((ts) => {
+      const targetDay = weekDays.find((d) => new Date(d + "T00:00:00").getDay() === ts.day_of_week);
+      const emp = members.find((m) => m.id === ts.employee_id);
+      return {
+        id: Math.random() * -1,
+        date: targetDay || weekDays[0],
+        start_time: ts.start_time,
+        end_time: ts.end_time,
+        employee_id: ts.employee_id,
+        first_name: emp?.first_name || "Unknown",
+        last_name: emp?.last_name || "",
+      };
+    }).filter((s) => s.date);
+
+    setShifts(templateShifts.sort((a, b) => a.date.localeCompare(b.date)));
+    setShowTemplateModal(false);
+  }
+
+  async function deleteTemplate(id: number) {
+    if (!confirm("Delete this template?")) return;
+    try {
+      await apiFetch(`/templates/${id}`, { method: "DELETE" });
+      loadTemplates();
+    } catch {
+      alert("Failed to delete template.");
+    }
+  }
 
   function addShift(e: React.FormEvent) {
     e.preventDefault();
@@ -470,6 +550,9 @@ export default function ManagerSchedulePage() {
         <button className={styles.resetBtn} onClick={handleResetSchedule}>
           Reset Schedule
         </button>
+        <button className={styles.templateBtn} onClick={() => { loadTemplates(); setShowTemplateModal(true); }}>
+          Templates
+        </button>
       </div>
 
       {showForm && (
@@ -589,6 +672,79 @@ export default function ManagerSchedulePage() {
               </button>
             </div>
           ))}
+        </div>
+      )}
+
+      {showTemplateModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowTemplateModal(false)}>
+          <div className={styles.templateModal} onClick={(e) => e.stopPropagation()}>
+            <h2 className={styles.modalTitle}>Schedule Templates</h2>
+            <p className={styles.modalSub}>
+              Save the current schedule as a reusable template, or apply a saved one.
+            </p>
+
+            {templates.length === 0 ? (
+              <div className={styles.emptyTemplates}>
+                No templates saved yet. Create one from your current schedule below.
+              </div>
+            ) : (
+              <div className={styles.templateList}>
+                {templates.map((t) => (
+                  <div key={t.id} className={styles.templateItem}>
+                    <div className={styles.templateItemInfo}>
+                      <span className={styles.templateItemName}>{t.name}</span>
+                      <span className={styles.templateItemMeta}>
+                        {t.template_data.length} shifts ·{" "}
+                        {new Date(t.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      </span>
+                    </div>
+                    <div className={styles.templateItemActions}>
+                      <button
+                        className={styles.templateApplyBtn}
+                        onClick={() => applyTemplate(t)}
+                      >
+                        Apply
+                      </button>
+                      <button
+                        className={styles.templateDeleteBtn}
+                        onClick={() => deleteTemplate(t.id)}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {shifts.length > 0 && (
+              <div className={styles.saveTemplateSection}>
+                <h3 style={{ fontSize: "0.85rem", fontWeight: 700, color: "#444", margin: "0 0 0.5rem" }}>
+                  Save Current Schedule
+                </h3>
+                <div className={styles.saveTemplateRow}>
+                  <input
+                    placeholder="Template name..."
+                    value={newTemplateName}
+                    onChange={(e) => setNewTemplateName(e.target.value)}
+                  />
+                  <button
+                    className={styles.saveTemplateBtn}
+                    onClick={saveAsTemplate}
+                    disabled={!newTemplateName.trim()}
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className={styles.modalActions}>
+              <button className={styles.cancelBtn} onClick={() => setShowTemplateModal(false)}>
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

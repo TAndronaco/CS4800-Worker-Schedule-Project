@@ -623,6 +623,150 @@
   background: #fafafa;
 }
 
+/* ── Template Buttons ── */
+
+.templateBtn {
+  background: none;
+  border: 1.5px solid #6a1b9a;
+  color: #6a1b9a;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.templateBtn:hover {
+  background: #f3e5f5;
+  transform: translateY(-1px);
+}
+
+.templateModal {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  width: 480px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+}
+
+.templateList {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 0.75rem;
+}
+
+.templateItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.templateItem:hover {
+  background: #f5f5f5;
+  transform: translateY(-1px);
+}
+
+.templateItemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.templateItemName {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.templateItemMeta {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.templateItemActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.templateApplyBtn {
+  background: #6a1b9a;
+  color: white;
+  border: none;
+  padding: 0.35rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.templateApplyBtn:hover {
+  background: #4a148c;
+}
+
+.templateDeleteBtn {
+  background: none;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+}
+
+.templateDeleteBtn:hover {
+  color: #c62828;
+  background: #fce4ec;
+}
+
+.saveTemplateSection {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.saveTemplateRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.saveTemplateRow input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.saveTemplateBtn {
+  background: #d4500a;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.saveTemplateBtn:hover {
+  background: #b04008;
+}
+
+.emptyTemplates {
+  text-align: center;
+  color: #888;
+  padding: 1.5rem;
+  font-size: 0.9rem;
+}
+
 /* ── Responsive ── */
 
 @media (max-width: 768px) {

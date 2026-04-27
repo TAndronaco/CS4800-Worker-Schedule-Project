@@ -23,8 +23,8 @@ interface Contact {
 
 interface Message {
   id: number;
+  conversation_id: number;
   sender_id: number;
-  receiver_id: number;
   content: string;
   created_at: string;
   first_name: string;
@@ -35,8 +35,8 @@ const NAV_ITEMS = [
   { label: "Dashboard", icon: "🏠", path: "/dashboard" },
   { label: "My Schedule", icon: "📅", path: "/employee/schedule" },
   { label: "Requests", icon: "🔄", path: "/employee/requests" },
+  { label: "Messages", icon: "💬", path: "/messages" },
   { label: "Join Team", icon: "👥", path: "/employee/join" },
-  { label: "Performance", icon: "📊", path: "/employee/performance" },
 ];
 
 export default function EmployeeLayout({
@@ -61,40 +61,43 @@ export default function EmployeeLayout({
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
 
+  const [activeConvId, setActiveConvId] = useState<number | null>(null);
+
   // Fetch contacts
   useEffect(() => {
     if (!user) return;
-    apiFetch(`/messages/contacts/list?userId=${user.id}`)
+    apiFetch("/messages/contacts/list")
       .then((res) => res.json())
       .then((data) => setContacts(data))
       .catch(() => setContacts([]));
   }, [user]);
 
-  // Fetch messages for selected contact
+  // Fetch messages for selected contact via DM conversation
   useEffect(() => {
     if (!selectedContact || !user) return;
-    apiFetch(`/messages/${selectedContact.id}?currentUserId=${user.id}`)
+    apiFetch("/messages/conversations/dm", {
+      method: "POST",
+      body: JSON.stringify({ other_user_id: selectedContact.id }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setActiveConvId(data.conversation_id);
+        return apiFetch(`/messages/conversations/${data.conversation_id}/messages`);
+      })
       .then((res) => res.json())
       .then((data) => setMessages(data))
       .catch(() => setMessages([]));
   }, [selectedContact, user]);
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !selectedContact || !user) return;
-    const res = await apiFetch("/messages", {
+    if (!newMessage.trim() || !activeConvId || !user) return;
+    const res = await apiFetch(`/messages/conversations/${activeConvId}/messages`, {
       method: "POST",
-      body: JSON.stringify({
-        receiver_id: selectedContact.id,
-        sender_id: user.id,
-        content: newMessage,
-      }),
+      body: JSON.stringify({ content: newMessage }),
     });
     if (res.ok) {
       const sent = await res.json();
-      setMessages((prev) => [
-        ...prev,
-        { ...sent, first_name: user.first_name, last_name: user.last_name },
-      ]);
+      setMessages((prev) => [...prev, sent]);
       setNewMessage("");
     }
   };

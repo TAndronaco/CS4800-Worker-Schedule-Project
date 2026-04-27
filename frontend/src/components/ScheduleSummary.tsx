@@ -163,10 +163,10 @@ export default function ScheduleSummary({ userId }: { userId: number }) {
         </div>
         <div
           className={styles.quickCard}
-          onClick={() => router.push("/employee/performance")}
+          onClick={() => router.push("/employee/time-off")}
         >
-          <h4>📊 Performance</h4>
-          <p>View your metrics</p>
+          <h4>🏖️ Time Off</h4>
+          <p>Request days off</p>
         </div>
         <div
           className={styles.quickCard}

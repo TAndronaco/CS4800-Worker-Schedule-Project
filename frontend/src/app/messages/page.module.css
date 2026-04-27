@@ -1,85 +1,159 @@
 .container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  padding: 20px;
+  height: calc(100vh - 70px);
   max-width: 1100px;
   margin: 0 auto;
+  padding: 1.25rem;
 }
 
 .header {
   display: flex;
   align-items: center;
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.back {
+  background: none;
+  border: none;
+  color: #d4500a;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.back:hover {
+  text-decoration: underline;
 }
 
 .header h1 {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.header button {
-  background: none;
-  border: 1px solid #ccc;
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0;
 }
 
 .chatLayout {
   display: flex;
   flex: 1;
-  gap: 16px;
-  overflow: hidden;
   border: 1px solid #e0e0e0;
   border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
 }
 
-.contactsList {
-  width: 250px;
+/* ── Sidebar (conversations list) ── */
+
+.sidebar {
+  width: 300px;
   border-right: 1px solid #e0e0e0;
-  padding: 16px;
-  overflow-y: auto;
-  background: #f9f9f9;
-}
-
-.contactsList h3 {
-  font-size: 1rem;
-  font-weight: bold;
-  margin-bottom: 12px;
-  color: #555;
-}
-
-.contactItem {
-  padding: 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-bottom: 8px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  background: #fafafa;
 }
 
-.contactItem:hover {
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.sidebarTitle {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.newGroupBtn {
+  background: #d4500a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.newGroupBtn:hover {
+  background: #b04008;
+}
+
+.newDmBtn {
+  background: none;
+  border: 1.5px solid #d4500a;
+  color: #d4500a;
+  border-radius: 6px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-right: 0.5rem;
+}
+
+.newDmBtn:hover {
+  background: #fff0eb;
+}
+
+.conversationList {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.convItem {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.15s;
+}
+
+.convItem:hover {
   background: #f0f0f0;
 }
 
-.activeContact {
+.convItemActive {
   background: #fff0eb;
-  border: 1px solid #e05c1a;
+  border-left: 3px solid #d4500a;
 }
 
-.contactName {
+.convName {
   font-weight: 600;
+  font-size: 0.9rem;
+  color: #222;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.groupIcon {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.convPreview {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.convTime {
+  font-size: 0.72rem;
+  color: #aaa;
+  float: right;
+}
+
+.emptyConvs {
+  text-align: center;
+  color: #999;
+  padding: 2rem 1rem;
   font-size: 0.9rem;
 }
 
-.contactRole {
-  font-size: 0.75rem;
-  color: #888;
-  text-transform: capitalize;
-}
+/* ── Chat Window ── */
 
 .chatWindow {
   flex: 1;
@@ -94,175 +168,339 @@
   align-items: center;
   justify-content: center;
   color: #999;
+  font-size: 0.95rem;
 }
 
 .chatHeader {
-  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem;
   border-bottom: 1px solid #e0e0e0;
-  font-weight: bold;
+  background: #fafafa;
+}
+
+.chatHeaderInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.chatHeaderName {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.chatHeaderMembers {
+  font-size: 0.78rem;
+  color: #888;
 }
 
 .chatBox {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
+  padding: 1rem 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0.5rem;
 }
 
-.empty {
-  text-align: center;
-  color: #999;
-  margin-top: 40px;
+.messageGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
 }
 
 .myMessage {
   align-self: flex-end;
-  background: #e05c1a;
-  color: white;
-  padding: 10px 14px;
-  border-radius: 16px 16px 0 16px;
   max-width: 70%;
 }
 
 .otherMessage {
   align-self: flex-start;
-  background: white;
-  border: 1px solid #e0e0e0;
-  padding: 10px 14px;
-  border-radius: 16px 16px 16px 0;
   max-width: 70%;
 }
 
-.sender {
-  font-size: 0.75rem;
-  font-weight: bold;
-  display: block;
-  margin-bottom: 4px;
+.senderLabel {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #888;
+  margin-bottom: 0.1rem;
+  padding-left: 0.25rem;
 }
 
-.time {
-  font-size: 0.7rem;
-  opacity: 0.7;
-  display: block;
-  margin-top: 4px;
+.bubble {
+  padding: 0.6rem 0.9rem;
+  border-radius: 16px;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  position: relative;
 }
+
+.myMessage .bubble {
+  background: #d4500a;
+  color: #fff;
+  border-radius: 16px 16px 0 16px;
+}
+
+.otherMessage .bubble {
+  background: #f0f0f0;
+  color: #222;
+  border-radius: 16px 16px 16px 0;
+}
+
+.msgTime {
+  font-size: 0.68rem;
+  opacity: 0.6;
+  margin-top: 0.15rem;
+  text-align: right;
+}
+
+.otherMessage .msgTime {
+  text-align: left;
+}
+
+.chatEmpty {
+  text-align: center;
+  color: #999;
+  margin-top: 3rem;
+}
+
+/* ── Input Area ── */
 
 .inputArea {
   display: flex;
-  gap: 10px;
-  padding: 16px;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
   border-top: 1px solid #e0e0e0;
+  background: #fafafa;
 }
 
 .input {
   flex: 1;
-  padding: 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 1rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 0.92rem;
   outline: none;
+  transition: border-color 0.2s;
 }
 
 .input:focus {
-  border-color: #e05c1a;
+  border-color: #d4500a;
 }
 
 .sendButton {
-  background: #e05c1a;
+  background: #d4500a;
   color: white;
   border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   cursor: pointer;
-  font-size: 1rem;
-  font-weight: bold;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.1s;
+  flex-shrink: 0;
 }
 
 .sendButton:hover {
-  background: #c44d14;
+  background: #b04008;
+  transform: scale(1.05);
+}
+
+/* ── Modal (group creation + DM picker) ── */
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.modal {
+  background: white;
+  border-radius: 16px;
+  padding: 1.75rem;
+  width: 420px;
+  max-width: 95vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+}
+
+.modalTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+}
+
+.modalSub {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0 0 1.25rem;
+}
+
+.modalField {
+  margin-bottom: 1rem;
+}
+
+.modalField label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 0.35rem;
+}
+
+.modalField input[type="text"] {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+.memberCheckList {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+
+.checkLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.4rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.checkLabel:hover {
+  background: #f5f5f5;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.cancelBtn {
+  background: none;
+  border: 1px solid #ccc;
+  padding: 0.5rem 1.1rem;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.createBtn {
+  background: #d4500a;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.3rem;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.createBtn:hover {
+  background: #b04008;
+}
+
+.createBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.modalError {
+  color: #c62828;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.contactPickList {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.contactPickItem {
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.contactPickItem:hover {
+  background: #f5f5f5;
+}
+
+.contactPickName {
+  font-weight: 500;
+  font-size: 0.92rem;
+}
+
+.contactPickRole {
+  font-size: 0.78rem;
+  color: #888;
+  text-transform: capitalize;
 }
 
 /* ── Responsive ── */
 
 @media (max-width: 768px) {
   .container {
-    padding: 12px;
-  }
-
-  .header {
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-
-  .header h1 {
-    font-size: 1.2rem;
+    padding: 0.75rem;
   }
 
   .chatLayout {
     flex-direction: column;
-    gap: 0;
   }
 
-  .contactsList {
+  .sidebar {
     width: 100%;
     border-right: none;
     border-bottom: 1px solid #e0e0e0;
     max-height: 200px;
-    padding: 12px;
   }
 
   .chatWindow {
-    min-height: 300px;
-  }
-
-  .chatBox {
-    padding: 12px;
-  }
-
-  .inputArea {
-    padding: 10px;
-    gap: 8px;
-  }
-
-  .input {
-    padding: 10px;
-    font-size: 0.9rem;
-  }
-
-  .sendButton {
-    padding: 10px 16px;
-    font-size: 0.9rem;
+    min-height: 350px;
   }
 }
 
 @media (max-width: 480px) {
   .container {
-    padding: 8px;
+    padding: 0.5rem;
   }
 
   .header h1 {
-    font-size: 1.05rem;
+    font-size: 1.1rem;
   }
 
-  .contactsList {
-    max-height: 160px;
-    padding: 8px;
-  }
-
-  .contactItem {
-    padding: 8px;
-    margin-bottom: 4px;
-  }
-
-  .contactName {
-    font-size: 0.82rem;
+  .sidebar {
+    max-height: 180px;
   }
 
   .myMessage,
   .otherMessage {
     max-width: 85%;
-    padding: 8px 12px;
+  }
+
+  .bubble {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
   }
 }

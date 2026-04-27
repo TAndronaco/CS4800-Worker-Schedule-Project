@@ -1,0 +1,184 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.back {
+  background: none;
+  border: none;
+  color: #d4500a;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+
+.back:hover {
+  text-decoration: underline;
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.controls select {
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+}
+
+.filterBtns {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.filterBtn {
+  padding: 0.4rem 0.85rem;
+  border-radius: 20px;
+  border: 1.5px solid #ddd;
+  background: #fff;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filterBtn:hover {
+  border-color: #d4500a;
+  color: #d4500a;
+}
+
+.filterBtnActive {
+  background: #d4500a;
+  color: #fff;
+  border-color: #d4500a;
+}
+
+.requestCard {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.requestCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.requestHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.requestName {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.badge {
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badgePending {
+  background: #fff8e1;
+  color: #b8860b;
+}
+
+.badgeApproved {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badgeDenied {
+  background: #fce4ec;
+  color: #c62828;
+}
+
+.requestDates {
+  font-size: 0.95rem;
+  color: #333;
+  margin: 0.25rem 0;
+}
+
+.requestReason {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 0.25rem 0;
+}
+
+.requestActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.approveBtn {
+  background: #2e7d32;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.approveBtn:hover {
+  background: #1b5e20;
+}
+
+.denyBtn {
+  background: none;
+  border: 1.5px solid #c62828;
+  color: #c62828;
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.denyBtn:hover {
+  background: #fce4ec;
+}
+
+.requestMeta {
+  font-size: 0.82rem;
+  color: #888;
+  margin-top: 0.5rem;
+}
+
+.emptyState {
+  text-align: center;
+  color: #888;
+  padding: 3rem 1rem;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 1rem;
+  }
+  .filterBtns {
+    margin-left: 0;
+  }
+}

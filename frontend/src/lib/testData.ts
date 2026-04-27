@@ -137,26 +137,146 @@ function getMembersForTeam(teamId: number): TestMember[] {
   });
 }
 
-// --- Messages ---
-interface TestMessage {
+// --- Conversations & Messages ---
+interface TestConversation {
   id: number;
+  type: "dm" | "group";
+  name: string | null;
+  created_by: number;
+  team_id: number | null;
+  created_at: string;
+  member_ids: number[];
+}
+
+interface TestConvMessage {
+  id: number;
+  conversation_id: number;
   sender_id: number;
-  receiver_id: number;
   content: string;
   created_at: string;
   first_name: string;
   last_name: string;
 }
 
-const MESSAGES: TestMessage[] = [
-  { id: 1, sender_id: 201, receiver_id: 202, content: "Hey Emily, can you cover my Monday shift?", created_at: new Date(Date.now() - 86400000 * 2).toISOString(), first_name: "Jake", last_name: "Miller" },
-  { id: 2, sender_id: 202, receiver_id: 201, content: "Sure! What time is it?", created_at: new Date(Date.now() - 86400000 * 2 + 3600000).toISOString(), first_name: "Emily", last_name: "Nguyen" },
-  { id: 3, sender_id: 201, receiver_id: 202, content: "6 AM to noon. Thanks so much!", created_at: new Date(Date.now() - 86400000 * 2 + 7200000).toISOString(), first_name: "Jake", last_name: "Miller" },
-  { id: 4, sender_id: 203, receiver_id: 201, content: "Jake, are we both on Saturday for Weekend Warriors?", created_at: new Date(Date.now() - 86400000).toISOString(), first_name: "Carlos", last_name: "Rivera" },
-  { id: 5, sender_id: 201, receiver_id: 203, content: "Yeah I think so! See you there", created_at: new Date(Date.now() - 86400000 + 1800000).toISOString(), first_name: "Jake", last_name: "Miller" },
-  { id: 6, sender_id: 101, receiver_id: 201, content: "Jake, great work last week. Keep it up!", created_at: new Date(Date.now() - 86400000 * 3).toISOString(), first_name: "Sarah", last_name: "Chen" },
-  { id: 7, sender_id: 102, receiver_id: 203, content: "Carlos, reminder: your evening shift starts at 4 PM Thursday", created_at: new Date(Date.now() - 86400000).toISOString(), first_name: "Marcus", last_name: "Jones" },
-  { id: 8, sender_id: 203, receiver_id: 102, content: "Got it, thanks Marcus!", created_at: new Date(Date.now() - 86400000 + 600000).toISOString(), first_name: "Carlos", last_name: "Rivera" },
+const CONVERSATIONS: TestConversation[] = [
+  { id: 1, type: "dm", name: null, created_by: 201, team_id: null, created_at: new Date(Date.now() - 86400000 * 2).toISOString(), member_ids: [201, 202] },
+  { id: 2, type: "dm", name: null, created_by: 203, team_id: null, created_at: new Date(Date.now() - 86400000).toISOString(), member_ids: [201, 203] },
+  { id: 3, type: "dm", name: null, created_by: 101, team_id: null, created_at: new Date(Date.now() - 86400000 * 3).toISOString(), member_ids: [101, 201] },
+  { id: 4, type: "dm", name: null, created_by: 102, team_id: null, created_at: new Date(Date.now() - 86400000).toISOString(), member_ids: [102, 203] },
+  { id: 5, type: "group", name: "Morning Crew Chat", created_by: 101, team_id: 1, created_at: new Date(Date.now() - 86400000 * 5).toISOString(), member_ids: [101, 201, 202] },
+  { id: 6, type: "group", name: "Weekend Planning", created_by: 103, team_id: 3, created_at: new Date(Date.now() - 86400000 * 2).toISOString(), member_ids: [103, 201, 203] },
+];
+
+const CONV_MESSAGES: TestConvMessage[] = [
+  { id: 1, conversation_id: 1, sender_id: 201, content: "Hey Emily, can you cover my Monday shift?", created_at: new Date(Date.now() - 86400000 * 2).toISOString(), first_name: "Jake", last_name: "Miller" },
+  { id: 2, conversation_id: 1, sender_id: 202, content: "Sure! What time is it?", created_at: new Date(Date.now() - 86400000 * 2 + 3600000).toISOString(), first_name: "Emily", last_name: "Nguyen" },
+  { id: 3, conversation_id: 1, sender_id: 201, content: "6 AM to noon. Thanks so much!", created_at: new Date(Date.now() - 86400000 * 2 + 7200000).toISOString(), first_name: "Jake", last_name: "Miller" },
+  { id: 4, conversation_id: 2, sender_id: 203, content: "Jake, are we both on Saturday for Weekend Warriors?", created_at: new Date(Date.now() - 86400000).toISOString(), first_name: "Carlos", last_name: "Rivera" },
+  { id: 5, conversation_id: 2, sender_id: 201, content: "Yeah I think so! See you there", created_at: new Date(Date.now() - 86400000 + 1800000).toISOString(), first_name: "Jake", last_name: "Miller" },
+  { id: 6, conversation_id: 3, sender_id: 101, content: "Jake, great work last week. Keep it up!", created_at: new Date(Date.now() - 86400000 * 3).toISOString(), first_name: "Sarah", last_name: "Chen" },
+  { id: 7, conversation_id: 4, sender_id: 102, content: "Carlos, reminder: your evening shift starts at 4 PM Thursday", created_at: new Date(Date.now() - 86400000).toISOString(), first_name: "Marcus", last_name: "Jones" },
+  { id: 8, conversation_id: 4, sender_id: 203, content: "Got it, thanks Marcus!", created_at: new Date(Date.now() - 86400000 + 600000).toISOString(), first_name: "Carlos", last_name: "Rivera" },
+  { id: 9, conversation_id: 5, sender_id: 101, content: "Team, schedule for this week is posted!", created_at: new Date(Date.now() - 86400000 * 4).toISOString(), first_name: "Sarah", last_name: "Chen" },
+  { id: 10, conversation_id: 5, sender_id: 202, content: "Thanks Sarah, looks good!", created_at: new Date(Date.now() - 86400000 * 4 + 3600000).toISOString(), first_name: "Emily", last_name: "Nguyen" },
+  { id: 11, conversation_id: 5, sender_id: 201, content: "Got it, see everyone Monday", created_at: new Date(Date.now() - 86400000 * 4 + 7200000).toISOString(), first_name: "Jake", last_name: "Miller" },
+  { id: 12, conversation_id: 6, sender_id: 103, content: "Weekend shift assignments are up. Any conflicts?", created_at: new Date(Date.now() - 86400000 * 2).toISOString(), first_name: "Priya", last_name: "Patel" },
+  { id: 13, conversation_id: 6, sender_id: 201, content: "All good on my end!", created_at: new Date(Date.now() - 86400000 * 2 + 1800000).toISOString(), first_name: "Jake", last_name: "Miller" },
+  { id: 14, conversation_id: 6, sender_id: 203, content: "Same here, thanks Priya", created_at: new Date(Date.now() - 86400000 * 2 + 3600000).toISOString(), first_name: "Carlos", last_name: "Rivera" },
+];
+
+// --- Time-Off Requests ---
+interface TestTimeOff {
+  id: number;
+  user_id: number;
+  team_id: number;
+  start_date: string;
+  end_date: string;
+  reason: string | null;
+  status: "pending" | "approved" | "denied";
+  reviewed_by: number | null;
+  created_at: string;
+  first_name: string;
+  last_name: string;
+  reviewer_first_name?: string;
+  reviewer_last_name?: string;
+}
+
+const TIME_OFF_REQUESTS: TestTimeOff[] = [
+  { id: 1, user_id: 201, team_id: 1, start_date: offsetDate(MONDAY, 7), end_date: offsetDate(MONDAY, 9), reason: "Family vacation", status: "pending", reviewed_by: null, created_at: new Date(Date.now() - 86400000 * 2).toISOString(), first_name: "Jake", last_name: "Miller" },
+  { id: 2, user_id: 202, team_id: 1, start_date: offsetDate(MONDAY, 14), end_date: offsetDate(MONDAY, 14), reason: "Doctor appointment", status: "approved", reviewed_by: 101, created_at: new Date(Date.now() - 86400000 * 5).toISOString(), first_name: "Emily", last_name: "Nguyen", reviewer_first_name: "Sarah", reviewer_last_name: "Chen" },
+  { id: 3, user_id: 203, team_id: 2, start_date: offsetDate(MONDAY, 10), end_date: offsetDate(MONDAY, 12), reason: "Moving to a new apartment", status: "pending", reviewed_by: null, created_at: new Date(Date.now() - 86400000).toISOString(), first_name: "Carlos", last_name: "Rivera" },
+  { id: 4, user_id: 201, team_id: 3, start_date: offsetDate(MONDAY, -3), end_date: offsetDate(MONDAY, -2), reason: "Personal day", status: "denied", reviewed_by: 103, created_at: new Date(Date.now() - 86400000 * 10).toISOString(), first_name: "Jake", last_name: "Miller", reviewer_first_name: "Priya", reviewer_last_name: "Patel" },
+];
+
+// --- Availability ---
+interface TestAvailability {
+  id: number;
+  user_id: number;
+  team_id: number;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  first_name: string;
+  last_name: string;
+}
+
+const AVAILABILITY: TestAvailability[] = [
+  { id: 1, user_id: 201, team_id: 1, day_of_week: 0, start_time: "06:00", end_time: "14:00", first_name: "Jake", last_name: "Miller" },
+  { id: 2, user_id: 201, team_id: 1, day_of_week: 2, start_time: "06:00", end_time: "14:00", first_name: "Jake", last_name: "Miller" },
+  { id: 3, user_id: 201, team_id: 1, day_of_week: 4, start_time: "06:00", end_time: "14:00", first_name: "Jake", last_name: "Miller" },
+  { id: 4, user_id: 202, team_id: 1, day_of_week: 0, start_time: "07:00", end_time: "15:00", first_name: "Emily", last_name: "Nguyen" },
+  { id: 5, user_id: 202, team_id: 1, day_of_week: 1, start_time: "08:00", end_time: "16:00", first_name: "Emily", last_name: "Nguyen" },
+  { id: 6, user_id: 202, team_id: 1, day_of_week: 2, start_time: "08:00", end_time: "16:00", first_name: "Emily", last_name: "Nguyen" },
+  { id: 7, user_id: 202, team_id: 1, day_of_week: 4, start_time: "06:00", end_time: "14:00", first_name: "Emily", last_name: "Nguyen" },
+  { id: 8, user_id: 203, team_id: 2, day_of_week: 1, start_time: "14:00", end_time: "22:00", first_name: "Carlos", last_name: "Rivera" },
+  { id: 9, user_id: 203, team_id: 2, day_of_week: 3, start_time: "14:00", end_time: "22:00", first_name: "Carlos", last_name: "Rivera" },
+  { id: 10, user_id: 203, team_id: 2, day_of_week: 5, start_time: "10:00", end_time: "20:00", first_name: "Carlos", last_name: "Rivera" },
+];
+
+// --- Notifications ---
+interface TestNotification {
+  id: number;
+  user_id: number;
+  type: string;
+  message: string;
+  read: boolean;
+  related_id: number | null;
+  created_at: string;
+}
+
+const NOTIFICATIONS: TestNotification[] = [
+  { id: 1, user_id: 201, type: "shift_assigned", message: "You've been assigned a shift on Monday (06:00–12:00).", read: false, related_id: 1, created_at: new Date(Date.now() - 86400000 * 3).toISOString() },
+  { id: 2, user_id: 201, type: "pto_denied", message: "Your time-off request (personal day) was denied.", read: false, related_id: 4, created_at: new Date(Date.now() - 86400000 * 9).toISOString() },
+  { id: 3, user_id: 201, type: "swap_proposed", message: "Emily Nguyen wants to swap shifts with you.", read: true, related_id: 2, created_at: new Date(Date.now() - 86400000 * 4).toISOString() },
+  { id: 4, user_id: 202, type: "shift_assigned", message: "You've been assigned a shift on Monday (07:00–13:00).", read: true, related_id: 2, created_at: new Date(Date.now() - 86400000 * 3).toISOString() },
+  { id: 5, user_id: 202, type: "pto_approved", message: "Your time-off request was approved.", read: false, related_id: 2, created_at: new Date(Date.now() - 86400000 * 4).toISOString() },
+  { id: 6, user_id: 203, type: "shift_assigned", message: "You've been assigned a shift on Tuesday (15:00–21:00).", read: false, related_id: 8, created_at: new Date(Date.now() - 86400000 * 2).toISOString() },
+  { id: 7, user_id: 203, type: "request_approved", message: "Your shift swap request was approved.", read: true, related_id: 6, created_at: new Date(Date.now() - 86400000 * 3).toISOString() },
+];
+
+// --- Schedule Templates ---
+interface TestTemplate {
+  id: number;
+  team_id: number;
+  name: string;
+  created_by: number;
+  template_data: { day_of_week: number; employee_id: number; start_time: string; end_time: string }[];
+  created_at: string;
+}
+
+const TEMPLATES: TestTemplate[] = [
+  {
+    id: 1, team_id: 1, name: "Standard Morning Week", created_by: 101,
+    template_data: [
+      { day_of_week: 1, employee_id: 201, start_time: "06:00", end_time: "12:00" },
+      { day_of_week: 1, employee_id: 202, start_time: "07:00", end_time: "13:00" },
+      { day_of_week: 3, employee_id: 201, start_time: "06:00", end_time: "11:00" },
+      { day_of_week: 3, employee_id: 202, start_time: "08:00", end_time: "14:00" },
+      { day_of_week: 5, employee_id: 201, start_time: "06:00", end_time: "12:00" },
+      { day_of_week: 5, employee_id: 202, start_time: "06:00", end_time: "12:00" },
+    ],
+    created_at: new Date(Date.now() - 86400000 * 7).toISOString(),
+  },
 ];
 
 // --- Mock API response resolver ---
