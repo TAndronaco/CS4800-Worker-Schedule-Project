@@ -64,7 +64,7 @@ export default function RequestsPage() {
     if (!selectedTeam) return;
     apiFetch(`/requests?team_id=${selectedTeam}`)
       .then((r) => r.json())
-      .then(setRequests);
+      .then((data) => setRequests(Array.isArray(data) ? data : []));
   }, [selectedTeam]);
 
   async function respond(id: number, status: "approved" | "denied") {
@@ -79,8 +79,8 @@ export default function RequestsPage() {
     }
   }
 
-  // Manager can only act on swap requests after target employee accepted
-  function canManagerAct(r: ShiftRequest): boolean {
+  // Manager can approve time-off immediately, but swaps only after the target employee accepts
+  function canApprove(r: ShiftRequest): boolean {
     if (r.status !== "pending") return false;
     if (r.type === "swap") return r.swap_status === "accepted";
     return true;
@@ -152,14 +152,16 @@ export default function RequestsPage() {
                 <span className={`${styles.badge} ${styles[r.status]}`}>
                   {r.status}
                 </span>
-                {canManagerAct(r) && (
+                {r.status === "pending" && (
                   <>
-                    <button
-                      className={styles.approveBtn}
-                      onClick={() => respond(r.id, "approved")}
-                    >
-                      Approve
-                    </button>
+                    {canApprove(r) && (
+                      <button
+                        className={styles.approveBtn}
+                        onClick={() => respond(r.id, "approved")}
+                      >
+                        Approve
+                      </button>
+                    )}
                     <button
                       className={styles.denyBtn}
                       onClick={() => respond(r.id, "denied")}

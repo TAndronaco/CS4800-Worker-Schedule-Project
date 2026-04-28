@@ -96,7 +96,7 @@ export default function EmployeeRequestsPage() {
       .then(setTeamShifts);
     apiFetch(`/requests?team_id=${selectedTeam}`)
       .then((r) => r.json())
-      .then(setRequests);
+      .then((data) => setRequests(Array.isArray(data) ? data : []));
   }, [selectedTeam, userId]);
 
   // Outgoing = requests I made

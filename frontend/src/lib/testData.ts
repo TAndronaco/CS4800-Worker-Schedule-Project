@@ -99,27 +99,38 @@ interface TestRequest {
   id: number;
   type: "swap" | "time_off";
   status: "pending" | "approved" | "denied";
+  swap_status: "pending" | "accepted" | "rejected";
   reason: string | null;
   requester_id: number;
   shift_id: number;
+  target_shift_id?: number | null;
+  target_employee_id?: number | null;
   first_name: string;
   last_name: string;
+  target_first_name?: string | null;
+  target_last_name?: string | null;
   team_id: number;
+  shift_date?: string | null;
+  shift_start_time?: string | null;
+  shift_end_time?: string | null;
+  target_shift_date?: string | null;
+  target_shift_start_time?: string | null;
+  target_shift_end_time?: string | null;
   created_at: string;
 }
 
 const REQUESTS: TestRequest[] = [
   // Jake's requests
-  { id: 1, type: "time_off", status: "pending", reason: "Doctor appointment on Wednesday", requester_id: 201, shift_id: 3, first_name: "Jake", last_name: "Miller", team_id: 1, created_at: new Date().toISOString() },
-  { id: 2, type: "swap", status: "approved", reason: "Need to swap Friday shift with Emily", requester_id: 201, shift_id: 5, first_name: "Jake", last_name: "Miller", team_id: 1, created_at: new Date(Date.now() - 86400000 * 2).toISOString() },
+  { id: 1, type: "time_off", status: "pending", swap_status: "pending", reason: "Doctor appointment on Wednesday", requester_id: 201, shift_id: 3, first_name: "Jake", last_name: "Miller", team_id: 1, shift_date: offsetDate(MONDAY, 2), shift_start_time: "06:00", shift_end_time: "11:00", created_at: new Date().toISOString() },
+  { id: 2, type: "swap", status: "approved", swap_status: "accepted", reason: "Need to swap Friday shift with Emily", requester_id: 201, shift_id: 5, target_shift_id: 6, target_employee_id: 202, first_name: "Jake", last_name: "Miller", target_first_name: "Emily", target_last_name: "Nguyen", team_id: 1, shift_date: offsetDate(MONDAY, 4), shift_start_time: "06:00", shift_end_time: "12:00", target_shift_date: offsetDate(MONDAY, 4), target_shift_start_time: "06:00", target_shift_end_time: "12:00", created_at: new Date(Date.now() - 86400000 * 2).toISOString() },
 
   // Emily's requests
-  { id: 3, type: "time_off", status: "pending", reason: "Family event on Thursday", requester_id: 202, shift_id: 9, first_name: "Emily", last_name: "Nguyen", team_id: 2, created_at: new Date().toISOString() },
-  { id: 4, type: "swap", status: "denied", reason: "Wanted to switch Tuesday shift", requester_id: 202, shift_id: 7, first_name: "Emily", last_name: "Nguyen", team_id: 2, created_at: new Date(Date.now() - 86400000 * 3).toISOString() },
+  { id: 3, type: "time_off", status: "pending", swap_status: "pending", reason: "Family event on Thursday", requester_id: 202, shift_id: 9, first_name: "Emily", last_name: "Nguyen", team_id: 2, shift_date: offsetDate(MONDAY, 3), shift_start_time: "14:00", shift_end_time: "20:00", created_at: new Date().toISOString() },
+  { id: 4, type: "swap", status: "denied", swap_status: "rejected", reason: "Wanted to switch Tuesday shift", requester_id: 202, shift_id: 7, target_shift_id: 8, target_employee_id: 203, first_name: "Emily", last_name: "Nguyen", target_first_name: "Carlos", target_last_name: "Rivera", team_id: 2, shift_date: offsetDate(MONDAY, 1), shift_start_time: "14:00", shift_end_time: "20:00", target_shift_date: offsetDate(MONDAY, 1), target_shift_start_time: "15:00", target_shift_end_time: "21:00", created_at: new Date(Date.now() - 86400000 * 3).toISOString() },
 
   // Carlos's requests
-  { id: 5, type: "time_off", status: "pending", reason: "Car maintenance Saturday morning", requester_id: 203, shift_id: 13, first_name: "Carlos", last_name: "Rivera", team_id: 3, created_at: new Date(Date.now() - 86400000).toISOString() },
-  { id: 6, type: "swap", status: "approved", reason: "Prefer earlier shift on Thursday", requester_id: 203, shift_id: 10, first_name: "Carlos", last_name: "Rivera", team_id: 2, created_at: new Date(Date.now() - 86400000 * 4).toISOString() },
+  { id: 5, type: "time_off", status: "pending", swap_status: "pending", reason: "Car maintenance Saturday morning", requester_id: 203, shift_id: 13, first_name: "Carlos", last_name: "Rivera", team_id: 3, shift_date: offsetDate(MONDAY, 5), shift_start_time: "10:00", shift_end_time: "18:00", created_at: new Date(Date.now() - 86400000).toISOString() },
+  { id: 6, type: "swap", status: "approved", swap_status: "accepted", reason: "Prefer earlier shift on Thursday", requester_id: 203, shift_id: 10, target_shift_id: 9, target_employee_id: 202, first_name: "Carlos", last_name: "Rivera", target_first_name: "Emily", target_last_name: "Nguyen", team_id: 2, shift_date: offsetDate(MONDAY, 3), shift_start_time: "16:00", shift_end_time: "22:00", target_shift_date: offsetDate(MONDAY, 3), target_shift_start_time: "14:00", target_shift_end_time: "20:00", created_at: new Date(Date.now() - 86400000 * 4).toISOString() },
 ];
 
 // --- Members for each team ---
@@ -183,6 +194,19 @@ const CONV_MESSAGES: TestConvMessage[] = [
   { id: 13, conversation_id: 6, sender_id: 201, content: "All good on my end!", created_at: new Date(Date.now() - 86400000 * 2 + 1800000).toISOString(), first_name: "Jake", last_name: "Miller" },
   { id: 14, conversation_id: 6, sender_id: 203, content: "Same here, thanks Priya", created_at: new Date(Date.now() - 86400000 * 2 + 3600000).toISOString(), first_name: "Carlos", last_name: "Rivera" },
 ];
+
+// Legacy direct messages (old API)
+interface TestMessage {
+  id: number;
+  sender_id: number;
+  receiver_id: number;
+  content: string;
+  created_at: string;
+  first_name: string;
+  last_name: string;
+}
+
+const MESSAGES: TestMessage[] = [];
 
 // --- Time-Off Requests ---
 interface TestTimeOff {
@@ -279,6 +303,31 @@ const TEMPLATES: TestTemplate[] = [
   },
 ];
 
+// --- Request persistence (survives page reloads within the same browser session) ---
+
+let _requestsLoaded = false;
+
+function loadPersistedRequests(): void {
+  if (_requestsLoaded || typeof window === "undefined") return;
+  _requestsLoaded = true;
+  try {
+    const data = sessionStorage.getItem("shiftsync_test_requests");
+    if (data) {
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        REQUESTS.splice(0, REQUESTS.length, ...parsed);
+      }
+    }
+  } catch {}
+}
+
+function persistRequests(): void {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem("shiftsync_test_requests", JSON.stringify(REQUESTS));
+  } catch {}
+}
+
 // --- Mock API response resolver ---
 
 function jsonResponse(data: unknown): Response {
@@ -303,6 +352,9 @@ export function resolveTestRequest(endpoint: string, options: RequestInit = {}):
   if (!stored || stored === "undefined" || stored === "null") return null;
   const currentUser: TestUser & { isTestUser: boolean } = JSON.parse(stored);
   const method = (options.method || "GET").toUpperCase();
+
+  // Restore any requests saved from a previous page load in this browser session
+  loadPersistedRequests();
 
   // Parse URL params
   const [path, queryString] = endpoint.split("?");
@@ -402,20 +454,48 @@ export function resolveTestRequest(endpoint: string, options: RequestInit = {}):
   // POST /requests
   if (path === "/requests" && method === "POST") {
     const body = JSON.parse(options.body as string);
+    const shift = SHIFTS.find((s) => s.id === Number(body.shift_id));
+    const targetShift = body.target_shift_id ? SHIFTS.find((s) => s.id === Number(body.target_shift_id)) : null;
+    const targetEmployee = body.target_employee_id ? TEST_USERS.find((u) => u.id === Number(body.target_employee_id)) : null;
     const newReq: TestRequest = {
       id: Date.now(),
       type: body.type,
       status: "pending",
+      swap_status: "pending",
       reason: body.reason || null,
       requester_id: currentUser.id,
       shift_id: body.shift_id,
+      target_shift_id: body.target_shift_id || null,
+      target_employee_id: body.target_employee_id || null,
       first_name: currentUser.first_name,
       last_name: currentUser.last_name,
-      team_id: 0,
+      target_first_name: targetEmployee?.first_name || null,
+      target_last_name: targetEmployee?.last_name || null,
+      team_id: shift?.team_id ?? 0,
+      shift_date: shift?.date || null,
+      shift_start_time: shift?.start_time || null,
+      shift_end_time: shift?.end_time || null,
+      target_shift_date: targetShift?.date || null,
+      target_shift_start_time: targetShift?.start_time || null,
+      target_shift_end_time: targetShift?.end_time || null,
       created_at: new Date().toISOString(),
     };
     REQUESTS.push(newReq);
+    persistRequests();
     return jsonResponse(newReq);
+  }
+
+  // PATCH /requests/:id/swap-respond
+  const swapRespondMatch = path.match(/^\/requests\/(\d+)\/swap-respond$/);
+  if (swapRespondMatch && method === "PATCH") {
+    const id = Number(swapRespondMatch[1]);
+    const body = JSON.parse(options.body as string);
+    const req = REQUESTS.find((r) => r.id === id);
+    if (!req) return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+    req.swap_status = body.accept ? "accepted" : "rejected";
+    if (!body.accept) req.status = "denied";
+    persistRequests();
+    return jsonResponse(req);
   }
 
   // PATCH /requests/:id
@@ -426,6 +506,7 @@ export function resolveTestRequest(endpoint: string, options: RequestInit = {}):
     const req = REQUESTS.find((r) => r.id === id);
     if (req) {
       req.status = body.status;
+      persistRequests();
       return jsonResponse(req);
     }
     return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
@@ -456,6 +537,122 @@ export function resolveTestRequest(endpoint: string, options: RequestInit = {}):
       return { id: u.id, first_name: u.first_name, last_name: u.last_name, role: u.role };
     });
     return jsonResponse(contacts);
+  }
+
+  // GET /messages/conversations
+  if (path === "/messages/conversations" && method === "GET") {
+    const userConvs = CONVERSATIONS.filter((c) => c.member_ids.includes(currentUser.id));
+    userConvs.sort((a, b) => {
+      const lastA = CONV_MESSAGES.filter((m) => m.conversation_id === a.id).pop();
+      const lastB = CONV_MESSAGES.filter((m) => m.conversation_id === b.id).pop();
+      const tA = lastA ? new Date(lastA.created_at).getTime() : new Date(a.created_at).getTime();
+      const tB = lastB ? new Date(lastB.created_at).getTime() : new Date(b.created_at).getTime();
+      return tB - tA;
+    });
+    const result = userConvs.map((c) => {
+      const msgs = CONV_MESSAGES.filter((m) => m.conversation_id === c.id)
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      const lastMsg = msgs[0] || null;
+      const otherNames = c.member_ids
+        .filter((id) => id !== currentUser.id)
+        .map((id) => {
+          const u = TEST_USERS.find((u) => u.id === id);
+          return u ? `${u.first_name} ${u.last_name}` : "";
+        })
+        .join(", ");
+      return {
+        id: c.id,
+        type: c.type,
+        name: c.name,
+        created_by: c.created_by,
+        team_id: c.team_id,
+        last_message: lastMsg?.content || null,
+        last_message_at: lastMsg?.created_at || null,
+        last_sender_name: lastMsg ? `${lastMsg.first_name} ${lastMsg.last_name}` : null,
+        member_names: otherNames,
+      };
+    });
+    return jsonResponse(result);
+  }
+
+  // POST /messages/conversations/dm
+  if (path === "/messages/conversations/dm" && method === "POST") {
+    const body = JSON.parse(options.body as string);
+    const otherId = Number(body.other_user_id);
+    const existing = CONVERSATIONS.find(
+      (c) =>
+        c.type === "dm" &&
+        c.member_ids.length === 2 &&
+        c.member_ids.includes(currentUser.id) &&
+        c.member_ids.includes(otherId)
+    );
+    if (existing) return jsonResponse({ conversation_id: existing.id });
+    const newConv: TestConversation = {
+      id: Date.now(),
+      type: "dm",
+      name: null,
+      created_by: currentUser.id,
+      team_id: null,
+      created_at: new Date().toISOString(),
+      member_ids: [currentUser.id, otherId],
+    };
+    CONVERSATIONS.push(newConv);
+    return jsonResponse({ conversation_id: newConv.id });
+  }
+
+  // POST /messages/conversations/group
+  if (path === "/messages/conversations/group" && method === "POST") {
+    const body = JSON.parse(options.body as string);
+    if (!body.name?.trim()) {
+      return new Response(JSON.stringify({ error: "Group name is required." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    const memberIds: number[] = body.member_ids || [];
+    if (memberIds.length < 1) {
+      return new Response(JSON.stringify({ error: "At least one other member is required." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    const allMembers = [currentUser.id, ...memberIds.filter((id) => id !== currentUser.id)];
+    const newConv: TestConversation = {
+      id: Date.now(),
+      type: "group",
+      name: body.name.trim(),
+      created_by: currentUser.id,
+      team_id: body.team_id || null,
+      created_at: new Date().toISOString(),
+      member_ids: allMembers,
+    };
+    CONVERSATIONS.push(newConv);
+    return jsonResponse(newConv);
+  }
+
+  // GET + POST /messages/conversations/:id/messages
+  const convMessagesMatch = path.match(/^\/messages\/conversations\/(\d+)\/messages$/);
+  if (convMessagesMatch && method === "GET") {
+    const convId = Number(convMessagesMatch[1]);
+    const msgs = CONV_MESSAGES
+      .filter((m) => m.conversation_id === convId)
+      .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    return jsonResponse(msgs);
+  }
+  if (convMessagesMatch && method === "POST") {
+    const convId = Number(convMessagesMatch[1]);
+    const body = JSON.parse(options.body as string);
+    const newMsg: TestConvMessage = {
+      id: Date.now(),
+      conversation_id: convId,
+      sender_id: currentUser.id,
+      content: body.content,
+      created_at: new Date().toISOString(),
+      first_name: currentUser.first_name,
+      last_name: currentUser.last_name,
+    };
+    CONV_MESSAGES.push(newMsg);
+    return jsonResponse(newMsg);
   }
 
   // GET /messages/:contactId

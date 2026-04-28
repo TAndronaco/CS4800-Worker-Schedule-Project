@@ -85,7 +85,7 @@ export default function ManagerLayout({
         return apiFetch(`/messages/conversations/${data.conversation_id}/messages`);
       })
       .then((res) => res.json())
-      .then((data) => setMessages(data))
+      .then((data) => setMessages(Array.isArray(data) ? data : []))
       .catch(() => setMessages([]));
   }, [selectedContact, user]);
 

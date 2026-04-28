@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import styles from "./Navbar.module.css";
 import NotificationBell from "./NotificationBell";
@@ -11,11 +11,11 @@ export default function Navbar() {
   const pathname = usePathname();
   const [logoutCount, forceUpdate] = useReducer((x: number) => x + 1, 0);
 
-  const user = useMemo<{ first_name: string; role: string } | null>(() => {
-    if (typeof window === "undefined") return null;
+  const [user, setUser] = useState<{ first_name: string; role: string } | null>(null);
+
+  useEffect(() => {
     const stored = localStorage.getItem("user");
-    return stored && stored !== "undefined" && stored !== "null" ? JSON.parse(stored) : null;
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- re-read localStorage on route change and logout
+    setUser(stored && stored !== "undefined" && stored !== "null" ? JSON.parse(stored) : null);
   }, [pathname, logoutCount]);
 
   const handleLogout = () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import styles from "./page.module.css";
@@ -45,12 +45,13 @@ export default function MessagesPage() {
   const router = useRouter();
   const chatBoxRef = useRef<HTMLDivElement>(null);
 
-  const user = useMemo<User | null>(() => {
-    if (typeof window === "undefined") return null;
+  const [user, setUser] = useState<User | null>(null);
+  const [userLoaded, setUserLoaded] = useState(false);
+
+  useEffect(() => {
     const stored = localStorage.getItem("user");
-    return stored && stored !== "undefined" && stored !== "null"
-      ? JSON.parse(stored)
-      : null;
+    setUser(stored && stored !== "undefined" && stored !== "null" ? JSON.parse(stored) : null);
+    setUserLoaded(true);
   }, []);
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -67,15 +68,16 @@ export default function MessagesPage() {
   const [modalError, setModalError] = useState("");
 
   useEffect(() => {
+    if (!userLoaded) return;
     if (!user) {
       router.push("/login");
     }
-  }, [user, router]);
+  }, [user, userLoaded, router]);
 
   function loadConversations() {
     apiFetch("/messages/conversations")
       .then((r) => r.json())
-      .then(setConversations)
+      .then((data) => setConversations(Array.isArray(data) ? data : []))
       .catch(() => setConversations([]));
   }
 
@@ -153,7 +155,7 @@ export default function MessagesPage() {
       // Select the new/existing conversation
       const convRes = await apiFetch("/messages/conversations");
       const convs: Conversation[] = await convRes.json();
-      setConversations(convs);
+      setConversations(Array.isArray(convs) ? convs : []);
       const found = convs.find((c) => c.id === data.conversation_id);
       if (found) setSelectedConv(found);
     } catch {

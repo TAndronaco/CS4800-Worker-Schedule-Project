@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import EmployeeLayout from "./EmployeeLayout";
@@ -50,11 +50,11 @@ export default function LayoutShell({
     warmup();
   }, []);
 
-  const user = useMemo<{ role: string } | null>(() => {
-    if (typeof window === "undefined") return null;
+  const [user, setUser] = useState<{ role: string } | null>(null);
+
+  useEffect(() => {
     const stored = localStorage.getItem("user");
-    return stored && stored !== "undefined" && stored !== "null" ? JSON.parse(stored) : null;
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- re-read localStorage on route change
+    setUser(stored && stored !== "undefined" && stored !== "null" ? JSON.parse(stored) : null);
   }, [pathname]);
 
   const isEmployeePage =
