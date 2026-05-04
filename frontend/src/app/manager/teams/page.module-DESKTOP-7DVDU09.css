@@ -1,0 +1,142 @@
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.back {
+  background: none;
+  border: none;
+  color: #d4500a;
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 0;
+  margin-bottom: 1rem;
+}
+
+.back:hover {
+  text-decoration: underline;
+}
+
+.form {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin: 1.5rem 0;
+}
+
+.form input {
+  flex: 1;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.form button {
+  background: #d4500a;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.25rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.form button:hover {
+  background: #b04008;
+}
+
+.error {
+  color: #e00;
+  font-size: 0.9rem;
+}
+
+.empty {
+  color: #666;
+  margin-top: 1rem;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.teamCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  animation: fadeInUp 0.4s ease-out both;
+  transition: all 0.2s ease;
+}
+
+.teamCard:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+
+.teamCard h3 {
+  margin: 0 0 0.25rem;
+}
+
+.code {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.copyBtn {
+  background: none;
+  border: 1px solid #ccc;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.copyBtn:hover {
+  background: #f5f5f5;
+  transform: scale(1.05);
+}
+
+.copyBtn:active {
+  transform: scale(0.95);
+}
+
+.error {
+  animation: shake 0.4s ease;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 600px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form button {
+    text-align: center;
+  }
+
+  .teamCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .copyBtn {
+    align-self: flex-start;
+  }
+}
