@@ -121,6 +121,10 @@
     font-size: 0.78rem;
   }
 
+  .links span {
+    display: none;
+  }
+
   .registerBtn {
     padding: 0.35rem 0.6rem;
     font-size: 0.78rem;
