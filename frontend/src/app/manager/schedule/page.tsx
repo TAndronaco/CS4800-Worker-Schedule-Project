@@ -553,6 +553,21 @@ export default function ManagerSchedulePage() {
         <button className={styles.templateBtn} onClick={() => { loadTemplates(); setShowTemplateModal(true); }}>
           Templates
         </button>
+        <button className={styles.exportBtn} onClick={() => {
+          if (!selectedTeam) return;
+          const token = localStorage.getItem("token");
+          const url = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/export/schedule?team_id=${selectedTeam}&week=${week}`;
+          fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+            .then((r) => r.blob())
+            .then((blob) => {
+              const a = document.createElement("a");
+              a.href = URL.createObjectURL(blob);
+              a.download = `schedule-${week}.csv`;
+              a.click();
+            });
+        }}>
+          Export CSV
+        </button>
       </div>
 
       {showForm && (

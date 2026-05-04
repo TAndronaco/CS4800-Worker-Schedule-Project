@@ -1,4 +1,5 @@
 import pool from '../config/db';
+import { userService } from './userService';
 
 interface Notification {
   id: number;
@@ -11,7 +12,10 @@ interface Notification {
 }
 
 class NotificationService {
-  async create(userId: number, type: string, message: string, relatedId?: number): Promise<Notification> {
+  async create(userId: number, type: string, message: string, relatedId?: number): Promise<Notification | null> {
+    const shouldSend = await userService.shouldNotify(userId, type);
+    if (!shouldSend) return null;
+
     const result = await pool.query<Notification>(
       'INSERT INTO notifications (user_id, type, message, related_id) VALUES ($1, $2, $3, $4) RETURNING *',
       [userId, type, message, relatedId || null]

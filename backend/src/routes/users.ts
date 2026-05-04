@@ -1,11 +1,62 @@
 import { Router, Request, Response } from 'express';
+import { authenticate, AuthRequest } from '../middleware/auth';
 import { userService } from '../services/userService';
 import { getSingleValue } from '../utils/getSingleValue';
 import { handleRouteError } from '../utils/handleRouteError';
 
 const router = Router();
 
-// GET /api/users/:id/avatar — get user's avatar URL
+// GET /api/users/me - Get current user's profile
+router.get('/me', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const profile = await userService.getProfile(req.user!.userId);
+    res.json(profile);
+  } catch (error) {
+    handleRouteError(res, error, 'Get profile error:', 'Server error');
+  }
+});
+
+// PUT /api/users/me - Update current user's profile
+router.put('/me', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const profile = await userService.updateProfile(req.user!.userId, req.body);
+    res.json(profile);
+  } catch (error) {
+    handleRouteError(res, error, 'Update profile error:', 'Server error');
+  }
+});
+
+// PUT /api/users/me/password - Change password
+router.put('/me/password', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    await userService.changePassword(req.user!.userId, req.body);
+    res.json({ message: 'Password updated successfully.' });
+  } catch (error) {
+    handleRouteError(res, error, 'Change password error:', 'Server error');
+  }
+});
+
+// GET /api/users/me/notification-preferences
+router.get('/me/notification-preferences', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const prefs = await userService.getNotificationPreferences(req.user!.userId);
+    res.json(prefs);
+  } catch (error) {
+    handleRouteError(res, error, 'Get notification prefs error:', 'Server error');
+  }
+});
+
+// PUT /api/users/me/notification-preferences
+router.put('/me/notification-preferences', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const prefs = await userService.updateNotificationPreferences(req.user!.userId, req.body);
+    res.json(prefs);
+  } catch (error) {
+    handleRouteError(res, error, 'Update notification prefs error:', 'Server error');
+  }
+});
+
+// GET /api/users/:id/avatar
 router.get('/:id/avatar', async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = getSingleValue(req.params.id);
@@ -21,7 +72,7 @@ router.get('/:id/avatar', async (req: Request, res: Response): Promise<void> => 
   }
 });
 
-// PUT /api/users/:id/avatar — upload avatar (base64)
+// PUT /api/users/:id/avatar
 router.put('/:id/avatar', async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = getSingleValue(req.params.id);
@@ -37,7 +88,7 @@ router.put('/:id/avatar', async (req: Request, res: Response): Promise<void> => 
   }
 });
 
-// DELETE /api/users/:id/avatar — remove avatar
+// DELETE /api/users/:id/avatar
 router.delete('/:id/avatar', async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = getSingleValue(req.params.id);

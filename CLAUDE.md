@@ -57,11 +57,14 @@ frontend/
     employee/
       join/               # Join team via code
       schedule/           # Employee schedule grid view
+      clock/              # Clock in/out with live timer
+      performance/        # Employee performance metrics + reports
       requests/           # Employee shift requests
       time-off/           # Employee time-off request form
+    settings/             # Profile, password, notification preferences
     manager/
       teams/              # Team management
-      schedule/           # Manager schedule grid with tooltips + template save/load
+      schedule/           # Manager schedule grid with tooltips + template save/load + auto-generate
       requests/           # Approve/deny shift requests
       analytics/          # Team analytics (coverage gaps, overtime, headcount)
       time-off/           # Manager time-off request review
@@ -95,6 +98,12 @@ Features added but not yet fully tested/integrated end-to-end:
 - **Schedule Templates** — Backend save/load API, manager schedule page has template save/load UI. Schema table (`schedule_templates`) needs to be run on Neon. Needs end-to-end testing.
 - **Analytics** — Backend coverage gap, overtime, headcount queries + manager analytics dashboard page built. Needs end-to-end testing with real schedule data.
 - **Nav links** — EmployeeLayout and ManagerLayout sidebars updated with links to new pages; verify routing works in production.
+- **Settings/Profile** — `/settings` page with profile editing (name, email), password change, and notification preferences (toggle per type). Backend: `GET/PUT /api/users/me`, `PUT /api/users/me/password`, `GET/PUT /api/users/me/notification-preferences`. Needs end-to-end testing.
+- **Auto-scheduling (backend)** — `POST /api/shifts/auto-generate` respects employee availability when generating schedules. Frontend already has client-side auto-generate modal.
+- **Shift Swap (employee-to-employee)** — Full flow: employee proposes → target accepts/declines → manager approves. Already integrated in employee requests page.
+- **Clock In/Out** — `/employee/clock` page with live timer, clock in/out buttons, recent history. Backend: `GET /api/clock/status`, `POST /api/clock/in`, `POST /api/clock/out`, `GET /api/clock/history`, `GET /api/clock/team`. Feeds into performance metrics. Needs end-to-end testing.
+- **Performance (real backend)** — Both performance pages now use real API (`/api/performance/me`, `/api/performance/team`, `/api/performance/reports`). Metrics computed from clock entries + shifts (on-time rate, shifts completed, absences, swap count → score). Manager can add performance reports. Needs end-to-end testing.
+- **Export Schedule** — "Export CSV" button on manager schedule page. Backend: `GET /api/export/schedule?team_id=X&week=YYYY-MM-DD` returns CSV download. Needs end-to-end testing.
 
 ### DB Migration Needed
 
@@ -104,6 +113,9 @@ The following tables from `backend/db/schema.sql` need to be created on the Neon
 - `conversations`
 - `conversation_members`
 - `messages`
+- `notification_preferences`
+- `clock_entries`
+- `performance_reports`
 
 ## Contributors
 

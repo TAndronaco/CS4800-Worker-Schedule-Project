@@ -1,0 +1,171 @@
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.back {
+  background: none;
+  border: none;
+  color: #d4500a;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+
+.back:hover {
+  text-decoration: underline;
+}
+
+.controls {
+  margin-bottom: 1.5rem;
+}
+
+.controls select {
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+}
+
+.clockCard {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.statusIndicator {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin: 0 auto 0.75rem;
+}
+
+.active {
+  background: #4caf50;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+  animation: pulse 1.5s infinite;
+}
+
+.inactive {
+  background: #bbb;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(76, 175, 80, 0.5); }
+  50% { box-shadow: 0 0 16px rgba(76, 175, 80, 0.8); }
+}
+
+.statusText {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  color: #333;
+}
+
+.elapsed {
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: monospace;
+  color: #d4500a;
+  margin: 0 0 1.25rem;
+}
+
+.clockInBtn,
+.clockOutBtn {
+  border: none;
+  border-radius: 10px;
+  padding: 0.75rem 2.5rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.clockInBtn {
+  background: #4caf50;
+  color: #fff;
+}
+
+.clockInBtn:hover:not(:disabled) {
+  background: #388e3c;
+  transform: translateY(-1px);
+}
+
+.clockOutBtn {
+  background: #c62828;
+  color: #fff;
+}
+
+.clockOutBtn:hover:not(:disabled) {
+  background: #a12020;
+  transform: translateY(-1px);
+}
+
+.clockInBtn:disabled,
+.clockOutBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.historyTitle {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.historyItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.historyDate {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0;
+  color: #333;
+}
+
+.historyOut {
+  font-size: 0.8rem;
+  color: #888;
+  margin: 0.15rem 0 0;
+}
+
+.historyDuration {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #d4500a;
+}
+
+.empty {
+  color: #888;
+  text-align: center;
+  padding: 2rem 0;
+}
+
+@media (max-width: 600px) {
+  .container { padding: 1rem; }
+  .clockCard { padding: 1.5rem; }
+  .elapsed { font-size: 1.5rem; }
+}

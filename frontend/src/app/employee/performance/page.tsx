@@ -1,63 +1,66 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch } from "@/lib/api";
 import styles from "./page.module.css";
+
+interface Team { id: number; name: string; }
+
+interface Metrics {
+  shifts_completed: number;
+  on_time_rate: number;
+  swap_requests: number;
+  absences: number;
+  score: number;
+}
 
 interface PerformanceReport {
   id: number;
-  date: string;
   category: string;
   notes: string;
   rating: number;
-  managerName: string;
+  created_at: string;
+  manager_first_name: string;
+  manager_last_name: string;
 }
-
-const MOCK_METRICS = {
-  shiftsCompleted: 18,
-  onTimeRate: 94,
-  swapRequests: 1,
-  absences: 1,
-  score: 87,
-  trend: "+3 pts from last month",
-};
-
-const MOCK_REPORTS: PerformanceReport[] = [
-  {
-    id: 1,
-    date: "2026-04-05",
-    category: "Performance",
-    notes: "Great work this month. Reliable and communicates well with teammates.",
-    rating: 4,
-    managerName: "Sarah Thompson",
-  },
-  {
-    id: 2,
-    date: "2026-03-18",
-    category: "Punctuality",
-    notes: "A few late arrivals noted early in the month but improved significantly by end of month.",
-    rating: 3,
-    managerName: "Sarah Thompson",
-  },
-  {
-    id: 3,
-    date: "2026-02-28",
-    category: "Teamwork",
-    notes: "Excellent team player. Helped cover shifts when coworkers were absent.",
-    rating: 5,
-    managerName: "Sarah Thompson",
-  },
-];
 
 export default function EmployeePerformancePage() {
   const router = useRouter();
+  const userId = useMemo<number | null>(() => {
+    if (typeof window === "undefined") return null;
+    const stored = localStorage.getItem("user");
+    if (!stored || stored === "undefined" || stored === "null") return null;
+    const user = JSON.parse(stored);
+    return user.role === "employee" ? user.id : null;
+  }, []);
+
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
+  const [metrics, setMetrics] = useState<Metrics | null>(null);
+  const [reports, setReports] = useState<PerformanceReport[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (!stored || stored === "undefined" || stored === "null") { router.push("/login"); return; }
-    const user = JSON.parse(stored);
-    if (user.role !== "employee") { router.push("/dashboard"); return; }
-  }, [router]);
+    if (!userId) { router.push("/login"); return; }
+    apiFetch("/teams").then((r) => r.json()).then((data: Team[]) => {
+      setTeams(data);
+      if (data.length > 0) setSelectedTeam(data[0].id);
+      setLoading(false);
+    });
+  }, [userId, router]);
+
+  useEffect(() => {
+    if (!selectedTeam) return;
+    apiFetch(`/performance/me?team_id=${selectedTeam}`)
+      .then((r) => r.json())
+      .then(setMetrics)
+      .catch(() => setMetrics(null));
+    apiFetch(`/performance/reports?team_id=${selectedTeam}`)
+      .then((r) => r.json())
+      .then((data) => setReports(Array.isArray(data) ? data : []))
+      .catch(() => setReports([]));
+  }, [selectedTeam]);
 
   function getScoreColor(score: number) {
     if (score >= 90) return styles.scoreHigh;
@@ -65,56 +68,70 @@ export default function EmployeePerformancePage() {
     return styles.scoreLow;
   }
 
+  if (loading) return null;
+
   return (
     <div className={styles.container}>
       <button className={styles.back} onClick={() => router.push("/dashboard")}>
         ← Back to Dashboard
       </button>
       <h1>My Performance</h1>
-      <p className={styles.subtitle}>Your performance metrics and manager feedback for this month.</p>
+      <p className={styles.subtitle}>Your performance metrics and manager feedback.</p>
 
-      <div className={styles.scoreCard}>
-        <div className={styles.scoreLeft}>
-          <span className={`${styles.bigScore} ${getScoreColor(MOCK_METRICS.score)}`}>
-            {MOCK_METRICS.score}
-          </span>
-          <div>
-            <p className={styles.scoreTitle}>Performance Score</p>
-            <p className={styles.scoreTrend}>{MOCK_METRICS.trend}</p>
+      {teams.length > 1 && (
+        <select
+          value={selectedTeam ?? ""}
+          onChange={(e) => setSelectedTeam(Number(e.target.value))}
+          style={{ marginBottom: "1.5rem", padding: "0.5rem", borderRadius: "6px", border: "1px solid #ccc" }}
+        >
+          {teams.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+        </select>
+      )}
+
+      {metrics && (
+        <div className={styles.scoreCard}>
+          <div className={styles.scoreLeft}>
+            <span className={`${styles.bigScore} ${getScoreColor(metrics.score)}`}>
+              {metrics.score}
+            </span>
+            <div>
+              <p className={styles.scoreTitle}>Performance Score</p>
+              <p className={styles.scoreTrend}>Last 30 days</p>
+            </div>
+          </div>
+          <div className={styles.statsRow}>
+            <div className={styles.stat}>
+              <span className={styles.statValue}>{metrics.shifts_completed}</span>
+              <span className={styles.statLabel}>Shifts Completed</span>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statValue}>{metrics.on_time_rate}%</span>
+              <span className={styles.statLabel}>On-Time Rate</span>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statValue}>{metrics.swap_requests}</span>
+              <span className={styles.statLabel}>Swap Requests</span>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statValue}>{metrics.absences}</span>
+              <span className={styles.statLabel}>Absences</span>
+            </div>
           </div>
         </div>
-        <div className={styles.statsRow}>
-          <div className={styles.stat}>
-            <span className={styles.statValue}>{MOCK_METRICS.shiftsCompleted}</span>
-            <span className={styles.statLabel}>Shifts Completed</span>
-          </div>
-          <div className={styles.stat}>
-            <span className={styles.statValue}>{MOCK_METRICS.onTimeRate}%</span>
-            <span className={styles.statLabel}>On-Time Rate</span>
-          </div>
-          <div className={styles.stat}>
-            <span className={styles.statValue}>{MOCK_METRICS.swapRequests}</span>
-            <span className={styles.statLabel}>Swap Requests</span>
-          </div>
-          <div className={styles.stat}>
-            <span className={styles.statValue}>{MOCK_METRICS.absences}</span>
-            <span className={styles.statLabel}>Absences</span>
-          </div>
-        </div>
-      </div>
+      )}
 
       <h2 className={styles.sectionTitle}>Manager Reports</h2>
-      {MOCK_REPORTS.length === 0 ? (
+      {reports.length === 0 ? (
         <p className={styles.empty}>No reports from your manager yet.</p>
       ) : (
         <div className={styles.reportsList}>
-          {MOCK_REPORTS.map((report) => (
+          {reports.map((report) => (
             <div key={report.id} className={styles.reportCard}>
               <div className={styles.reportTop}>
                 <div>
                   <p className={styles.reportCategory}>{report.category}</p>
                   <p className={styles.reportMeta}>
-                    {report.managerName} · {report.date}
+                    {report.manager_first_name} {report.manager_last_name} · {new Date(report.created_at).toLocaleDateString()}
                   </p>
                 </div>
                 <div className={styles.stars}>

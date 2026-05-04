@@ -34,9 +34,12 @@ interface Message {
 const NAV_ITEMS = [
   { label: "Dashboard", icon: "🏠", path: "/dashboard" },
   { label: "My Schedule", icon: "📅", path: "/employee/schedule" },
+  { label: "Clock In/Out", icon: "⏱️", path: "/employee/clock" },
+  { label: "Performance", icon: "📊", path: "/employee/performance" },
   { label: "Requests", icon: "🔄", path: "/employee/requests" },
   { label: "Messages", icon: "💬", path: "/messages" },
   { label: "Join Team", icon: "👥", path: "/employee/join" },
+  { label: "Settings", icon: "⚙️", path: "/settings" },
 ];
 
 export default function EmployeeLayout({

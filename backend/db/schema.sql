@@ -110,3 +110,30 @@ CREATE TABLE messages (
   content TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TABLE notification_preferences (
+  user_id INTEGER PRIMARY KEY REFERENCES users(id),
+  preferences JSONB NOT NULL DEFAULT '{}',
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE clock_entries (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id),
+  team_id INTEGER REFERENCES teams(id),
+  shift_id INTEGER REFERENCES shifts(id),
+  clock_in TIMESTAMP NOT NULL,
+  clock_out TIMESTAMP,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE performance_reports (
+  id SERIAL PRIMARY KEY,
+  employee_id INTEGER REFERENCES users(id),
+  team_id INTEGER REFERENCES teams(id),
+  manager_id INTEGER REFERENCES users(id),
+  category VARCHAR(50) NOT NULL,
+  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  notes TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);

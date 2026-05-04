@@ -13,6 +13,9 @@ import notificationRoutes from './routes/notifications';
 import analyticsRoutes from './routes/analytics';
 import timeOffRoutes from './routes/timeoff';
 import templateRoutes from './routes/templates';
+import clockRoutes from './routes/clock';
+import performanceRoutes from './routes/performance';
+import exportRoutes from './routes/export';
 
 import pool from './config/db';
 
@@ -132,6 +135,33 @@ async function initDb() {
       content TEXT NOT NULL,
       created_at TIMESTAMP DEFAULT NOW()
     );
+
+    CREATE TABLE IF NOT EXISTS notification_preferences (
+      user_id INTEGER PRIMARY KEY REFERENCES users(id),
+      preferences JSONB NOT NULL DEFAULT '{}',
+      updated_at TIMESTAMP DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS clock_entries (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id),
+      team_id INTEGER REFERENCES teams(id),
+      shift_id INTEGER REFERENCES shifts(id),
+      clock_in TIMESTAMP NOT NULL,
+      clock_out TIMESTAMP,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS performance_reports (
+      id SERIAL PRIMARY KEY,
+      employee_id INTEGER REFERENCES users(id),
+      team_id INTEGER REFERENCES teams(id),
+      manager_id INTEGER REFERENCES users(id),
+      category VARCHAR(50) NOT NULL,
+      rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+      notes TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
   `);
 }
 
@@ -171,6 +201,9 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/time-off', timeOffRoutes);
 app.use('/api/templates', templateRoutes);
+app.use('/api/clock', clockRoutes);
+app.use('/api/performance', performanceRoutes);
+app.use('/api/export', exportRoutes);
 
 initDb()
   .then(() => {

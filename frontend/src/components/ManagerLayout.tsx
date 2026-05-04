@@ -35,8 +35,10 @@ const NAV_ITEMS = [
   { label: "Dashboard", icon: "🏠", path: "/dashboard" },
   { label: "Schedule", icon: "📅", path: "/manager/schedule" },
   { label: "My Teams", icon: "👥", path: "/manager/teams" },
+  { label: "Performance", icon: "📊", path: "/manager/performance" },
   { label: "Requests", icon: "🔄", path: "/manager/requests" },
   { label: "Messages", icon: "💬", path: "/messages" },
+  { label: "Settings", icon: "⚙️", path: "/settings" },
 ];
 
 export default function ManagerLayout({

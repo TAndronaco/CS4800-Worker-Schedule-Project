@@ -2,57 +2,71 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch } from "@/lib/api";
 import styles from "./page.module.css";
 
+interface Team { id: number; name: string; }
+interface Member { id: number; first_name: string; last_name: string; }
+
 interface EmployeeMetrics {
-  id: number;
-  name: string;
-  team: string;
-  shiftsCompleted: number;
-  onTimeRate: number;
-  swapRequests: number;
+  user_id: number;
+  first_name: string;
+  last_name: string;
+  shifts_completed: number;
+  on_time_rate: number;
+  swap_requests: number;
   absences: number;
   score: number;
 }
 
 interface PerformanceReport {
   id: number;
-  employeeId: number;
-  employeeName: string;
-  date: string;
+  employee_id: number;
+  employee_first_name: string;
+  employee_last_name: string;
   category: string;
   notes: string;
   rating: number;
+  created_at: string;
 }
-
-const MOCK_EMPLOYEES: EmployeeMetrics[] = [
-  { id: 1, name: "Alice Johnson", team: "Morning Crew", shiftsCompleted: 18, onTimeRate: 97, swapRequests: 1, absences: 0, score: 95 },
-  { id: 2, name: "Bob Martinez", team: "Evening Crew", shiftsCompleted: 15, onTimeRate: 88, swapRequests: 3, absences: 2, score: 78 },
-  { id: 3, name: "Carol Lee", team: "Morning Crew", shiftsCompleted: 20, onTimeRate: 100, swapRequests: 0, absences: 0, score: 99 },
-  { id: 4, name: "David Kim", team: "Weekend Team", shiftsCompleted: 12, onTimeRate: 83, swapRequests: 2, absences: 1, score: 74 },
-  { id: 5, name: "Emma Wilson", team: "Evening Crew", shiftsCompleted: 16, onTimeRate: 94, swapRequests: 1, absences: 1, score: 87 },
-];
-
-const MOCK_REPORTS: PerformanceReport[] = [
-  { id: 1, employeeId: 1, employeeName: "Alice Johnson", date: "2026-04-01", category: "Punctuality", notes: "Consistently arrives early and sets a great example for the team.", rating: 5 },
-  { id: 2, employeeId: 2, employeeName: "Bob Martinez", date: "2026-03-20", category: "Teamwork", notes: "Needs to communicate more proactively when requesting shift swaps.", rating: 3 },
-  { id: 3, employeeId: 3, employeeName: "Carol Lee", date: "2026-04-05", category: "Performance", notes: "Exceptional work this month. Zero absences and perfect attendance.", rating: 5 },
-];
 
 export default function ManagerPerformancePage() {
   const router = useRouter();
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [metrics, setMetrics] = useState<EmployeeMetrics[]>([]);
+  const [reports, setReports] = useState<PerformanceReport[]>([]);
   const [activeTab, setActiveTab] = useState<"metrics" | "reports">("metrics");
-  const [reports, setReports] = useState<PerformanceReport[]>(MOCK_REPORTS);
   const [showAddReport, setShowAddReport] = useState(false);
   const [form, setForm] = useState({ employeeId: "", category: "Performance", notes: "", rating: "4" });
   const [filterEmployee, setFilterEmployee] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
     if (!stored || stored === "undefined" || stored === "null") { router.push("/login"); return; }
     const user = JSON.parse(stored);
     if (user.role !== "manager") { router.push("/dashboard"); return; }
+    apiFetch("/teams").then((r) => r.json()).then((data: Team[]) => {
+      setTeams(data);
+      if (data.length > 0) setSelectedTeam(data[0].id);
+      setLoading(false);
+    });
   }, [router]);
+
+  useEffect(() => {
+    if (!selectedTeam) return;
+    apiFetch(`/teams/${selectedTeam}/members`).then((r) => r.json()).then(setMembers);
+    apiFetch(`/performance/team?team_id=${selectedTeam}`)
+      .then((r) => r.json())
+      .then((data) => setMetrics(Array.isArray(data) ? data : []))
+      .catch(() => setMetrics([]));
+    apiFetch(`/performance/reports/team?team_id=${selectedTeam}`)
+      .then((r) => r.json())
+      .then((data) => setReports(Array.isArray(data) ? data : []))
+      .catch(() => setReports([]));
+  }, [selectedTeam]);
 
   function getScoreColor(score: number) {
     if (score >= 90) return styles.scoreHigh;
@@ -60,28 +74,37 @@ export default function ManagerPerformancePage() {
     return styles.scoreLow;
   }
 
-  function handleAddReport(e: React.FormEvent) {
+  async function handleAddReport(e: React.FormEvent) {
     e.preventDefault();
-    const emp = MOCK_EMPLOYEES.find((e) => e.id === Number(form.employeeId));
-    if (!emp) return;
-    const newReport: PerformanceReport = {
-      id: reports.length + 1,
-      employeeId: emp.id,
-      employeeName: emp.name,
-      date: new Date().toISOString().split("T")[0],
-      category: form.category,
-      notes: form.notes,
-      rating: Number(form.rating),
-    };
-    setReports((prev) => [newReport, ...prev]);
-    setForm({ employeeId: "", category: "Performance", notes: "", rating: "4" });
-    setShowAddReport(false);
-    setActiveTab("reports");
+    const res = await apiFetch("/performance/reports", {
+      method: "POST",
+      body: JSON.stringify({
+        employee_id: Number(form.employeeId),
+        team_id: selectedTeam,
+        category: form.category,
+        rating: Number(form.rating),
+        notes: form.notes,
+      }),
+    });
+    if (res.ok) {
+      const newReport = await res.json();
+      const emp = members.find((m) => m.id === Number(form.employeeId));
+      setReports((prev) => [{
+        ...newReport,
+        employee_first_name: emp?.first_name || "",
+        employee_last_name: emp?.last_name || "",
+      }, ...prev]);
+      setForm({ employeeId: "", category: "Performance", notes: "", rating: "4" });
+      setShowAddReport(false);
+      setActiveTab("reports");
+    }
   }
 
   const filteredReports = filterEmployee
-    ? reports.filter((r) => r.employeeId === filterEmployee)
+    ? reports.filter((r) => r.employee_id === filterEmployee)
     : reports;
+
+  if (loading) return null;
 
   return (
     <div className={styles.container}>
@@ -90,6 +113,16 @@ export default function ManagerPerformancePage() {
       </button>
       <h1>Employee Performance</h1>
       <p className={styles.subtitle}>Monitor your team&apos;s performance metrics and add reports.</p>
+
+      {teams.length > 1 && (
+        <select
+          value={selectedTeam ?? ""}
+          onChange={(e) => setSelectedTeam(Number(e.target.value))}
+          style={{ marginBottom: "1rem", padding: "0.5rem", borderRadius: "6px", border: "1px solid #ccc" }}
+        >
+          {teams.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+        </select>
+      )}
 
       <div className={styles.tabs}>
         <button
@@ -122,8 +155,8 @@ export default function ManagerPerformancePage() {
                   required
                 >
                   <option value="">Select an employee...</option>
-                  {MOCK_EMPLOYEES.map((emp) => (
-                    <option key={emp.id} value={emp.id}>{emp.name}</option>
+                  {members.map((m) => (
+                    <option key={m.id} value={m.id}>{m.first_name} {m.last_name}</option>
                   ))}
                 </select>
               </label>
@@ -178,48 +211,51 @@ export default function ManagerPerformancePage() {
 
       {activeTab === "metrics" && (
         <div className={styles.metricsSection}>
-          <div className={styles.metricsGrid}>
-            {MOCK_EMPLOYEES.map((emp) => (
-              <div key={emp.id} className={styles.metricCard}>
-                <div className={styles.empHeader}>
-                  <div className={styles.avatar}>
-                    {emp.name.split(" ").map((n) => n[0]).join("")}
+          {metrics.length === 0 ? (
+            <p className={styles.empty}>No employee data yet. Metrics appear once employees clock in.</p>
+          ) : (
+            <div className={styles.metricsGrid}>
+              {metrics.map((emp) => (
+                <div key={emp.user_id} className={styles.metricCard}>
+                  <div className={styles.empHeader}>
+                    <div className={styles.avatar}>
+                      {emp.first_name[0]}{emp.last_name[0]}
+                    </div>
+                    <div>
+                      <p className={styles.empName}>{emp.first_name} {emp.last_name}</p>
+                    </div>
+                    <span className={`${styles.scoreBadge} ${getScoreColor(emp.score)}`}>
+                      {emp.score}
+                    </span>
                   </div>
-                  <div>
-                    <p className={styles.empName}>{emp.name}</p>
-                    <p className={styles.empTeam}>{emp.team}</p>
+                  <div className={styles.statsRow}>
+                    <div className={styles.stat}>
+                      <span className={styles.statValue}>{emp.shifts_completed}</span>
+                      <span className={styles.statLabel}>Shifts</span>
+                    </div>
+                    <div className={styles.stat}>
+                      <span className={styles.statValue}>{emp.on_time_rate}%</span>
+                      <span className={styles.statLabel}>On-Time</span>
+                    </div>
+                    <div className={styles.stat}>
+                      <span className={styles.statValue}>{emp.swap_requests}</span>
+                      <span className={styles.statLabel}>Swaps</span>
+                    </div>
+                    <div className={styles.stat}>
+                      <span className={styles.statValue}>{emp.absences}</span>
+                      <span className={styles.statLabel}>Absences</span>
+                    </div>
                   </div>
-                  <span className={`${styles.scoreBadge} ${getScoreColor(emp.score)}`}>
-                    {emp.score}
-                  </span>
+                  <button
+                    className={styles.viewReportsBtn}
+                    onClick={() => { setFilterEmployee(emp.user_id); setActiveTab("reports"); }}
+                  >
+                    View Reports
+                  </button>
                 </div>
-                <div className={styles.statsRow}>
-                  <div className={styles.stat}>
-                    <span className={styles.statValue}>{emp.shiftsCompleted}</span>
-                    <span className={styles.statLabel}>Shifts</span>
-                  </div>
-                  <div className={styles.stat}>
-                    <span className={styles.statValue}>{emp.onTimeRate}%</span>
-                    <span className={styles.statLabel}>On-Time</span>
-                  </div>
-                  <div className={styles.stat}>
-                    <span className={styles.statValue}>{emp.swapRequests}</span>
-                    <span className={styles.statLabel}>Swaps</span>
-                  </div>
-                  <div className={styles.stat}>
-                    <span className={styles.statValue}>{emp.absences}</span>
-                    <span className={styles.statLabel}>Absences</span>
-                  </div>
-                </div>
-                <button
-                  className={styles.viewReportsBtn}
-                  onClick={() => { setFilterEmployee(emp.id); setActiveTab("reports"); }}
-                >
-                  View Reports
-                </button>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -232,8 +268,8 @@ export default function ManagerPerformancePage() {
               onChange={(e) => setFilterEmployee(e.target.value ? Number(e.target.value) : null)}
             >
               <option value="">All employees</option>
-              {MOCK_EMPLOYEES.map((emp) => (
-                <option key={emp.id} value={emp.id}>{emp.name}</option>
+              {members.map((m) => (
+                <option key={m.id} value={m.id}>{m.first_name} {m.last_name}</option>
               ))}
             </select>
           </div>
@@ -245,8 +281,8 @@ export default function ManagerPerformancePage() {
                 <div key={report.id} className={styles.reportCard}>
                   <div className={styles.reportTop}>
                     <div>
-                      <p className={styles.reportEmployee}>{report.employeeName}</p>
-                      <p className={styles.reportMeta}>{report.category} · {report.date}</p>
+                      <p className={styles.reportEmployee}>{report.employee_first_name} {report.employee_last_name}</p>
+                      <p className={styles.reportMeta}>{report.category} · {new Date(report.created_at).toLocaleDateString()}</p>
                     </div>
                     <div className={styles.stars}>
                       {"★".repeat(report.rating)}{"☆".repeat(5 - report.rating)}

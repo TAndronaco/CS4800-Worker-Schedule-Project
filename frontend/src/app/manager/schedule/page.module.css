@@ -642,6 +642,23 @@
   transform: translateY(-1px);
 }
 
+.exportBtn {
+  background: none;
+  border: 1.5px solid #1565c0;
+  color: #1565c0;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.exportBtn:hover {
+  background: #e3f2fd;
+  transform: translateY(-1px);
+}
+
 .templateModal {
   background: white;
   border-radius: 16px;
