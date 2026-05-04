@@ -22,6 +22,7 @@ interface Conversation {
   last_message_at: string | null;
   last_sender_name: string | null;
   member_names: string | null;
+  is_member?: boolean;
 }
 
 interface Message {
@@ -67,6 +68,8 @@ export default function MessagesPage() {
   const [groupMembers, setGroupMembers] = useState<number[]>([]);
   const [modalError, setModalError] = useState("");
 
+  const [activeTab, setActiveTab] = useState<"my-chats" | "monitor">("my-chats");
+
   useEffect(() => {
     if (!userLoaded) return;
     if (!user) {
@@ -84,7 +87,7 @@ export default function MessagesPage() {
   function loadContacts() {
     apiFetch("/messages/contacts/list")
       .then((r) => r.json())
-      .then(setContacts)
+      .then((data) => setContacts(Array.isArray(data) ? data : []))
       .catch(() => setContacts([]));
   }
 
@@ -97,7 +100,7 @@ export default function MessagesPage() {
   function loadMessages(convId: number) {
     apiFetch(`/messages/conversations/${convId}/messages`)
       .then((r) => r.json())
-      .then(setMessages)
+      .then((data) => setMessages(Array.isArray(data) ? data : []))
       .catch(() => setMessages([]));
   }
 
@@ -118,9 +121,16 @@ export default function MessagesPage() {
     if (!selectedConv) return;
     const interval = setInterval(() => {
       loadMessages(selectedConv.id);
-    }, 5000);
+    }, 3000);
     return () => clearInterval(interval);
   }, [selectedConv]);
+
+  // Polling for new conversations (so incoming DMs appear without refresh)
+  useEffect(() => {
+    if (!user) return;
+    const interval = setInterval(loadConversations, 10000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   async function sendMsg() {
     if (!newMessage.trim() || !selectedConv || !user) return;
@@ -144,22 +154,28 @@ export default function MessagesPage() {
   }
 
   async function startDm(contact: Contact) {
+    setModalError("");
     try {
       const res = await apiFetch("/messages/conversations/dm", {
         method: "POST",
         body: JSON.stringify({ other_user_id: contact.id }),
       });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setModalError(err.error || "Failed to start conversation.");
+        return;
+      }
       const data = await res.json();
       setShowDmModal(false);
-      loadConversations();
-      // Select the new/existing conversation
+      setModalError("");
+      setActiveTab("my-chats");
       const convRes = await apiFetch("/messages/conversations");
       const convs: Conversation[] = await convRes.json();
       setConversations(Array.isArray(convs) ? convs : []);
       const found = convs.find((c) => c.id === data.conversation_id);
       if (found) setSelectedConv(found);
     } catch {
-      // silently fail
+      setModalError("Failed to start conversation.");
     }
   }
 
@@ -186,10 +202,16 @@ export default function MessagesPage() {
         setModalError(data.error || "Failed to create group.");
         return;
       }
+      const created = await res.json();
       setShowGroupModal(false);
       setGroupName("");
       setGroupMembers([]);
-      loadConversations();
+      setActiveTab("my-chats");
+      const convRes = await apiFetch("/messages/conversations");
+      const convs: Conversation[] = await convRes.json();
+      setConversations(Array.isArray(convs) ? convs : []);
+      const found = convs.find((c) => c.id === created.id);
+      if (found) setSelectedConv(found);
     } catch {
       setModalError("Failed to create group.");
     }
@@ -218,6 +240,11 @@ export default function MessagesPage() {
 
   if (!user) return null;
 
+  const visibleConversations =
+    activeTab === "monitor"
+      ? conversations.filter((c) => c.is_member === false)
+      : conversations.filter((c) => c.is_member !== false);
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -233,38 +260,61 @@ export default function MessagesPage() {
       <div className={styles.chatLayout}>
         {/* ── Sidebar: conversations ── */}
         <div className={styles.sidebar}>
-          <div className={styles.sidebarHeader}>
-            <span className={styles.sidebarTitle}>Chats</span>
-            <div>
+          {/* Tab bar — managers only */}
+          {user.role === "manager" && (
+            <div className={styles.tabs}>
               <button
-                className={styles.newDmBtn}
-                onClick={() => setShowDmModal(true)}
+                className={`${styles.tab} ${activeTab === "my-chats" ? styles.tabActive : ""}`}
+                onClick={() => { setActiveTab("my-chats"); setSelectedConv(null); }}
               >
-                + DM
+                My Chats
               </button>
-              {user.role === "manager" && (
-                <button
-                  className={styles.newGroupBtn}
-                  onClick={() => {
-                    setModalError("");
-                    setGroupName("");
-                    setGroupMembers([]);
-                    setShowGroupModal(true);
-                  }}
-                >
-                  + Group
-                </button>
-              )}
+              <button
+                className={`${styles.tab} ${activeTab === "monitor" ? styles.tabActive : ""}`}
+                onClick={() => { setActiveTab("monitor"); setSelectedConv(null); }}
+              >
+                Employee Chats
+              </button>
             </div>
-          </div>
+          )}
+
+          {/* Action buttons — only on My Chats tab */}
+          {activeTab === "my-chats" && (
+            <div className={styles.sidebarHeader}>
+              <span className={styles.sidebarTitle}>Chats</span>
+              <div>
+                <button
+                  className={styles.newDmBtn}
+                  onClick={() => { setModalError(""); setShowDmModal(true); }}
+                >
+                  + DM
+                </button>
+                {user.role === "manager" && (
+                  <button
+                    className={styles.newGroupBtn}
+                    onClick={() => {
+                      setModalError("");
+                      setGroupName("");
+                      setGroupMembers([]);
+                      setShowGroupModal(true);
+                    }}
+                  >
+                    + Group
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className={styles.conversationList}>
-            {conversations.length === 0 ? (
+            {visibleConversations.length === 0 ? (
               <div className={styles.emptyConvs}>
-                No conversations yet. Start a new chat!
+                {activeTab === "monitor"
+                  ? "No employee conversations yet."
+                  : "No conversations yet. Start a new chat!"}
               </div>
             ) : (
-              conversations.map((conv) => (
+              visibleConversations.map((conv) => (
                 <div
                   key={conv.id}
                   className={`${styles.convItem} ${
@@ -353,19 +403,25 @@ export default function MessagesPage() {
                 )}
               </div>
 
-              <div className={styles.inputArea}>
-                <input
-                  className={styles.input}
-                  type="text"
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && sendMsg()}
-                  placeholder="Type a message..."
-                />
-                <button className={styles.sendButton} onClick={sendMsg}>
-                  ↑
-                </button>
-              </div>
+              {selectedConv.is_member === false ? (
+                <div className={styles.readOnlyBar}>
+                  Viewing as manager — read only
+                </div>
+              ) : (
+                <div className={styles.inputArea}>
+                  <input
+                    className={styles.input}
+                    type="text"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && sendMsg()}
+                    placeholder="Type a message..."
+                  />
+                  <button className={styles.sendButton} onClick={sendMsg}>
+                    ↑
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -400,6 +456,7 @@ export default function MessagesPage() {
                 ))
               )}
             </div>
+            {modalError && <p className={styles.modalError}>{modalError}</p>}
             <div className={styles.modalActions}>
               <button
                 className={styles.cancelBtn}

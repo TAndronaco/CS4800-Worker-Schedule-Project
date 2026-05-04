@@ -19,7 +19,7 @@ router.get("/contacts/list", authenticate, async (req: AuthRequest, res: Respons
 // GET /api/messages/conversations - Get all conversations for the current user
 router.get("/conversations", authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const conversations = await messageService.getConversations(req.user!.userId);
+    const conversations = await messageService.getConversations(req.user!.userId, req.user!.role === 'manager');
     res.json(conversations);
   } catch (error) {
     handleRouteError(res, error, "Get conversations error:", "Failed to fetch conversations");
@@ -65,7 +65,7 @@ router.get("/conversations/:id/messages", authenticate, async (req: AuthRequest,
       res.status(400).json({ error: "Conversation id is required." });
       return;
     }
-    const messages = await messageService.getMessages(Number(convId), req.user!.userId);
+    const messages = await messageService.getMessages(Number(convId), req.user!.userId, req.user!.role === 'manager');
     res.json(messages);
   } catch (error) {
     handleRouteError(res, error, "Get messages error:", "Failed to fetch messages");

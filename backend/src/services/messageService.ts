@@ -13,6 +13,7 @@ interface ConversationRow {
   last_sender_name?: string;
   member_names?: string;
   unread_count?: number;
+  is_member?: boolean;
 }
 
 interface MessageRow {
@@ -44,20 +45,58 @@ class MessageService {
     const result = await pool.query<Contact>(
       `SELECT DISTINCT u.id, u.first_name, u.last_name, u.role
        FROM users u
-       JOIN team_members tm ON u.id = tm.user_id
-       WHERE tm.team_id IN (
-         SELECT team_id FROM team_members WHERE user_id = $1
-         UNION
-         SELECT id FROM teams WHERE manager_id = $1
-       )
-       AND u.id != $1
+       WHERE u.id != $1
+         AND u.id IN (
+           -- other members in the same teams as the current user
+           SELECT tm2.user_id FROM team_members tm2
+           WHERE tm2.team_id IN (SELECT team_id FROM team_members WHERE user_id = $1)
+           UNION
+           -- managers of teams the current user belongs to
+           SELECT t.manager_id FROM teams t
+           WHERE t.id IN (SELECT team_id FROM team_members WHERE user_id = $1)
+             AND t.manager_id IS NOT NULL
+           UNION
+           -- members of teams the current user manages
+           SELECT tm3.user_id FROM team_members tm3
+           WHERE tm3.team_id IN (SELECT id FROM teams WHERE manager_id = $1)
+         )
        ORDER BY u.first_name, u.last_name`,
       [currentUserId]
     );
     return result.rows;
   }
 
-  async getConversations(userId: number): Promise<ConversationRow[]> {
+  async getConversations(userId: number, isManager: boolean): Promise<ConversationRow[]> {
+    if (isManager) {
+      // Managers see every conversation with an is_member flag
+      const result = await pool.query<ConversationRow>(
+        `SELECT c.id, c.type, c.name, c.created_by, c.team_id, c.created_at,
+                lm.content AS last_message,
+                lm.created_at AS last_message_at,
+                CONCAT(lu.first_name, ' ', lu.last_name) AS last_sender_name,
+                (SELECT STRING_AGG(CONCAT(u2.first_name, ' ', u2.last_name), ', ' ORDER BY u2.first_name)
+                 FROM conversation_members cm2
+                 JOIN users u2 ON cm2.user_id = u2.id
+                 WHERE cm2.conversation_id = c.id
+                ) AS member_names,
+                EXISTS(
+                  SELECT 1 FROM conversation_members
+                  WHERE conversation_id = c.id AND user_id = $1
+                ) AS is_member
+         FROM conversations c
+         LEFT JOIN LATERAL (
+           SELECT m.content, m.created_at, m.sender_id
+           FROM messages m WHERE m.conversation_id = c.id
+           ORDER BY m.created_at DESC LIMIT 1
+         ) lm ON true
+         LEFT JOIN users lu ON lm.sender_id = lu.id
+         ORDER BY COALESCE(lm.created_at, c.created_at) DESC`,
+        [userId]
+      );
+      return result.rows;
+    }
+
+    // Employees see only their own conversations
     const result = await pool.query<ConversationRow>(
       `SELECT c.id, c.type, c.name, c.created_by, c.team_id, c.created_at,
               lm.content AS last_message,
@@ -67,7 +106,8 @@ class MessageService {
                FROM conversation_members cm2
                JOIN users u2 ON cm2.user_id = u2.id
                WHERE cm2.conversation_id = c.id AND cm2.user_id != $1
-              ) AS member_names
+              ) AS member_names,
+              true AS is_member
        FROM conversations c
        JOIN conversation_members cm ON c.id = cm.conversation_id
        LEFT JOIN LATERAL (
@@ -157,14 +197,15 @@ class MessageService {
     }
   }
 
-  async getMessages(conversationId: number, userId: number): Promise<MessageRow[]> {
-    // Verify user is a member
-    const membership = await pool.query(
-      `SELECT 1 FROM conversation_members WHERE conversation_id = $1 AND user_id = $2`,
-      [conversationId, userId]
-    );
-    if (membership.rows.length === 0) {
-      throw new HttpError(403, 'You are not a member of this conversation.');
+  async getMessages(conversationId: number, userId: number, isManager = false): Promise<MessageRow[]> {
+    if (!isManager) {
+      const membership = await pool.query(
+        `SELECT 1 FROM conversation_members WHERE conversation_id = $1 AND user_id = $2`,
+        [conversationId, userId]
+      );
+      if (membership.rows.length === 0) {
+        throw new HttpError(403, 'You are not a member of this conversation.');
+      }
     }
 
     const result = await pool.query<MessageRow>(

@@ -52,6 +52,33 @@
   background: #fafafa;
 }
 
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tab {
+  flex: 1;
+  padding: 0.6rem 0.5rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.tab:hover {
+  color: #444;
+}
+
+.tabActive {
+  color: #d4500a;
+  border-bottom-color: #d4500a;
+}
+
 .sidebarHeader {
   display: flex;
   align-items: center;
@@ -456,6 +483,16 @@
   font-size: 0.78rem;
   color: #888;
   text-transform: capitalize;
+}
+
+.readOnlyBar {
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid #e0e0e0;
+  background: #fafafa;
+  color: #999;
+  font-size: 0.85rem;
+  text-align: center;
+  font-style: italic;
 }
 
 /* ── Responsive ── */
