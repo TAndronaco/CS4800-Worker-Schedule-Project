@@ -71,7 +71,8 @@ function buildAutoSchedule(
   weekDays: string[],
   activeDays: boolean[],
   coverStart: number,
-  coverEnd: number
+  coverEnd: number,
+  availability: AvailabilitySlot[]
 ): ProposedShift[] {
   if (employees.length < 2 || coverEnd <= coverStart) return [];
   const proposed: ProposedShift[] = [];
@@ -82,17 +83,34 @@ function buildAutoSchedule(
   for (let di = 0; di < weekDays.length; di++) {
     if (!activeDays[di]) continue;
     const date = weekDays[di];
+
+    // Filter to employees available on this day for this shift window.
+    // An employee with no availability entries for the day is treated as available.
+    const dayEmployees = employees.filter((emp) => {
+      const empSlots = availability.filter(
+        (a) => a.user_id === emp.id && a.day_of_week === di
+      );
+      if (empSlots.length === 0) return true;
+      return empSlots.some((a) => {
+        const aStart = parseInt(a.start_time.split(":")[0], 10);
+        const aEnd = parseInt(a.end_time.split(":")[0], 10);
+        return aStart < coverEnd && aEnd > coverStart;
+      });
+    });
+
+    if (dayEmployees.length < 2) continue;
+
     // Track hours worked per employee this day (employee id -> hours)
     const dayHours: Record<number, number> = {};
-    employees.forEach((e) => (dayHours[e.id] = 0));
+    dayEmployees.forEach((e) => (dayHours[e.id] = 0));
 
     const windowSize = coverEnd - coverStart;
 
     if (windowSize <= 8) {
       // One shift per assigned employee covering the entire window
       let assigned = 0;
-      for (let attempt = 0; attempt < employees.length && assigned < 2; attempt++) {
-        const emp = employees[(globalRoundRobin + attempt) % employees.length];
+      for (let attempt = 0; attempt < dayEmployees.length && assigned < 2; attempt++) {
+        const emp = dayEmployees[(globalRoundRobin + attempt) % dayEmployees.length];
         if (dayHours[emp.id] + windowSize <= 8) {
           proposed.push({
             employee_id: emp.id,
@@ -105,7 +123,7 @@ function buildAutoSchedule(
           assigned++;
         }
       }
-      globalRoundRobin = (globalRoundRobin + 2) % employees.length;
+      globalRoundRobin = (globalRoundRobin + 2) % dayEmployees.length;
     } else {
       // Split into max-8-hour segments and assign 2 employees per segment
       let cursor = coverStart;
@@ -114,9 +132,9 @@ function buildAutoSchedule(
         const segEnd = Math.min(cursor + 8, coverEnd);
         const segLen = segEnd - cursor;
         let assigned = 0;
-        const baseIdx = (globalRoundRobin + segIndex * 2) % employees.length;
-        for (let attempt = 0; attempt < employees.length && assigned < 2; attempt++) {
-          const emp = employees[(baseIdx + attempt) % employees.length];
+        const baseIdx = (globalRoundRobin + segIndex * 2) % dayEmployees.length;
+        for (let attempt = 0; attempt < dayEmployees.length && assigned < 2; attempt++) {
+          const emp = dayEmployees[(baseIdx + attempt) % dayEmployees.length];
           if (dayHours[emp.id] + segLen <= 8) {
             proposed.push({
               employee_id: emp.id,
@@ -132,7 +150,7 @@ function buildAutoSchedule(
         cursor = segEnd;
         segIndex++;
       }
-      globalRoundRobin = (globalRoundRobin + 2) % employees.length;
+      globalRoundRobin = (globalRoundRobin + 2) % dayEmployees.length;
     }
   }
 
@@ -456,10 +474,10 @@ export default function ManagerSchedulePage() {
     }
     const selectedMembers = members.filter((m) => autoEmployees.includes(m.id));
     const proposed = buildAutoSchedule(
-      selectedMembers, weekDays, autoDays, autoCoverStart, autoCoverEnd
+      selectedMembers, weekDays, autoDays, autoCoverStart, autoCoverEnd, availability
     );
     if (proposed.length === 0) {
-      setAutoError("Not enough employees to meet the 2-per-hour requirement. Add more employees or reduce coverage hours.");
+      setAutoError("Not enough available employees for the selected days and hours. Check availability or adjust coverage settings.");
       return;
     }
     setProposedShifts(proposed);
