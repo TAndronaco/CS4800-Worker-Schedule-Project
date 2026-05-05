@@ -94,7 +94,7 @@ function buildAutoSchedule(
       return empSlots.some((a) => {
         const aStart = parseInt(a.start_time.split(":")[0], 10);
         const aEnd = parseInt(a.end_time.split(":")[0], 10);
-        return aStart < coverEnd && aEnd > coverStart;
+        return aStart <= coverStart && aEnd >= coverEnd;
       });
     });
 
