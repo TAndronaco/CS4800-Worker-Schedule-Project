@@ -77,7 +77,7 @@ export default function PricingPage() {
       {/* Header */}
       <section className={styles.header}>
         <h1>Simple, Transparent Pricing</h1>
-        <p>Choose the perfect plan for your team's needs</p>
+        <p>Choose the perfect plan for your team&apos;s needs</p>
       </section>
 
       {/* Pricing Cards */}
@@ -130,7 +130,7 @@ export default function PricingPage() {
       <section className={styles.cta_section}>
         <h2>Questions about pricing?</h2>
         <p>
-          Start with a free Basic plan and upgrade whenever you're ready. No credit
+          Start with a free Basic plan and upgrade whenever you&apos;re ready. No credit
           card required.
         </p>
         <Link href="/register" className={styles.ctaLink}>

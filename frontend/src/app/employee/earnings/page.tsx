@@ -38,9 +38,7 @@ export default function EmployeeEarningsPage() {
   useEffect(() => {
     if (!userId) {
       router.push("/login");
-      return;
     }
-    loadEarningsData();
   }, [userId, router]);
 
   const loadEarningsData = async () => {
@@ -122,7 +120,7 @@ export default function EmployeeEarningsPage() {
           <h2>Ready to Cash Out?</h2>
           <div className={styles.cashoutBreakdown}>
             <div className={styles.breakdownRow}>
-              <span>Month's Earnings</span>
+              <span>Month&apos;s Earnings</span>
               <span>${cashoutAmount.toFixed(2)}</span>
             </div>
             <div className={styles.breakdownRow}>
@@ -130,7 +128,7 @@ export default function EmployeeEarningsPage() {
               <span className={styles.feeAmount}>-${fee.toFixed(2)}</span>
             </div>
             <div className={`${styles.breakdownRow} ${styles.totalRow}`}>
-              <span>You'll Receive</span>
+              <span>You&apos;ll Receive</span>
               <span>${afterFee.toFixed(2)}</span>
             </div>
           </div>

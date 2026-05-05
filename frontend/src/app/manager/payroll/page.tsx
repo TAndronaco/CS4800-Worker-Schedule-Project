@@ -52,7 +52,7 @@ export default function ManagerPayrollPage() {
     // Get manager's team
     apiFetch("/teams")
       .then((res) => res.json())
-      .then((teams: any[]) => {
+      .then((teams: { id: number; name: string }[]) => {
         if (teams.length > 0) {
           setTeamId(teams[0].id);
         }
@@ -65,20 +65,22 @@ export default function ManagerPayrollPage() {
   useEffect(() => {
     if (!teamId) return;
 
-    setLoading(true);
+    let cancelled = false;
     apiFetch(`/payroll/team-rates?team_id=${teamId}`)
       .then((res) => {
         if (res.ok) return res.json();
         throw new Error("Failed to fetch team rates");
       })
       .then((data) => {
-        setEmployees(Array.isArray(data) ? data : []);
-        setLoading(false);
+        if (!cancelled) {
+          setEmployees(Array.isArray(data) ? data : []);
+          setLoading(false);
+        }
       })
-      .catch((error) => {
-        console.error("Error loading team rates:", error);
-        setLoading(false);
+      .catch(() => {
+        if (!cancelled) setLoading(false);
       });
+    return () => { cancelled = true; };
   }, [teamId]);
 
   const handleEditClick = (employee: Employee) => {
@@ -128,7 +130,7 @@ export default function ManagerPayrollPage() {
       } else {
         setMessage({ type: "error", text: "Failed to update hourly rate" });
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: "error", text: "Error updating hourly rate" });
     }
   };
