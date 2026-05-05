@@ -541,7 +541,10 @@ export function resolveTestRequest(endpoint: string, options: RequestInit = {}):
 
   // GET /messages/conversations
   if (path === "/messages/conversations" && method === "GET") {
-    const userConvs = CONVERSATIONS.filter((c) => c.member_ids.includes(currentUser.id));
+    const userConvs =
+      currentUser.role === "manager"
+        ? CONVERSATIONS
+        : CONVERSATIONS.filter((c) => c.member_ids.includes(currentUser.id));
     userConvs.sort((a, b) => {
       const lastA = CONV_MESSAGES.filter((m) => m.conversation_id === a.id).pop();
       const lastB = CONV_MESSAGES.filter((m) => m.conversation_id === b.id).pop();
@@ -570,6 +573,7 @@ export function resolveTestRequest(endpoint: string, options: RequestInit = {}):
         last_message_at: lastMsg?.created_at || null,
         last_sender_name: lastMsg ? `${lastMsg.first_name} ${lastMsg.last_name}` : null,
         member_names: otherNames,
+        is_member: c.member_ids.includes(currentUser.id),
       };
     });
     return jsonResponse(result);
@@ -725,5 +729,8 @@ export function resolveTestRequest(endpoint: string, options: RequestInit = {}):
   }
 
   // Fallback - unhandled endpoint
-  return jsonResponse([]);
+  return new Response(JSON.stringify({ error: `Unhandled test endpoint: ${method} ${path}` }), {
+    status: 404,
+    headers: { "Content-Type": "application/json" },
+  });
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import EmployeeLayout from "./EmployeeLayout";
@@ -9,10 +9,13 @@ import ManagerLayout from "./ManagerLayout";
 const EMPLOYEE_PATHS = [
   "/dashboard",
   "/employee/schedule",
+  "/employee/clock",
+  "/employee/performance",
   "/employee/requests",
   "/employee/join",
   "/employee/time-off",
   "/employee/availability",
+  "/settings",
   "/messages",
   "/notifications",
 ];
@@ -20,10 +23,12 @@ const EMPLOYEE_PATHS = [
 const MANAGER_PATHS = [
   "/dashboard",
   "/manager/schedule",
+  "/manager/performance",
   "/manager/requests",
   "/manager/teams",
   "/manager/analytics",
   "/manager/time-off",
+  "/settings",
   "/messages",
   "/notifications",
 ];
@@ -50,12 +55,13 @@ export default function LayoutShell({
     warmup();
   }, []);
 
-  const [user, setUser] = useState<{ role: string } | null>(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("user");
-    setUser(stored && stored !== "undefined" && stored !== "null" ? JSON.parse(stored) : null);
-  }, [pathname]);
+  const user =
+    typeof window === "undefined"
+      ? null
+      : (() => {
+          const stored = localStorage.getItem("user");
+          return stored && stored !== "undefined" && stored !== "null" ? JSON.parse(stored) : null;
+        })();
 
   const isEmployeePage =
     user?.role === "employee" &&

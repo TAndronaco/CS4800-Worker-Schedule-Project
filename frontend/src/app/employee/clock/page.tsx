@@ -62,8 +62,12 @@ export default function ClockPage() {
   }, [selectedTeam]);
 
   useEffect(() => {
-    if (!clockedIn || !currentEntry) { setElapsed(""); return; }
     const tick = () => {
+      if (!clockedIn || !currentEntry) {
+        setElapsed("");
+        return;
+      }
+
       const ms = Date.now() - new Date(currentEntry.clock_in).getTime();
       const hrs = Math.floor(ms / 3600000);
       const mins = Math.floor((ms % 3600000) / 60000);
@@ -71,6 +75,7 @@ export default function ClockPage() {
       setElapsed(`${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`);
     };
     tick();
+    if (!clockedIn || !currentEntry) return;
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
   }, [clockedIn, currentEntry]);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import styles from "./page.module.css";
@@ -46,13 +46,10 @@ export default function MessagesPage() {
   const router = useRouter();
   const chatBoxRef = useRef<HTMLDivElement>(null);
 
-  const [user, setUser] = useState<User | null>(null);
-  const [userLoaded, setUserLoaded] = useState(false);
-
-  useEffect(() => {
+  const user = useMemo<User | null>(() => {
+    if (typeof window === "undefined") return null;
     const stored = localStorage.getItem("user");
-    setUser(stored && stored !== "undefined" && stored !== "null" ? JSON.parse(stored) : null);
-    setUserLoaded(true);
+    return stored && stored !== "undefined" && stored !== "null" ? JSON.parse(stored) : null;
   }, []);
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -71,11 +68,10 @@ export default function MessagesPage() {
   const [activeTab, setActiveTab] = useState<"my-chats" | "monitor">("my-chats");
 
   useEffect(() => {
-    if (!userLoaded) return;
     if (!user) {
       router.push("/login");
     }
-  }, [user, userLoaded, router]);
+  }, [user, router]);
 
   function loadConversations() {
     apiFetch("/messages/conversations")
