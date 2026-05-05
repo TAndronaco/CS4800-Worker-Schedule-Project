@@ -37,6 +37,7 @@ const NAV_ITEMS = [
   { label: "My Teams", icon: "👥", path: "/manager/teams" },
   { label: "Performance", icon: "📊", path: "/manager/performance" },
   { label: "Requests", icon: "🔄", path: "/manager/requests" },
+  { label: "Payroll", icon: "💳", path: "/manager/payroll" },
   { label: "Messages", icon: "💬", path: "/messages" },
   { label: "Settings", icon: "⚙️", path: "/settings" },
 ];

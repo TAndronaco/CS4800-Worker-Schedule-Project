@@ -43,6 +43,7 @@ export default function Navbar() {
           </>
         ) : (
           <>
+            <Link href="/pricing">Pricing</Link>
             <Link href="/login">Sign In</Link>
             <Link href="/register" className={styles.registerBtn}>
               Sign Up

@@ -1,0 +1,247 @@
+.page {
+  min-height: 100vh;
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
+}
+
+.header {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 3rem;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #171717;
+  margin-bottom: 1rem;
+}
+
+.header p {
+  font-size: 1.2rem;
+  color: #666;
+  line-height: 1.6;
+}
+
+.cardsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto 3rem;
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+.card {
+  border: 1px solid #e0e0e0;
+  border-radius: 14px;
+  padding: 2rem;
+  background: #ffffff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.highlighted {
+  border: 2px solid #d4500a;
+  box-shadow: 0 8px 24px rgba(212, 80, 10, 0.15);
+  transform: scale(1.02);
+}
+
+.highlighted:hover {
+  transform: translateY(-8px) scale(1.02);
+}
+
+.badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #d4500a;
+  color: white;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.tierName {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #171717;
+  margin: 1rem 0 0.5rem;
+}
+
+.tierDescription {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+}
+
+.priceSection {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.price {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #d4500a;
+}
+
+.billingPeriod {
+  font-size: 0.95rem;
+  color: #999;
+}
+
+.memberLimit {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.cta {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-bottom: 1.5rem;
+}
+
+.ctaPrimary {
+  background-color: #d4500a;
+  color: white;
+}
+
+.ctaPrimary:hover {
+  background-color: #b04008;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212, 80, 10, 0.3);
+}
+
+.ctaSecondary {
+  background-color: #f0f0f0;
+  color: #171717;
+  border: 1px solid #ddd;
+}
+
+.ctaSecondary:hover {
+  background-color: #e8e8e8;
+  border-color: #bbb;
+}
+
+.featuresList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.featureItem {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  color: #555;
+  align-items: flex-start;
+}
+
+.checkmark {
+  color: #d4500a;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.cta_section {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(212, 80, 10, 0.08) 0%, rgba(212, 80, 10, 0.04) 100%);
+  animation: fadeInUp 0.6s ease-out 0.4s both;
+}
+
+.cta_section h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #171717;
+  margin-bottom: 0.5rem;
+}
+
+.cta_section p {
+  color: #666;
+  margin-bottom: 1.5rem;
+  font-size: 1.05rem;
+}
+
+.ctaLink {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  background-color: #d4500a;
+  color: white;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.ctaLink:hover {
+  background-color: #b04008;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 80, 10, 0.3);
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 2rem 1rem;
+  }
+
+  .header h1 {
+    font-size: 1.85rem;
+  }
+
+  .header p {
+    font-size: 1rem;
+  }
+
+  .cardsContainer {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .card {
+    padding: 1.5rem;
+  }
+
+  .highlighted {
+    transform: scale(1);
+  }
+
+  .highlighted:hover {
+    transform: translateY(-8px);
+  }
+
+  .price {
+    font-size: 2rem;
+  }
+}

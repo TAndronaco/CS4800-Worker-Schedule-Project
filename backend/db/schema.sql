@@ -6,6 +6,7 @@ CREATE TABLE users (
   last_name VARCHAR(100) NOT NULL,
   role VARCHAR(20) NOT NULL DEFAULT 'employee',
   avatar_url TEXT,
+  hourly_rate DECIMAL(10, 2) DEFAULT 0.00,
   created_at TIMESTAMP DEFAULT NOW()
 );
 

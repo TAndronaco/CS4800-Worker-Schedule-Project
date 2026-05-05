@@ -16,6 +16,7 @@ import templateRoutes from './routes/templates';
 import clockRoutes from './routes/clock';
 import performanceRoutes from './routes/performance';
 import exportRoutes from './routes/export';
+import payrollRoutes from './routes/payroll';
 
 import pool from './config/db';
 
@@ -31,6 +32,7 @@ async function initDb() {
       last_name VARCHAR(100) NOT NULL,
       role VARCHAR(20) NOT NULL DEFAULT 'employee',
       avatar_url TEXT,
+      hourly_rate DECIMAL(10, 2) DEFAULT 0.00,
       created_at TIMESTAMP DEFAULT NOW()
     );
 
@@ -206,6 +208,7 @@ app.use('/api/templates', templateRoutes);
 app.use('/api/clock', clockRoutes);
 app.use('/api/performance', performanceRoutes);
 app.use('/api/export', exportRoutes);
+app.use('/api/payroll', payrollRoutes);
 
 initDb()
   .then(() => {

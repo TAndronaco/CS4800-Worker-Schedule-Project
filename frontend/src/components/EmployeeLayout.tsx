@@ -37,6 +37,7 @@ const NAV_ITEMS = [
   { label: "Clock In/Out", icon: "⏱️", path: "/employee/clock" },
   { label: "Availability", icon: "📊", path: "/employee/availability" },
   { label: "Requests", icon: "🔄", path: "/employee/requests" },
+  { label: "Earnings", icon: "💰", path: "/employee/earnings" },
   { label: "Messages", icon: "💬", path: "/messages" },
   { label: "Join Team", icon: "👥", path: "/employee/join" },
   { label: "Settings", icon: "⚙️", path: "/settings" },
