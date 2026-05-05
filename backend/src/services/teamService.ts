@@ -15,6 +15,7 @@ interface TeamMember {
   first_name: string;
   last_name: string;
   email: string;
+  role: string;
 }
 
 class TeamService {
@@ -54,7 +55,7 @@ class TeamService {
 
   async getTeamMembers(teamId: string): Promise<TeamMember[]> {
     const result = await pool.query<TeamMember>(
-      `SELECT u.id, u.first_name, u.last_name, u.email
+      `SELECT u.id, u.first_name, u.last_name, u.email, u.role
        FROM users u
        JOIN team_members tm ON u.id = tm.user_id
        WHERE tm.team_id = $1`,

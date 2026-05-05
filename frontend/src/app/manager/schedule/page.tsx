@@ -246,7 +246,7 @@ export default function ManagerSchedulePage() {
   async function saveAsTemplate() {
     if (!newTemplateName.trim() || shifts.length === 0) return;
     const templateData: TemplateShift[] = shifts.map((s) => ({
-      day_of_week: new Date(s.date + "T00:00:00").getDay(),
+      day_of_week: new Date(s.date.split("T")[0] + "T12:00:00").getDay(),
       employee_id: s.employee_id,
       start_time: s.start_time,
       end_time: s.end_time,
@@ -269,7 +269,7 @@ export default function ManagerSchedulePage() {
 
   function applyTemplate(template: Template) {
     const templateShifts: Shift[] = template.template_data.map((ts) => {
-      const targetDay = weekDays.find((d) => new Date(d + "T00:00:00").getDay() === ts.day_of_week);
+      const targetDay = weekDays.find((d) => new Date(d + "T12:00:00").getDay() === ts.day_of_week);
       const emp = members.find((m) => m.id === ts.employee_id);
       return {
         id: Math.random() * -1,
@@ -296,7 +296,7 @@ export default function ManagerSchedulePage() {
     }
   }
 
-  function addShift(e: React.FormEvent) {
+  function addShift(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
     

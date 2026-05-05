@@ -162,6 +162,8 @@ async function initDb() {
       notes TEXT NOT NULL,
       created_at TIMESTAMP DEFAULT NOW()
     );
+
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
   `);
 }
 

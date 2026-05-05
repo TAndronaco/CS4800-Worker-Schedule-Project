@@ -77,7 +77,7 @@ class MessageService {
                 (SELECT STRING_AGG(CONCAT(u2.first_name, ' ', u2.last_name), ', ' ORDER BY u2.first_name)
                  FROM conversation_members cm2
                  JOIN users u2 ON cm2.user_id = u2.id
-                 WHERE cm2.conversation_id = c.id
+                 WHERE cm2.conversation_id = c.id AND cm2.user_id != $1
                 ) AS member_names,
                 EXISTS(
                   SELECT 1 FROM conversation_members
