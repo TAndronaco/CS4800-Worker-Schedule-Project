@@ -68,7 +68,7 @@ export default function ClockPage() {
         return;
       }
 
-      const ms = Date.now() - new Date(currentEntry.clock_in).getTime();
+      const ms = Math.max(0, Date.now() - new Date(currentEntry.clock_in).getTime());
       const hrs = Math.floor(ms / 3600000);
       const mins = Math.floor((ms % 3600000) / 60000);
       const secs = Math.floor((ms % 60000) / 1000);
