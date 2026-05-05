@@ -77,6 +77,18 @@ function buildAutoSchedule(
   if (employees.length < 2 || coverEnd <= coverStart) return [];
   const proposed: ProposedShift[] = [];
 
+  // Returns true if emp is available for the entire [segStart, segEnd) window on dayIdx.
+  // Employees with no availability entries for that day are considered fully available.
+  function empAvailableFor(empId: number, dayIdx: number, segStart: number, segEnd: number): boolean {
+    const slots = availability.filter((a) => a.user_id === empId && a.day_of_week === dayIdx);
+    if (slots.length === 0) return true;
+    return slots.some((a) => {
+      const aStart = parseInt(a.start_time.split(":")[0], 10);
+      const aEnd = parseInt(a.end_time.split(":")[0], 10);
+      return aStart <= segStart && aEnd >= segEnd;
+    });
+  }
+
   // Round-robin index across the whole week so different employees lead each day
   let globalRoundRobin = 0;
 
@@ -84,34 +96,21 @@ function buildAutoSchedule(
     if (!activeDays[di]) continue;
     const date = weekDays[di];
 
-    // Filter to employees available on this day for this shift window.
-    // An employee with no availability entries for the day is treated as available.
-    const dayEmployees = employees.filter((emp) => {
-      const empSlots = availability.filter(
-        (a) => a.user_id === emp.id && a.day_of_week === di
-      );
-      if (empSlots.length === 0) return true;
-      return empSlots.some((a) => {
-        const aStart = parseInt(a.start_time.split(":")[0], 10);
-        const aEnd = parseInt(a.end_time.split(":")[0], 10);
-        return aStart <= coverStart && aEnd >= coverEnd;
-      });
-    });
-
-    if (dayEmployees.length < 2) continue;
-
     // Track hours worked per employee this day (employee id -> hours)
     const dayHours: Record<number, number> = {};
-    dayEmployees.forEach((e) => (dayHours[e.id] = 0));
+    employees.forEach((e) => (dayHours[e.id] = 0));
 
     const windowSize = coverEnd - coverStart;
 
     if (windowSize <= 8) {
       // One shift per assigned employee covering the entire window
       let assigned = 0;
-      for (let attempt = 0; attempt < dayEmployees.length && assigned < 2; attempt++) {
-        const emp = dayEmployees[(globalRoundRobin + attempt) % dayEmployees.length];
-        if (dayHours[emp.id] + windowSize <= 8) {
+      for (let attempt = 0; attempt < employees.length && assigned < 2; attempt++) {
+        const emp = employees[(globalRoundRobin + attempt) % employees.length];
+        if (
+          dayHours[emp.id] + windowSize <= 8 &&
+          empAvailableFor(emp.id, di, coverStart, coverEnd)
+        ) {
           proposed.push({
             employee_id: emp.id,
             employeeName: `${emp.first_name} ${emp.last_name}`,
@@ -123,7 +122,7 @@ function buildAutoSchedule(
           assigned++;
         }
       }
-      globalRoundRobin = (globalRoundRobin + 2) % dayEmployees.length;
+      globalRoundRobin = (globalRoundRobin + 2) % employees.length;
     } else {
       // Split into max-8-hour segments and assign 2 employees per segment
       let cursor = coverStart;
@@ -132,10 +131,13 @@ function buildAutoSchedule(
         const segEnd = Math.min(cursor + 8, coverEnd);
         const segLen = segEnd - cursor;
         let assigned = 0;
-        const baseIdx = (globalRoundRobin + segIndex * 2) % dayEmployees.length;
-        for (let attempt = 0; attempt < dayEmployees.length && assigned < 2; attempt++) {
-          const emp = dayEmployees[(baseIdx + attempt) % dayEmployees.length];
-          if (dayHours[emp.id] + segLen <= 8) {
+        const baseIdx = (globalRoundRobin + segIndex * 2) % employees.length;
+        for (let attempt = 0; attempt < employees.length && assigned < 2; attempt++) {
+          const emp = employees[(baseIdx + attempt) % employees.length];
+          if (
+            dayHours[emp.id] + segLen <= 8 &&
+            empAvailableFor(emp.id, di, cursor, segEnd)
+          ) {
             proposed.push({
               employee_id: emp.id,
               employeeName: `${emp.first_name} ${emp.last_name}`,
@@ -150,7 +152,7 @@ function buildAutoSchedule(
         cursor = segEnd;
         segIndex++;
       }
-      globalRoundRobin = (globalRoundRobin + 2) % dayEmployees.length;
+      globalRoundRobin = (globalRoundRobin + 2) % employees.length;
     }
   }
 
