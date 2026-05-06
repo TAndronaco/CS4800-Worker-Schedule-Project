@@ -52,11 +52,19 @@ export default function RequestsPage() {
     if (user.role !== "manager") { router.push("/dashboard"); return; }
 
     apiFetch("/teams")
+<<<<<<< Updated upstream
       .then((r) => (r.ok ? r.json() : []))
       .then((raw) => {
         const data: Team[] = Array.isArray(raw) ? raw : [];
         setTeams(data);
         if (data.length > 0) setSelectedTeam(data[0].id);
+=======
+      .then((r) => r.json())
+      .then((data: Team[]) => {
+        const arr = Array.isArray(data) ? data : [];
+        setTeams(arr);
+        if (arr.length > 0) setSelectedTeam(arr[0].id);
+>>>>>>> Stashed changes
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -65,7 +73,11 @@ export default function RequestsPage() {
   useEffect(() => {
     if (!selectedTeam) return;
     apiFetch(`/requests?team_id=${selectedTeam}`)
+<<<<<<< Updated upstream
       .then((r) => (r.ok ? r.json() : []))
+=======
+      .then((r) => r.json())
+>>>>>>> Stashed changes
       .then((data) => setRequests(Array.isArray(data) ? data : []))
       .catch(() => setRequests([]));
   }, [selectedTeam]);

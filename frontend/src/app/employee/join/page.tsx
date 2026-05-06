@@ -20,13 +20,15 @@ export default function JoinTeamPage() {
     if (!stored || stored === "undefined" || stored === "null") { router.push("/login"); return; }
     apiFetch("/teams")
       .then((res) => (res.ok ? res.json() : []))
-      .then((data: Team[]) => { setTeams(data); setLoading(false); });
+      .then((data: Team[]) => { setTeams(Array.isArray(data) ? data : []); setLoading(false); })
+      .catch(() => setLoading(false));
   }, [router]);
 
   function fetchTeams() {
     apiFetch("/teams")
       .then((res) => (res.ok ? res.json() : []))
-      .then((data: Team[]) => setTeams(data));
+      .then((data: Team[]) => setTeams(Array.isArray(data) ? data : []))
+      .catch(() => {});
   }
 
   async function joinTeam(e: React.FormEvent) {

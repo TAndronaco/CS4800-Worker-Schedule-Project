@@ -58,6 +58,7 @@ export default function EmployeeTimeOffPage() {
       return;
     }
     apiFetch("/teams")
+<<<<<<< Updated upstream
       .then((r) => (r.ok ? r.json() : []))
       .then((raw) => {
         const data: Team[] = Array.isArray(raw) ? raw : [];
@@ -65,17 +66,32 @@ export default function EmployeeTimeOffPage() {
         if (data.length > 0) setSelectedTeam(data[0].id);
       })
       .catch(() => setTeams([]));
+=======
+      .then((r) => r.json())
+      .then((data: Team[]) => {
+        const arr = Array.isArray(data) ? data : [];
+        setTeams(arr);
+        if (arr.length > 0) setSelectedTeam(arr[0].id);
+      })
+      .catch(() => {});
+>>>>>>> Stashed changes
   }, [router]);
 
   function loadRequests() {
     apiFetch("/time-off")
+<<<<<<< Updated upstream
       .then((r) => (r.ok ? r.json() : []))
       .then((raw) => {
         const data: TimeOffRequest[] = Array.isArray(raw) ? raw : [];
+=======
+      .then((r) => r.json())
+      .then((data: TimeOffRequest[]) => {
+        const arr = Array.isArray(data) ? data : [];
+>>>>>>> Stashed changes
         if (selectedTeam) {
-          setRequests(data.filter((r) => r.team_id === selectedTeam));
+          setRequests(arr.filter((r) => r.team_id === selectedTeam));
         } else {
-          setRequests(data);
+          setRequests(arr);
         }
       })
       .catch(() => setRequests([]));
