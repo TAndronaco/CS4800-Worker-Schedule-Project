@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ScheduleSummary from "@/components/ScheduleSummary";
 import ManagerOverview from "@/components/ManagerOverview";
@@ -18,21 +18,25 @@ interface User {
 export default function DashboardPage() {
   const router = useRouter();
   const [teamsCount, setTeamsCount] = useState<number | null>(null);
-  const [skipOnboarding, setSkipOnboarding] = useState(
-    typeof window !== "undefined" && localStorage.getItem("onboarding_complete") === "true"
-  );
+  const [skipOnboarding, setSkipOnboarding] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [mounted, setMounted] = useState(false);
 
-  const user = useMemo<User | null>(() => {
-    if (typeof window === "undefined") return null;
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
     const stored = localStorage.getItem("user");
-    return stored && stored !== "undefined" && stored !== "null" ? JSON.parse(stored) : null;
+    const parsed = stored && stored !== "undefined" && stored !== "null" ? JSON.parse(stored) : null;
+    setUser(parsed);
+    setSkipOnboarding(localStorage.getItem("onboarding_complete") === "true");
+    setMounted(true);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
-    if (!user) {
+    if (mounted && !user) {
       router.push("/login");
     }
-  }, [user, router]);
+  }, [mounted, user, router]);
 
   useEffect(() => {
     if (!user) return;
