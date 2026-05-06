@@ -66,11 +66,13 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (!userId) { router.push("/login"); return; }
-    apiFetch("/users/me").then((r) => r.json()).then((data: UserProfile) => {
-      setProfile(data);
-      setForm({ first_name: data.first_name, last_name: data.last_name, email: data.email });
+    apiFetch("/users/me").then((r) => (r.ok ? r.json() : null)).then((data: UserProfile | null) => {
+      if (data) {
+        setProfile(data);
+        setForm({ first_name: data.first_name, last_name: data.last_name, email: data.email });
+      }
     });
-    apiFetch("/users/me/notification-preferences").then((r) => r.json()).then(setPrefs);
+    apiFetch("/users/me/notification-preferences").then((r) => (r.ok ? r.json() : null)).then((data) => { if (data) setPrefs(data); });
   }, [userId, router]);
 
   useEffect(() => {

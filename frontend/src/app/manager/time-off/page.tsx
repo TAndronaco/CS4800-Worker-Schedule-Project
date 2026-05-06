@@ -54,19 +54,21 @@ export default function ManagerTimeOffPage() {
       return;
     }
     apiFetch("/teams")
-      .then((r) => r.json())
-      .then((data: Team[]) => {
+      .then((r) => (r.ok ? r.json() : []))
+      .then((raw) => {
+        const data: Team[] = Array.isArray(raw) ? raw : [];
         setTeams(data);
         if (data.length > 0) setSelectedTeam(data[0].id);
-      });
+      })
+      .catch(() => setTeams([]));
   }, [router]);
 
   function loadRequests() {
     if (!selectedTeam) return;
     apiFetch(`/time-off?team_id=${selectedTeam}`)
-      .then((r) => r.json())
-      .then(setRequests)
-      .catch(() => {});
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => setRequests(Array.isArray(d) ? d : []))
+      .catch(() => setRequests([]));
   }
 
   useEffect(() => {

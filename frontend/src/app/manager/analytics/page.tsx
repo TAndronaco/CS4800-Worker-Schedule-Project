@@ -93,20 +93,22 @@ export default function ManagerAnalyticsPage() {
       return;
     }
     apiFetch("/teams")
-      .then((r) => r.json())
-      .then((data: Team[]) => {
+      .then((r) => (r.ok ? r.json() : []))
+      .then((raw) => {
+        const data: Team[] = Array.isArray(raw) ? raw : [];
         setTeams(data);
         if (data.length > 0) setSelectedTeam(data[0].id);
-      });
+      })
+      .catch(() => setTeams([]));
   }, [router]);
 
   useEffect(() => {
     if (!selectedTeam) return;
     let cancelled = false;
     apiFetch(`/analytics?team_id=${selectedTeam}&week=${week}`)
-      .then((r) => r.json())
-      .then((data: Analytics) => {
-        if (!cancelled) setAnalytics(data);
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: Analytics | null) => {
+        if (!cancelled && data) setAnalytics(data);
       })
       .catch(() => {});
     return () => { cancelled = true; };

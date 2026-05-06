@@ -36,7 +36,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!user) return;
-    apiFetch("/teams").then((r) => r.json()).then((teams: Array<{ id: number }>) => {
+    apiFetch("/teams").then((r) => (r.ok ? r.json() : [])).then((raw) => {
+      const teams: Array<{ id: number }> = Array.isArray(raw) ? raw : [];
       setTeamsCount(teams.length);
       if (teams.length > 0) {
         localStorage.setItem("onboarding_complete", "true");

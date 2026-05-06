@@ -43,8 +43,8 @@ export default function NotificationBell() {
 
   const fetchCount = useCallback(() => {
     apiFetch("/notifications/unread-count")
-      .then((r) => r.json())
-      .then((data) => setUnreadCount(data.count ?? 0))
+      .then((r) => (r.ok ? r.json() : { count: 0 }))
+      .then((data) => setUnreadCount(data?.count ?? 0))
       .catch(() => {});
   }, []);
 
@@ -59,8 +59,8 @@ export default function NotificationBell() {
   useEffect(() => {
     if (!open) return;
     apiFetch("/notifications")
-      .then((r) => r.json())
-      .then((data: Notification[]) => setNotifications(data.slice(0, 5)))
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => setNotifications(Array.isArray(data) ? data.slice(0, 5) : []))
       .catch(() => {});
   }, [open]);
 

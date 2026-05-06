@@ -58,24 +58,27 @@ export default function EmployeeTimeOffPage() {
       return;
     }
     apiFetch("/teams")
-      .then((r) => r.json())
-      .then((data: Team[]) => {
+      .then((r) => (r.ok ? r.json() : []))
+      .then((raw) => {
+        const data: Team[] = Array.isArray(raw) ? raw : [];
         setTeams(data);
         if (data.length > 0) setSelectedTeam(data[0].id);
-      });
+      })
+      .catch(() => setTeams([]));
   }, [router]);
 
   function loadRequests() {
     apiFetch("/time-off")
-      .then((r) => r.json())
-      .then((data: TimeOffRequest[]) => {
+      .then((r) => (r.ok ? r.json() : []))
+      .then((raw) => {
+        const data: TimeOffRequest[] = Array.isArray(raw) ? raw : [];
         if (selectedTeam) {
           setRequests(data.filter((r) => r.team_id === selectedTeam));
         } else {
           setRequests(data);
         }
       })
-      .catch(() => {});
+      .catch(() => setRequests([]));
   }
 
   useEffect(() => {

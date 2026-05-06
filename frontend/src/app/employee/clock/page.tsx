@@ -45,20 +45,20 @@ export default function ClockPage() {
 
   useEffect(() => {
     if (!userId) { router.push("/login"); return; }
-    apiFetch("/teams").then((r) => r.json()).then((data: Team[]) => {
+    apiFetch("/teams").then((r) => (r.ok ? r.json() : [])).then((raw) => {
+      const data: Team[] = Array.isArray(raw) ? raw : [];
       setTeams(data);
       if (data.length > 0) setSelectedTeam(data[0].id);
       setLoading(false);
-    });
+    }).catch(() => setLoading(false));
   }, [userId, router]);
 
   useEffect(() => {
     if (!selectedTeam) return;
-    apiFetch(`/clock/status?team_id=${selectedTeam}`).then((r) => r.json()).then((data) => {
-      setClockedIn(data.clocked_in);
-      setCurrentEntry(data.entry);
-    });
-    apiFetch(`/clock/history?team_id=${selectedTeam}`).then((r) => r.json()).then(setHistory);
+    apiFetch(`/clock/status?team_id=${selectedTeam}`).then((r) => (r.ok ? r.json() : null)).then((data) => {
+      if (data) { setClockedIn(data.clocked_in); setCurrentEntry(data.entry); }
+    }).catch(() => {});
+    apiFetch(`/clock/history?team_id=${selectedTeam}`).then((r) => (r.ok ? r.json() : [])).then((d) => setHistory(Array.isArray(d) ? d : [])).catch(() => setHistory([]));
   }, [selectedTeam]);
 
   useEffect(() => {

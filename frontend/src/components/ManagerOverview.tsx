@@ -92,17 +92,20 @@ export default function ManagerOverview() {
         // Fetch members, shifts, and requests for all teams
         const memberPromises = data.map((t) =>
           apiFetch(`/teams/${t.id}/members`)
-            .then((r) => r.json())
+            .then((r) => (r.ok ? r.json() : []))
+            .then((d) => (Array.isArray(d) ? d : []))
             .catch(() => [])
         );
         const shiftPromises = data.map((t) =>
           apiFetch(`/shifts?team_id=${t.id}&week=${monday}`)
-            .then((r) => r.json())
+            .then((r) => (r.ok ? r.json() : []))
+            .then((d) => (Array.isArray(d) ? d : []))
             .catch(() => [])
         );
         const requestPromises = data.map((t) =>
           apiFetch(`/requests?team_id=${t.id}`)
-            .then((r) => r.json())
+            .then((r) => (r.ok ? r.json() : []))
+            .then((d) => (Array.isArray(d) ? d : []))
             .catch(() => [])
         );
 

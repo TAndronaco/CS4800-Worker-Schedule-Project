@@ -52,19 +52,22 @@ export default function RequestsPage() {
     if (user.role !== "manager") { router.push("/dashboard"); return; }
 
     apiFetch("/teams")
-      .then((r) => r.json())
-      .then((data: Team[]) => {
+      .then((r) => (r.ok ? r.json() : []))
+      .then((raw) => {
+        const data: Team[] = Array.isArray(raw) ? raw : [];
         setTeams(data);
         if (data.length > 0) setSelectedTeam(data[0].id);
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, [router]);
 
   useEffect(() => {
     if (!selectedTeam) return;
     apiFetch(`/requests?team_id=${selectedTeam}`)
-      .then((r) => r.json())
-      .then((data) => setRequests(Array.isArray(data) ? data : []));
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => setRequests(Array.isArray(data) ? data : []))
+      .catch(() => setRequests([]));
   }, [selectedTeam]);
 
   async function respond(id: number, status: "approved" | "denied") {

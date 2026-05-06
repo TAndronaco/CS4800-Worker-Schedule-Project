@@ -87,20 +87,22 @@ export default function EmployeeSchedulePage() {
     const user = JSON.parse(stored);
     if (user.role !== "employee") { router.push("/dashboard"); return; }
     apiFetch("/teams")
-      .then((r) => r.json())
-      .then((data: Team[]) => {
+      .then((r) => (r.ok ? r.json() : []))
+      .then((raw) => {
+        const data: Team[] = Array.isArray(raw) ? raw : [];
         setTeams(data);
         if (data.length > 0) setSelectedTeam(data[0].id);
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, [router]);
 
   useEffect(() => {
     if (!selectedTeam) return;
-    // Fetch ALL team shifts so coworkers are visible
     apiFetch(`/shifts?team_id=${selectedTeam}&week=${week}`)
-      .then((r) => r.json())
-      .then(setShifts);
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => setShifts(Array.isArray(d) ? d : []))
+      .catch(() => setShifts([]));
   }, [selectedTeam, week]);
 
   function changeWeek(dir: number) {

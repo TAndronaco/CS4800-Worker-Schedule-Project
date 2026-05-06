@@ -43,21 +43,22 @@ export default function EmployeePerformancePage() {
 
   useEffect(() => {
     if (!userId) { router.push("/login"); return; }
-    apiFetch("/teams").then((r) => r.json()).then((data: Team[]) => {
+    apiFetch("/teams").then((r) => (r.ok ? r.json() : [])).then((raw) => {
+      const data: Team[] = Array.isArray(raw) ? raw : [];
       setTeams(data);
       if (data.length > 0) setSelectedTeam(data[0].id);
       setLoading(false);
-    });
+    }).catch(() => setLoading(false));
   }, [userId, router]);
 
   useEffect(() => {
     if (!selectedTeam) return;
     apiFetch(`/performance/me?team_id=${selectedTeam}`)
-      .then((r) => r.json())
-      .then(setMetrics)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setMetrics(d && typeof d === 'object' && !Array.isArray(d) ? d : null))
       .catch(() => setMetrics(null));
     apiFetch(`/performance/reports?team_id=${selectedTeam}`)
-      .then((r) => r.json())
+      .then((r) => (r.ok ? r.json() : []))
       .then((data) => setReports(Array.isArray(data) ? data : []))
       .catch(() => setReports([]));
   }, [selectedTeam]);

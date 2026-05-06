@@ -64,20 +64,23 @@ export default function AvailabilityPage() {
     }
 
     apiFetch("/teams")
-      .then((r) => r.json())
-      .then((data: Team[]) => {
+      .then((r) => (r.ok ? r.json() : []))
+      .then((raw) => {
+        const data: Team[] = Array.isArray(raw) ? raw : [];
         setTeams(data);
         if (data.length > 0) setSelectedTeam(data[0].id);
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, [router]);
 
   // Load existing availability when team changes
   useEffect(() => {
     if (!selectedTeam || !userId) return;
     apiFetch(`/availability?team_id=${selectedTeam}`)
-      .then((r) => r.json())
-      .then((slots: AvailabilitySlot[]) => {
+      .then((r) => (r.ok ? r.json() : []))
+      .then((raw) => {
+        const slots: AvailabilitySlot[] = Array.isArray(raw) ? raw : [];
         const newSelected = new Set<string>();
         for (const slot of slots) {
           const startH = parseInt(slot.start_time.split(":")[0], 10);

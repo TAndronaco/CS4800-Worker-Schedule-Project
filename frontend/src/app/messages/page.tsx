@@ -75,14 +75,14 @@ export default function MessagesPage() {
 
   function loadConversations() {
     apiFetch("/messages/conversations")
-      .then((r) => r.json())
+      .then((r) => (r.ok ? r.json() : []))
       .then((data) => setConversations(Array.isArray(data) ? data : []))
       .catch(() => setConversations([]));
   }
 
   function loadContacts() {
     apiFetch("/messages/contacts/list")
-      .then((r) => r.json())
+      .then((r) => (r.ok ? r.json() : []))
       .then((data) => setContacts(Array.isArray(data) ? data : []))
       .catch(() => setContacts([]));
   }
@@ -95,7 +95,7 @@ export default function MessagesPage() {
 
   function loadMessages(convId: number) {
     apiFetch(`/messages/conversations/${convId}/messages`)
-      .then((r) => r.json())
+      .then((r) => (r.ok ? r.json() : []))
       .then((data) => setMessages(Array.isArray(data) ? data : []))
       .catch(() => setMessages([]));
   }

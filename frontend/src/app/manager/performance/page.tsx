@@ -48,22 +48,23 @@ export default function ManagerPerformancePage() {
     if (!stored || stored === "undefined" || stored === "null") { router.push("/login"); return; }
     const user = JSON.parse(stored);
     if (user.role !== "manager") { router.push("/dashboard"); return; }
-    apiFetch("/teams").then((r) => r.json()).then((data: Team[]) => {
+    apiFetch("/teams").then((r) => (r.ok ? r.json() : [])).then((raw) => {
+      const data: Team[] = Array.isArray(raw) ? raw : [];
       setTeams(data);
       if (data.length > 0) setSelectedTeam(data[0].id);
       setLoading(false);
-    });
+    }).catch(() => setLoading(false));
   }, [router]);
 
   useEffect(() => {
     if (!selectedTeam) return;
-    apiFetch(`/teams/${selectedTeam}/members`).then((r) => r.json()).then(setMembers);
+    apiFetch(`/teams/${selectedTeam}/members`).then((r) => (r.ok ? r.json() : [])).then((d) => setMembers(Array.isArray(d) ? d : [])).catch(() => setMembers([]));
     apiFetch(`/performance/team?team_id=${selectedTeam}`)
-      .then((r) => r.json())
+      .then((r) => (r.ok ? r.json() : []))
       .then((data) => setMetrics(Array.isArray(data) ? data : []))
       .catch(() => setMetrics([]));
     apiFetch(`/performance/reports/team?team_id=${selectedTeam}`)
-      .then((r) => r.json())
+      .then((r) => (r.ok ? r.json() : []))
       .then((data) => setReports(Array.isArray(data) ? data : []))
       .catch(() => setReports([]));
   }, [selectedTeam]);

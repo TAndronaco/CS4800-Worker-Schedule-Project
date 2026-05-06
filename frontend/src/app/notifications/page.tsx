@@ -73,9 +73,9 @@ export default function NotificationsPage() {
       return;
     }
     apiFetch("/notifications")
-      .then((r) => r.json())
-      .then((data: Notification[]) => {
-        setNotifications(data);
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => {
+        setNotifications(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch(() => setLoading(false));

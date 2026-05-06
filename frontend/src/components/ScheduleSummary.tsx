@@ -56,17 +56,18 @@ export default function ScheduleSummary({ userId }: { userId: number }) {
 
   useEffect(() => {
     apiFetch("/teams")
-      .then((r) => r.json())
-      .then((teams: Team[]) => {
+      .then((r) => (r.ok ? r.json() : []))
+      .then((raw) => {
+        const teams: Team[] = Array.isArray(raw) ? raw : [];
         if (teams.length === 0) {
           setLoaded(true);
           return;
         }
-        // Fetch shifts for first team
         return apiFetch(`/shifts?team_id=${teams[0].id}&week=${monday}`)
-          .then((r) => r.json())
-          .then((data: Shift[]) => {
-            setShifts(data.filter((s) => s.employee_id === userId));
+          .then((r) => (r.ok ? r.json() : []))
+          .then((data) => {
+            const arr: Shift[] = Array.isArray(data) ? data : [];
+            setShifts(arr.filter((s) => s.employee_id === userId));
             setLoaded(true);
           });
       })
