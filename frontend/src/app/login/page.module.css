@@ -4,6 +4,15 @@
   align-items: center;
   min-height: calc(100vh - 64px);
   padding: 2rem;
+  background: url("/auth-bg.png") center / cover no-repeat fixed;
+  position: relative;
+}
+
+.container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
 }
 
 .form {
@@ -13,10 +22,14 @@
   width: 100%;
   max-width: 400px;
   padding: 2rem;
-  border: 1px solid #eee;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
   animation: scaleIn 0.4s ease-out;
   transition: box-shadow 0.3s ease;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  position: relative;
+  z-index: 1;
 }
 
 .form:hover {
