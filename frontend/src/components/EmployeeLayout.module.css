@@ -140,6 +140,33 @@
   display: none;
 }
 
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 0.7rem 1.25rem;
+  background: none;
+  border: none;
+  border-top: 1px solid #eee;
+  color: #999;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.logoutBtn:hover {
+  background: #fff0f0;
+  color: #e53e3e;
+}
+
+.sidebar.collapsed .logoutBtn {
+  justify-content: center;
+  padding: 0.7rem 0;
+}
+
 /* ── Center Content ── */
 
 .center {

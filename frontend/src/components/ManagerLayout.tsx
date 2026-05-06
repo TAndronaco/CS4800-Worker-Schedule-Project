@@ -170,6 +170,17 @@ export default function ManagerLayout({
             <div className={styles.userRole}>{user.role}</div>
           </div>
         </div>
+        <button
+          className={styles.logoutBtn}
+          onClick={() => {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            router.push("/");
+          }}
+        >
+          <span className={styles.navIcon}>🚪</span>
+          <span className={styles.navLabel}>Log Out</span>
+        </button>
       </aside>
 
       {/* ── Center Content ── */}
