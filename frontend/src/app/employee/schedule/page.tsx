@@ -100,13 +100,8 @@ export default function EmployeeSchedulePage() {
   useEffect(() => {
     if (!selectedTeam) return;
     apiFetch(`/shifts?team_id=${selectedTeam}&week=${week}`)
-<<<<<<< Updated upstream
       .then((r) => (r.ok ? r.json() : []))
       .then((d) => setShifts(Array.isArray(d) ? d : []))
-=======
-      .then((r) => r.json())
-      .then((data) => setShifts(Array.isArray(data) ? data : []))
->>>>>>> Stashed changes
       .catch(() => setShifts([]));
   }, [selectedTeam, week]);
 

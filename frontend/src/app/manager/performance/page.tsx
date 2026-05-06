@@ -48,28 +48,17 @@ export default function ManagerPerformancePage() {
     if (!stored || stored === "undefined" || stored === "null") { router.push("/login"); return; }
     const user = JSON.parse(stored);
     if (user.role !== "manager") { router.push("/dashboard"); return; }
-<<<<<<< Updated upstream
     apiFetch("/teams").then((r) => (r.ok ? r.json() : [])).then((raw) => {
       const data: Team[] = Array.isArray(raw) ? raw : [];
       setTeams(data);
       if (data.length > 0) setSelectedTeam(data[0].id);
-=======
-    apiFetch("/teams").then((r) => r.json()).then((data: Team[]) => {
-      const arr = Array.isArray(data) ? data : [];
-      setTeams(arr);
-      if (arr.length > 0) setSelectedTeam(arr[0].id);
->>>>>>> Stashed changes
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [router]);
 
   useEffect(() => {
     if (!selectedTeam) return;
-<<<<<<< Updated upstream
     apiFetch(`/teams/${selectedTeam}/members`).then((r) => (r.ok ? r.json() : [])).then((d) => setMembers(Array.isArray(d) ? d : [])).catch(() => setMembers([]));
-=======
-    apiFetch(`/teams/${selectedTeam}/members`).then((r) => r.json()).then((data) => setMembers(Array.isArray(data) ? data : [])).catch(() => setMembers([]));
->>>>>>> Stashed changes
     apiFetch(`/performance/team?team_id=${selectedTeam}`)
       .then((r) => (r.ok ? r.json() : []))
       .then((data) => setMetrics(Array.isArray(data) ? data : []))

@@ -43,17 +43,10 @@ export default function EmployeePerformancePage() {
 
   useEffect(() => {
     if (!userId) { router.push("/login"); return; }
-<<<<<<< Updated upstream
     apiFetch("/teams").then((r) => (r.ok ? r.json() : [])).then((raw) => {
       const data: Team[] = Array.isArray(raw) ? raw : [];
       setTeams(data);
       if (data.length > 0) setSelectedTeam(data[0].id);
-=======
-    apiFetch("/teams").then((r) => r.json()).then((data: Team[]) => {
-      const arr = Array.isArray(data) ? data : [];
-      setTeams(arr);
-      if (arr.length > 0) setSelectedTeam(arr[0].id);
->>>>>>> Stashed changes
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [userId, router]);

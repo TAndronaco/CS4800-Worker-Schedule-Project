@@ -40,17 +40,10 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!user) return;
-<<<<<<< Updated upstream
     apiFetch("/teams").then((r) => (r.ok ? r.json() : [])).then((raw) => {
       const teams: Array<{ id: number }> = Array.isArray(raw) ? raw : [];
       setTeamsCount(teams.length);
       if (teams.length > 0) {
-=======
-    apiFetch("/teams").then((r) => r.json()).then((data: Array<{ id: number }>) => {
-      const arr = Array.isArray(data) ? data : [];
-      setTeamsCount(arr.length);
-      if (arr.length > 0) {
->>>>>>> Stashed changes
         localStorage.setItem("onboarding_complete", "true");
       }
     }).catch(() => setTeamsCount(0));

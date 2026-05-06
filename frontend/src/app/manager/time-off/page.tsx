@@ -54,7 +54,6 @@ export default function ManagerTimeOffPage() {
       return;
     }
     apiFetch("/teams")
-<<<<<<< Updated upstream
       .then((r) => (r.ok ? r.json() : []))
       .then((raw) => {
         const data: Team[] = Array.isArray(raw) ? raw : [];
@@ -62,29 +61,14 @@ export default function ManagerTimeOffPage() {
         if (data.length > 0) setSelectedTeam(data[0].id);
       })
       .catch(() => setTeams([]));
-=======
-      .then((r) => r.json())
-      .then((data: Team[]) => {
-        const arr = Array.isArray(data) ? data : [];
-        setTeams(arr);
-        if (arr.length > 0) setSelectedTeam(arr[0].id);
-      })
-      .catch(() => {});
->>>>>>> Stashed changes
   }, [router]);
 
   function loadRequests() {
     if (!selectedTeam) return;
     apiFetch(`/time-off?team_id=${selectedTeam}`)
-<<<<<<< Updated upstream
       .then((r) => (r.ok ? r.json() : []))
       .then((d) => setRequests(Array.isArray(d) ? d : []))
       .catch(() => setRequests([]));
-=======
-      .then((r) => r.json())
-      .then((data) => setRequests(Array.isArray(data) ? data : []))
-      .catch(() => {});
->>>>>>> Stashed changes
   }
 
   useEffect(() => {
