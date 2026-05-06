@@ -225,7 +225,7 @@ interface TestTimeOff {
   reviewer_last_name?: string;
 }
 
-const TIME_OFF_REQUESTS: TestTimeOff[] = [
+export const TIME_OFF_REQUESTS: TestTimeOff[] = [
   { id: 1, user_id: 201, team_id: 1, start_date: offsetDate(MONDAY, 7), end_date: offsetDate(MONDAY, 9), reason: "Family vacation", status: "pending", reviewed_by: null, created_at: new Date(Date.now() - 86400000 * 2).toISOString(), first_name: "Jake", last_name: "Miller" },
   { id: 2, user_id: 202, team_id: 1, start_date: offsetDate(MONDAY, 14), end_date: offsetDate(MONDAY, 14), reason: "Doctor appointment", status: "approved", reviewed_by: 101, created_at: new Date(Date.now() - 86400000 * 5).toISOString(), first_name: "Emily", last_name: "Nguyen", reviewer_first_name: "Sarah", reviewer_last_name: "Chen" },
   { id: 3, user_id: 203, team_id: 2, start_date: offsetDate(MONDAY, 10), end_date: offsetDate(MONDAY, 12), reason: "Moving to a new apartment", status: "pending", reviewed_by: null, created_at: new Date(Date.now() - 86400000).toISOString(), first_name: "Carlos", last_name: "Rivera" },
@@ -244,7 +244,7 @@ interface TestAvailability {
   last_name: string;
 }
 
-const AVAILABILITY: TestAvailability[] = [
+export const AVAILABILITY: TestAvailability[] = [
   { id: 1, user_id: 201, team_id: 1, day_of_week: 0, start_time: "06:00", end_time: "14:00", first_name: "Jake", last_name: "Miller" },
   { id: 2, user_id: 201, team_id: 1, day_of_week: 2, start_time: "06:00", end_time: "14:00", first_name: "Jake", last_name: "Miller" },
   { id: 3, user_id: 201, team_id: 1, day_of_week: 4, start_time: "06:00", end_time: "14:00", first_name: "Jake", last_name: "Miller" },
@@ -268,7 +268,7 @@ interface TestNotification {
   created_at: string;
 }
 
-const NOTIFICATIONS: TestNotification[] = [
+export const NOTIFICATIONS: TestNotification[] = [
   { id: 1, user_id: 201, type: "shift_assigned", message: "You've been assigned a shift on Monday (06:00–12:00).", read: false, related_id: 1, created_at: new Date(Date.now() - 86400000 * 3).toISOString() },
   { id: 2, user_id: 201, type: "pto_denied", message: "Your time-off request (personal day) was denied.", read: false, related_id: 4, created_at: new Date(Date.now() - 86400000 * 9).toISOString() },
   { id: 3, user_id: 201, type: "swap_proposed", message: "Emily Nguyen wants to swap shifts with you.", read: true, related_id: 2, created_at: new Date(Date.now() - 86400000 * 4).toISOString() },
@@ -288,7 +288,7 @@ interface TestTemplate {
   created_at: string;
 }
 
-const TEMPLATES: TestTemplate[] = [
+export const TEMPLATES: TestTemplate[] = [
   {
     id: 1, team_id: 1, name: "Standard Morning Week", created_by: 101,
     template_data: [
