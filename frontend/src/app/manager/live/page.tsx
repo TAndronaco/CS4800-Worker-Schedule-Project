@@ -15,17 +15,22 @@ export default function ManagerLivePage() {
   const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
 
   useEffect(() => {
-    apiFetch("/teams").then((r) => r.json()).then((data: Team[]) => {
-      setTeams(data);
-      if (data.length > 0) setSelectedTeam(data[0].id);
-    });
+    apiFetch("/teams")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: Team[]) => {
+        const arr = Array.isArray(data) ? data : [];
+        setTeams(arr);
+        if (arr.length > 0) setSelectedTeam(arr[0].id);
+      })
+      .catch(() => setTeams([]));
   }, []);
 
   useEffect(() => {
     if (!selectedTeam) return;
     const load = () => {
-      apiFetch(`/teams/${selectedTeam}/members`).then((r) => r.json()).then(setMembers).catch(() => setMembers([]));
-      apiFetch(`/clock/team?team_id=${selectedTeam}`).then((r) => r.json()).then((rows: ActiveEntry[]) => {
+      apiFetch(`/teams/${selectedTeam}/members`).then((r) => (r.ok ? r.json() : [])).then((d) => setMembers(Array.isArray(d) ? d : [])).catch(() => setMembers([]));
+      apiFetch(`/clock/team?team_id=${selectedTeam}`).then((r) => (r.ok ? r.json() : [])).then((data) => {
+        const rows: ActiveEntry[] = Array.isArray(data) ? data : [];
         const withElapsed = rows.map((row) => ({
           ...row,
           elapsed_minutes: Math.max(0, Math.floor((Date.now() - new Date(row.clock_in).getTime()) / 60000)),

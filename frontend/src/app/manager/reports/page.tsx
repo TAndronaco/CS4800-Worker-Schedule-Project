@@ -28,15 +28,25 @@ export default function ManagerReportsPage() {
   const [report, setReport] = useState<WeeklyReport | null>(null);
 
   useEffect(() => {
-    apiFetch("/teams").then((r) => r.json()).then((data: Team[]) => {
-      setTeams(data);
-      if (data.length > 0) setSelectedTeam(data[0].id);
-    });
+    apiFetch("/teams")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: Team[]) => {
+        const arr = Array.isArray(data) ? data : [];
+        setTeams(arr);
+        if (arr.length > 0) setSelectedTeam(arr[0].id);
+      })
+      .catch(() => setTeams([]));
   }, []);
 
   useEffect(() => {
     if (!selectedTeam) return;
-    apiFetch(`/reports/weekly?team_id=${selectedTeam}&week=${week}`).then((r) => r.json()).then(setReport).catch(() => setReport(null));
+    apiFetch(`/reports/weekly?team_id=${selectedTeam}&week=${week}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data && data.coverage_gaps) setReport(data);
+        else setReport(null);
+      })
+      .catch(() => setReport(null));
   }, [selectedTeam, week]);
 
   return (

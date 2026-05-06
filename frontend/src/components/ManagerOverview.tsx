@@ -80,8 +80,9 @@ export default function ManagerOverview() {
 
   useEffect(() => {
     apiFetch("/teams")
-      .then((r) => r.json())
-      .then(async (data: Team[]) => {
+      .then((r) => (r.ok ? r.json() : []))
+      .then(async (raw) => {
+        const data: Team[] = Array.isArray(raw) ? raw : [];
         setTeams(data);
         if (data.length === 0) {
           setLoaded(true);
@@ -131,7 +132,7 @@ export default function ManagerOverview() {
         setLoaded(true);
       })
       .catch(() => setLoaded(true));
-    apiFetch("/activity?limit=10").then((r) => r.json()).then(setActivity).catch(() => setActivity([]));
+    apiFetch("/activity?limit=10").then((r) => (r.ok ? r.json() : [])).then((d) => setActivity(Array.isArray(d) ? d : [])).catch(() => setActivity([]));
   }, [monday]);
 
   if (!loaded) return null;
