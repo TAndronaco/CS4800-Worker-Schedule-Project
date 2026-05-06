@@ -386,12 +386,13 @@ export default function ManagerSchedulePage() {
 
       // 3. Refresh from server to get real IDs
       const res = await apiFetch(`/shifts?team_id=${selectedTeam}&week=${week}`);
-      const data = await res.json();
-      setOriginalShifts(data);
-      setShifts(data);
+      const data = res.ok ? await res.json() : [];
+      const arr = Array.isArray(data) ? data : [];
+      setOriginalShifts(arr);
+      setShifts(arr);
       const conflictRes = await apiFetch(`/shifts/conflicts?team_id=${selectedTeam}&week=${week}`);
-      const conflictData = await conflictRes.json();
-      setConflicts(conflictData);
+      const conflictData = conflictRes.ok ? await conflictRes.json() : [];
+      setConflicts(Array.isArray(conflictData) ? conflictData : []);
       alert("Changes saved successfully!");
     } catch {
       alert("Failed to save changes.");
