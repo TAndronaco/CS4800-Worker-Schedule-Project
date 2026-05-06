@@ -1,6 +1,7 @@
 import pool from '../config/db';
 import { HttpError } from '../errors/HttpError';
 import { notificationService } from './notificationService';
+import { activityService } from './activityService';
 
 interface TimeOffRow {
   id: number;
@@ -38,6 +39,14 @@ class TimeOffService {
        VALUES ($1, $2, $3, $4, $5) RETURNING *`,
       [userId, team_id, start_date, end_date, reason || null]
     );
+
+    activityService.log({
+      team_id,
+      user_id: userId,
+      type: 'timeoff_requested',
+      message: `Time-off requested for ${start_date} to ${end_date}.`,
+      related_id: result.rows[0].id,
+    }).catch(() => {});
 
     return result.rows[0];
   }
@@ -93,6 +102,14 @@ class TimeOffService {
       `Your time-off request (${existing.rows[0].start_date} to ${existing.rows[0].end_date}) was ${status}.`,
       result.rows[0].id
     ).catch(() => {});
+
+    activityService.log({
+      team_id: existing.rows[0].team_id,
+      user_id: existing.rows[0].user_id,
+      type: status === 'approved' ? 'timeoff_approved' : 'timeoff_denied',
+      message: `Time-off request ${status}.`,
+      related_id: result.rows[0].id,
+    }).catch(() => {});
 
     return result.rows[0];
   }

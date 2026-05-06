@@ -35,9 +35,12 @@ const NAV_ITEMS = [
   { label: "Dashboard", icon: "🏠", path: "/dashboard" },
   { label: "Schedule", icon: "📅", path: "/manager/schedule" },
   { label: "My Teams", icon: "👥", path: "/manager/teams" },
+  { label: "Employees", icon: "👤", path: "/manager/employees" },
   { label: "Performance", icon: "📊", path: "/manager/performance" },
   { label: "Requests", icon: "🔄", path: "/manager/requests" },
   { label: "Payroll", icon: "💳", path: "/manager/payroll" },
+  { label: "Live", icon: "🟢", path: "/manager/live" },
+  { label: "Reports", icon: "🗂️", path: "/manager/reports" },
   { label: "Messages", icon: "💬", path: "/messages" },
   { label: "Settings", icon: "⚙️", path: "/settings" },
 ];

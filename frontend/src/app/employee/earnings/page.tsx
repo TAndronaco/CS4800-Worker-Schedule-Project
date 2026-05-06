@@ -81,9 +81,6 @@ export default function EmployeeEarningsPage() {
 
   return (
     <div className={styles.container}>
-      <button className={styles.back} onClick={() => router.push("/dashboard")}>
-        ← Back to Dashboard
-      </button>
       <h1 className={styles.pageTitle}>My Earnings</h1>
       <p className={styles.subtitle}>Track your hourly pay and earnings history.</p>
 

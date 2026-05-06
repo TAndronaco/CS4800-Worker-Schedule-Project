@@ -138,3 +138,13 @@ CREATE TABLE performance_reports (
   notes TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TABLE activity_log (
+  id SERIAL PRIMARY KEY,
+  team_id INTEGER REFERENCES teams(id),
+  user_id INTEGER REFERENCES users(id),
+  type VARCHAR(50) NOT NULL,
+  message TEXT NOT NULL,
+  related_id INTEGER,
+  created_at TIMESTAMP DEFAULT NOW()
+);

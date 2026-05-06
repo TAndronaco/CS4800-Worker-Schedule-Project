@@ -17,6 +17,8 @@ import clockRoutes from './routes/clock';
 import performanceRoutes from './routes/performance';
 import exportRoutes from './routes/export';
 import payrollRoutes from './routes/payroll';
+import activityRoutes from './routes/activity';
+import reportRoutes from './routes/reports';
 
 import pool from './config/db';
 
@@ -165,6 +167,16 @@ async function initDb() {
       created_at TIMESTAMP DEFAULT NOW()
     );
 
+    CREATE TABLE IF NOT EXISTS activity_log (
+      id SERIAL PRIMARY KEY,
+      team_id INTEGER REFERENCES teams(id),
+      user_id INTEGER REFERENCES users(id),
+      type VARCHAR(50) NOT NULL,
+      message TEXT NOT NULL,
+      related_id INTEGER,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+
     ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
   `);
 }
@@ -209,6 +221,8 @@ app.use('/api/clock', clockRoutes);
 app.use('/api/performance', performanceRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/payroll', payrollRoutes);
+app.use('/api/activity', activityRoutes);
+app.use('/api/reports', reportRoutes);
 
 initDb()
   .then(() => {

@@ -93,6 +93,72 @@ class ClockService {
     );
     return result.rows;
   }
+
+  async getTeamCurrentlyWorking(teamId: string): Promise<(ClockEntry & { first_name: string; last_name: string })[]> {
+    const result = await pool.query<ClockEntry & { first_name: string; last_name: string }>(
+      `SELECT ce.*, u.first_name, u.last_name
+       FROM clock_entries ce
+       JOIN users u ON ce.user_id = u.id
+       WHERE ce.team_id = $1 AND ce.clock_out IS NULL
+       ORDER BY ce.clock_in DESC`,
+      [teamId]
+    );
+    return result.rows;
+  }
+
+  async editEntry(
+    entryId: number,
+    managerId: number,
+    clockIn: string,
+    clockOut: string | null
+  ): Promise<ClockEntry> {
+    // Get the entry and verify manager owns the team
+    const entryResult = await pool.query<ClockEntry>(
+      'SELECT * FROM clock_entries WHERE id = $1',
+      [entryId]
+    );
+    if (entryResult.rows.length === 0) {
+      throw new HttpError(404, 'Clock entry not found.');
+    }
+
+    const entry = entryResult.rows[0];
+    const teamResult = await pool.query<{ manager_id: number }>(
+      'SELECT manager_id FROM teams WHERE id = $1',
+      [entry.team_id]
+    );
+
+    if (teamResult.rows.length === 0 || teamResult.rows[0].manager_id !== managerId) {
+      throw new HttpError(403, 'Not authorized to edit this entry.');
+    }
+
+    const result = await pool.query<ClockEntry>(
+      `UPDATE clock_entries SET clock_in = $1, clock_out = $2 WHERE id = $3 RETURNING *`,
+      [clockIn, clockOut, entryId]
+    );
+    return result.rows[0];
+  }
+
+  async deleteEntry(entryId: number, managerId: number): Promise<void> {
+    const entryResult = await pool.query<ClockEntry>(
+      'SELECT * FROM clock_entries WHERE id = $1',
+      [entryId]
+    );
+    if (entryResult.rows.length === 0) {
+      throw new HttpError(404, 'Clock entry not found.');
+    }
+
+    const entry = entryResult.rows[0];
+    const teamResult = await pool.query<{ manager_id: number }>(
+      'SELECT manager_id FROM teams WHERE id = $1',
+      [entry.team_id]
+    );
+
+    if (teamResult.rows.length === 0 || teamResult.rows[0].manager_id !== managerId) {
+      throw new HttpError(403, 'Not authorized to delete this entry.');
+    }
+
+    await pool.query('DELETE FROM clock_entries WHERE id = $1', [entryId]);
+  }
 }
 
 export const clockService = new ClockService();

@@ -58,6 +58,11 @@ export default function SettingsPage() {
   const [prefs, setPrefs] = useState<NotificationPreferences | null>(null);
   const [prefsSaving, setPrefsSaving] = useState(false);
   const [prefsMsg, setPrefsMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof window === "undefined") return "light";
+    const savedTheme = localStorage.getItem("theme");
+    return savedTheme === "dark" ? "dark" : "light";
+  });
 
   useEffect(() => {
     if (!userId) { router.push("/login"); return; }
@@ -67,6 +72,11 @@ export default function SettingsPage() {
     });
     apiFetch("/users/me/notification-preferences").then((r) => r.json()).then(setPrefs);
   }, [userId, router]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   async function handleProfileSave(e: React.FormEvent) {
     e.preventDefault();
@@ -243,6 +253,17 @@ export default function SettingsPage() {
               </p>
             )}
           </form>
+          <h2 className={styles.sectionTitle}>Appearance</h2>
+          <div className={styles.themeRow}>
+            <span>Dark Mode</span>
+            <button
+              type="button"
+              className={styles.saveBtn}
+              onClick={() => setTheme((prev) => (prev === "dark" ? "light" : "dark"))}
+            >
+              {theme === "dark" ? "Disable" : "Enable"}
+            </button>
+          </div>
         </div>
       )}
 

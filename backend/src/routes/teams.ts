@@ -42,6 +42,23 @@ router.get('/:id/members', authenticate, async (req: AuthRequest, res: Response)
   }
 });
 
+// DELETE /api/teams/:id/members/:userId - Remove a member from a team (manager only)
+router.delete('/:id/members/:userId', authenticate, requireManager, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const teamId = getSingleValue(req.params.id);
+    const memberId = getSingleValue(req.params.userId);
+    if (!teamId || !memberId) {
+      res.status(400).json({ error: 'Team id and user id are required.' });
+      return;
+    }
+
+    await teamService.removeMember(teamId, parseInt(memberId), req.user!.userId);
+    res.json({ message: 'Member removed successfully.' });
+  } catch (error) {
+    handleRouteError(res, error, 'Remove member error:', 'Server error.');
+  }
+});
+
 // GET /api/teams - Get user's teams
 router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {

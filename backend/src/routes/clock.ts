@@ -65,20 +65,59 @@ router.get('/history', authenticate, async (req: AuthRequest, res: Response): Pr
   }
 });
 
-// GET /api/clock/team?team_id=X&start=YYYY-MM-DD&end=YYYY-MM-DD (manager view)
+// GET /api/clock/team?team_id=X[&start=YYYY-MM-DD&end=YYYY-MM-DD] (manager view)
 router.get('/team', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const teamId = typeof req.query.team_id === 'string' ? req.query.team_id : undefined;
     const start = typeof req.query.start === 'string' ? req.query.start : undefined;
     const end = typeof req.query.end === 'string' ? req.query.end : undefined;
-    if (!teamId || !start || !end) {
-      res.status(400).json({ error: 'team_id, start, and end are required.' });
+    if (!teamId) {
+      res.status(400).json({ error: 'team_id is required.' });
+      return;
+    }
+    if (!start || !end) {
+      const active = await clockService.getTeamCurrentlyWorking(teamId);
+      res.json(active);
       return;
     }
     const history = await clockService.getTeamHistory(teamId, start, end);
     res.json(history);
   } catch (error) {
     handleRouteError(res, error, 'Team clock history error:', 'Server error.');
+  }
+});
+
+// PUT /api/clock/entry/:id - Edit a clock entry (manager only)
+router.put('/entry/:id', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const entryId = parseInt(req.params.id as string);
+    const { clock_in, clock_out } = req.body;
+
+    if (!clock_in) {
+      res.status(400).json({ error: 'clock_in is required.' });
+      return;
+    }
+
+    const entry = await clockService.editEntry(
+      entryId,
+      req.user!.userId,
+      clock_in,
+      clock_out || null
+    );
+    res.json(entry);
+  } catch (error) {
+    handleRouteError(res, error, 'Edit clock entry error:', 'Server error.');
+  }
+});
+
+// DELETE /api/clock/entry/:id - Delete a clock entry (manager only)
+router.delete('/entry/:id', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const entryId = parseInt(req.params.id as string);
+    await clockService.deleteEntry(entryId, req.user!.userId);
+    res.json({ message: 'Clock entry deleted.' });
+  } catch (error) {
+    handleRouteError(res, error, 'Delete clock entry error:', 'Server error.');
   }
 });
 

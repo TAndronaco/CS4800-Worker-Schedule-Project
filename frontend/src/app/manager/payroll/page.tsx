@@ -55,6 +55,8 @@ export default function ManagerPayrollPage() {
       .then((teams: { id: number; name: string }[]) => {
         if (teams.length > 0) {
           setTeamId(teams[0].id);
+        } else {
+          setLoading(false);
         }
       })
       .catch(() => {
@@ -66,6 +68,8 @@ export default function ManagerPayrollPage() {
     if (!teamId) return;
 
     let cancelled = false;
+
+    // Try payroll endpoint first, fall back to team members list
     apiFetch(`/payroll/team-rates?team_id=${teamId}`)
       .then((res) => {
         if (res.ok) return res.json();
@@ -78,7 +82,29 @@ export default function ManagerPayrollPage() {
         }
       })
       .catch(() => {
-        if (!cancelled) setLoading(false);
+        if (cancelled) return;
+        // Fallback: fetch team members directly
+        apiFetch(`/teams/${teamId}/members`)
+          .then((res) => res.json())
+          .then((members: { id: number; first_name: string; last_name: string; email: string; hourly_rate?: number }[]) => {
+            if (!cancelled) {
+              setEmployees(
+                members
+                  .filter((m) => m.id !== undefined)
+                  .map((m) => ({
+                    id: m.id,
+                    first_name: m.first_name,
+                    last_name: m.last_name,
+                    email: m.email || "",
+                    hourly_rate: m.hourly_rate ?? 0,
+                  }))
+              );
+              setLoading(false);
+            }
+          })
+          .catch(() => {
+            if (!cancelled) setLoading(false);
+          });
       });
     return () => { cancelled = true; };
   }, [teamId]);
@@ -139,9 +165,6 @@ export default function ManagerPayrollPage() {
 
   return (
     <div className={styles.container}>
-      <button className={styles.back} onClick={() => router.push("/dashboard")}>
-        ← Back to Dashboard
-      </button>
       <h1 className={styles.pageTitle}>Team Payroll</h1>
       <p className={styles.subtitle}>Manage employee hourly rates and compensation.</p>
 

@@ -3,6 +3,17 @@
   --foreground: #171717;
   --primary: #d4500a;
   --primary-hover: #b04008;
+  --card-bg: #ffffff;
+  --border: #e6e6e6;
+  --muted-text: #666666;
+}
+
+html[data-theme="dark"] {
+  --background: #1a1a2e;
+  --foreground: #e0e0e0;
+  --card-bg: #242442;
+  --border: #333333;
+  --muted-text: #bbbbc8;
 }
 
 html,

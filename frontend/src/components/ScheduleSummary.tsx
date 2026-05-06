@@ -87,9 +87,9 @@ export default function ScheduleSummary({ userId }: { userId: number }) {
 
   // Calculate total hours this week
   const totalHours = shifts.reduce((sum, s) => {
-    const [sh] = s.start_time.split(":").map(Number);
+    const [sh, sm] = s.start_time.split(":").map(Number);
     const [eh, em] = s.end_time.split(":").map(Number);
-    return sum + (eh + em / 60 - sh);
+    return sum + (eh + em / 60 - (sh + sm / 60));
   }, 0);
 
   return (
@@ -192,15 +192,16 @@ export default function ScheduleSummary({ userId }: { userId: number }) {
           </div>
           <div className={styles.upcomingList}>
             {upcomingShifts.map((s) => {
-              const d = new Date(s.date + "T00:00:00");
+              const dateStr = s.date.split("T")[0];
+              const d = new Date(dateStr + "T00:00:00");
               const dayLabel = d.toLocaleDateString("en-US", {
                 weekday: "long",
                 month: "short",
                 day: "numeric",
               });
-              const [sh] = s.start_time.split(":").map(Number);
+              const [sh, sm] = s.start_time.split(":").map(Number);
               const [eh, em] = s.end_time.split(":").map(Number);
-              const hours = eh + em / 60 - sh;
+              const hours = eh + em / 60 - (sh + sm / 60);
               return (
                 <div key={s.id} className={styles.upcomingItem}>
                   <div className={styles.upcomingDate}>

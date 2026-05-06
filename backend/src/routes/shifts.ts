@@ -31,6 +31,22 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<v
   }
 });
 
+// GET /api/shifts/conflicts?team_id=X&week=YYYY-MM-DD
+router.get('/conflicts', authenticate, requireManager, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const teamId = typeof req.query.team_id === 'string' ? req.query.team_id : undefined;
+    const week = typeof req.query.week === 'string' ? req.query.week : undefined;
+    if (!teamId || !week) {
+      res.status(400).json({ error: 'team_id and week are required.' });
+      return;
+    }
+    const conflicts = await shiftService.getConflicts(teamId, week);
+    res.json(conflicts);
+  } catch (error) {
+    handleRouteError(res, error, 'Get shift conflicts error:', 'Server error.');
+  }
+});
+
 // DELETE /api/shifts/bulk - Delete all shifts for a team/week (manager only)
 router.delete('/bulk', authenticate, requireManager, async (req: AuthRequest, res: Response): Promise<void> => {
   try {

@@ -1,5 +1,6 @@
 import pool from '../config/db';
 import { notificationService } from './notificationService';
+import { activityService } from './activityService';
 
 interface ShiftInput {
   team_id: number | string;
@@ -25,6 +26,12 @@ interface ShiftFilters {
   team_id?: string;
   week?: string;
   employee_id?: string;
+}
+
+interface ShiftConflict {
+  employee_id: number;
+  date: string;
+  reason: string;
 }
 
 class ShiftService {
@@ -56,6 +63,14 @@ class ShiftService {
       `You've been assigned a shift on ${date} (${start_time}–${end_time}).`,
       insertResult.rows[0].id
     ).catch(() => {}); // fire-and-forget
+
+    activityService.log({
+      team_id,
+      user_id: Number(employee_id),
+      type: 'shift_assigned',
+      message: `Shift assigned on ${date} (${start_time}-${end_time}).`,
+      related_id: insertResult.rows[0].id,
+    }).catch(() => {});
 
     return insertResult.rows[0];
   }
@@ -96,6 +111,71 @@ class ShiftService {
 
   async deleteShift(shiftId: string): Promise<void> {
     await pool.query('DELETE FROM shifts WHERE id = $1', [shiftId]);
+  }
+
+  async getConflicts(teamId: string, week: string): Promise<ShiftConflict[]> {
+    const conflicts: ShiftConflict[] = [];
+
+    const shiftsResult = await pool.query<{
+      employee_id: number;
+      date: string;
+      start_time: string;
+      end_time: string;
+      day_of_week: number;
+      team_id: number;
+    }>(
+      `SELECT s.*, ((EXTRACT(DOW FROM s.date)::int + 6) % 7) AS day_of_week
+       FROM shifts s
+       WHERE s.team_id = $1
+         AND s.date >= $2::date
+         AND s.date < $2::date + interval '7 days'`,
+      [teamId, week]
+    );
+
+    for (const shift of shiftsResult.rows) {
+      const date = shift.date.split('T')[0];
+
+      const sameDayShift = await pool.query<{ exists: boolean }>(
+        `SELECT EXISTS(
+          SELECT 1 FROM shifts
+          WHERE employee_id = $1 AND date = $2::date
+          AND NOT (team_id = $3 AND start_time = $4::time AND end_time = $5::time)
+        )`,
+        [shift.employee_id, date, shift.team_id, shift.start_time, shift.end_time]
+      );
+      if (sameDayShift.rows[0]?.exists) {
+        conflicts.push({ employee_id: shift.employee_id, date, reason: 'has_another_shift_same_day' });
+      }
+
+      const pto = await pool.query<{ exists: boolean }>(
+        `SELECT EXISTS(
+          SELECT 1 FROM time_off_requests
+          WHERE user_id = $1 AND status = 'approved'
+            AND $2::date BETWEEN start_date AND end_date
+        )`,
+        [shift.employee_id, date]
+      );
+      if (pto.rows[0]?.exists) {
+        conflicts.push({ employee_id: shift.employee_id, date, reason: 'approved_time_off_overlap' });
+      }
+
+      const availability = await pool.query<{ covered: boolean }>(
+        `SELECT EXISTS(
+          SELECT 1 FROM availability
+          WHERE user_id = $1
+            AND team_id = $2
+            AND day_of_week = $3
+            AND start_time <= $4::time
+            AND end_time >= $5::time
+        ) AS covered`,
+        [shift.employee_id, teamId, shift.day_of_week, shift.start_time, shift.end_time]
+      );
+      if (!availability.rows[0]?.covered) {
+        conflicts.push({ employee_id: shift.employee_id, date, reason: 'outside_availability' });
+      }
+    }
+
+    return conflicts;
   }
 }
 

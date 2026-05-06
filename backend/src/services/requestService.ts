@@ -1,6 +1,7 @@
 import pool from '../config/db';
 import { HttpError } from '../errors/HttpError';
 import { notificationService } from './notificationService';
+import { activityService } from './activityService';
 
 type RequestType = 'swap' | 'time_off';
 type RequestStatus = 'pending' | 'approved' | 'denied';
@@ -77,6 +78,18 @@ class RequestService {
         `${name} wants to swap shifts with you.`,
         result.rows[0].id
       ).catch(() => {});
+    }
+
+    const shiftTeam = await pool.query<{ team_id: number }>('SELECT team_id FROM shifts WHERE id = $1', [shift_id]);
+    const teamId = shiftTeam.rows[0]?.team_id;
+    if (teamId) {
+      activityService.log({
+        team_id: teamId,
+        user_id: requesterId,
+        type: 'swap_requested',
+        message: 'Shift swap requested.',
+        related_id: result.rows[0].id,
+      }).catch(() => {});
     }
 
     return result.rows[0];
@@ -157,6 +170,18 @@ class RequestService {
       request.id
     ).catch(() => {});
 
+    const shiftTeam = await pool.query<{ team_id: number }>('SELECT team_id FROM shifts WHERE id = $1', [request.shift_id]);
+    const teamId = shiftTeam.rows[0]?.team_id;
+    if (teamId) {
+      activityService.log({
+        team_id: teamId,
+        user_id: userId,
+        type: accept ? 'swap_accepted' : 'swap_rejected',
+        message: accept ? 'Swap request accepted by employee.' : 'Swap request rejected by employee.',
+        related_id: request.id,
+      }).catch(() => {});
+    }
+
     return result.rows[0];
   }
 
@@ -224,6 +249,18 @@ class RequestService {
         `Your ${typeLabel} request was ${status}.`,
         request.id
       ).catch(() => {});
+
+      const shiftTeam = await pool.query<{ team_id: number }>('SELECT team_id FROM shifts WHERE id = $1', [request.shift_id]);
+      const teamId = shiftTeam.rows[0]?.team_id;
+      if (teamId) {
+        activityService.log({
+          team_id: teamId,
+          user_id: request.requester_id,
+          type: status === 'approved' ? 'swap_approved' : 'swap_denied',
+          message: `Shift swap ${status} by manager.`,
+          related_id: request.id,
+        }).catch(() => {});
+      }
 
       return result.rows[0];
     } catch (error) {

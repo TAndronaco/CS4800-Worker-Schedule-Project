@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import pool from '../config/db';
 import { HttpError } from '../errors/HttpError';
+import { activityService } from './activityService';
 
 interface Team {
   id: number;
@@ -16,6 +17,7 @@ interface TeamMember {
   last_name: string;
   email: string;
   role: string;
+  hourly_rate: number;
 }
 
 class TeamService {
@@ -32,6 +34,14 @@ class TeamService {
       [result.rows[0].id, managerId]
     );
 
+    activityService.log({
+      team_id: result.rows[0].id,
+      user_id: managerId,
+      type: 'team_created',
+      message: `Team "${name}" created.`,
+      related_id: result.rows[0].id,
+    }).catch(() => {});
+
     return result.rows[0];
   }
 
@@ -47,6 +57,14 @@ class TeamService {
       [team.id, userId]
     );
 
+    activityService.log({
+      team_id: team.id,
+      user_id: userId,
+      type: 'member_joined',
+      message: 'A member joined the team.',
+      related_id: userId,
+    }).catch(() => {});
+
     return {
       message: 'Joined team successfully.',
       team,
@@ -55,14 +73,38 @@ class TeamService {
 
   async getTeamMembers(teamId: string): Promise<TeamMember[]> {
     const result = await pool.query<TeamMember>(
-      `SELECT u.id, u.first_name, u.last_name, u.email, u.role
+      `SELECT u.id, u.first_name, u.last_name, u.email, u.role, u.hourly_rate
        FROM users u
        JOIN team_members tm ON u.id = tm.user_id
        WHERE tm.team_id = $1`,
       [teamId]
     );
 
-    return result.rows;
+    return result.rows.map(row => ({
+      ...row,
+      hourly_rate: parseFloat(String(row.hourly_rate)) || 0,
+    }));
+  }
+
+  async removeMember(teamId: string, memberId: number, managerId: number): Promise<void> {
+    // Verify manager owns this team
+    const teamResult = await pool.query<{ manager_id: number }>(
+      'SELECT manager_id FROM teams WHERE id = $1',
+      [teamId]
+    );
+
+    if (teamResult.rows.length === 0) {
+      throw new HttpError(404, 'Team not found');
+    }
+
+    if (teamResult.rows[0].manager_id !== managerId) {
+      throw new HttpError(403, 'Not authorized to manage this team');
+    }
+
+    await pool.query(
+      'DELETE FROM team_members WHERE team_id = $1 AND user_id = $2',
+      [teamId, memberId]
+    );
   }
 
   async getUserTeams(userId: number): Promise<Team[]> {

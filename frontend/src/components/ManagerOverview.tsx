@@ -40,6 +40,12 @@ interface ShiftRequest {
   reason: string;
   created_at: string;
 }
+interface ActivityEvent {
+  id: number;
+  type: string;
+  message: string;
+  created_at: string;
+}
 
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -70,6 +76,7 @@ export default function ManagerOverview() {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [pendingRequests, setPendingRequests] = useState<ShiftRequest[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [activity, setActivity] = useState<ActivityEvent[]>([]);
 
   useEffect(() => {
     apiFetch("/teams")
@@ -124,6 +131,7 @@ export default function ManagerOverview() {
         setLoaded(true);
       })
       .catch(() => setLoaded(true));
+    apiFetch("/activity?limit=10").then((r) => r.json()).then(setActivity).catch(() => setActivity([]));
   }, [monday]);
 
   if (!loaded) return null;
@@ -361,6 +369,27 @@ export default function ManagerOverview() {
           </div>
         </div>
       )}
+
+      <div className={styles.card}>
+        <div className={styles.cardHeader}>
+          <span className={styles.cardTitle}>Recent Activity</span>
+        </div>
+        {activity.length === 0 ? (
+          <div className={styles.emptyState}>No recent activity</div>
+        ) : (
+          <div className={styles.requestList}>
+            {activity.map((event) => (
+              <div key={event.id} className={styles.requestItem}>
+                <span>{event.type.includes("approved") ? "✅" : event.type.includes("requested") ? "📝" : "🔔"}</span>
+                <div className={styles.requestDetails}>
+                  <span className={styles.requestName}>{event.message}</span>
+                  <span className={styles.requestType}>{new Date(event.created_at).toLocaleString()}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </>
   );
 }

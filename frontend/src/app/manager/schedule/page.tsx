@@ -24,6 +24,11 @@ interface Shift {
   last_name: string;
   employee_id: number;
 }
+interface Conflict {
+  employee_id: number;
+  date: string;
+  reason: string;
+}
 
 interface TemplateShift {
   day_of_week: number;
@@ -229,6 +234,7 @@ export default function ManagerSchedulePage() {
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [newTemplateName, setNewTemplateName] = useState("");
+  const [conflicts, setConflicts] = useState<Conflict[]>([]);
 
   const isDirty = JSON.stringify(originalShifts) !== JSON.stringify(shifts);
 
@@ -253,6 +259,7 @@ export default function ManagerSchedulePage() {
       setOriginalShifts(data);
       setShifts(data);
     });
+    apiFetch(`/shifts/conflicts?team_id=${selectedTeam}&week=${week}`).then((r) => r.json()).then(setConflicts).catch(() => setConflicts([]));
   }, [selectedTeam, week]);
 
   function loadTemplates() {
@@ -379,6 +386,9 @@ export default function ManagerSchedulePage() {
       const data = await res.json();
       setOriginalShifts(data);
       setShifts(data);
+      const conflictRes = await apiFetch(`/shifts/conflicts?team_id=${selectedTeam}&week=${week}`);
+      const conflictData = await conflictRes.json();
+      setConflicts(conflictData);
       alert("Changes saved successfully!");
     } catch {
       alert("Failed to save changes.");
@@ -647,6 +657,9 @@ export default function ManagerSchedulePage() {
                 {weekDays.map((day, dayIdx) => {
                   const cellShifts = shiftsForCell(shifts, day, hour);
                   const count = cellShifts.length;
+                  const warningCount = cellShifts.filter((s) =>
+                    conflicts.some((c) => c.employee_id === s.employee_id && c.date === normalizeDate(s.date))
+                  ).length;
                   const densityCls =
                     count === 0 ? "" :
                     count === 1 ? styles.d1 :
@@ -674,6 +687,9 @@ export default function ManagerSchedulePage() {
                     >
                       {count > 0 && (
                         <span className={styles.countBadge}>{count}</span>
+                      )}
+                      {warningCount > 0 && (
+                        <span className={styles.warningBadge} title="Shift conflicts found">!</span>
                       )}
                     </td>
                   );
