@@ -71,8 +71,8 @@ export default function EmployeeLayout({
   useEffect(() => {
     if (!user) return;
     apiFetch("/messages/contacts/list")
-      .then((res) => res.json())
-      .then((data) => setContacts(data))
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => setContacts(Array.isArray(data) ? data : []))
       .catch(() => setContacts([]));
   }, [user]);
 

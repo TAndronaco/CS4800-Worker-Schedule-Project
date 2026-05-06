@@ -244,29 +244,32 @@ export default function ManagerSchedulePage() {
     const user = JSON.parse(stored);
     if (user.role !== "manager") { router.push("/dashboard"); return; }
     apiFetch("/teams")
-      .then((r) => r.json())
-      .then((data: Team[]) => {
+      .then((r) => (r.ok ? r.json() : []))
+      .then((raw) => {
+        const data: Team[] = Array.isArray(raw) ? raw : [];
         setTeams(data);
         if (data.length > 0) setSelectedTeam(data[0].id);
-      });
+      })
+      .catch(() => setTeams([]));
   }, [router]);
 
   useEffect(() => {
     if (!selectedTeam) return;
-    apiFetch(`/teams/${selectedTeam}/members`).then((r) => r.json()).then(setMembers);
-    apiFetch(`/availability?team_id=${selectedTeam}`).then((r) => r.json()).then(setAvailability).catch(() => setAvailability([]));
-    apiFetch(`/shifts?team_id=${selectedTeam}&week=${week}`).then((r) => r.json()).then((data) => {
-      setOriginalShifts(data);
-      setShifts(data);
-    });
-    apiFetch(`/shifts/conflicts?team_id=${selectedTeam}&week=${week}`).then((r) => r.json()).then(setConflicts).catch(() => setConflicts([]));
+    apiFetch(`/teams/${selectedTeam}/members`).then((r) => (r.ok ? r.json() : [])).then((d) => setMembers(Array.isArray(d) ? d : [])).catch(() => setMembers([]));
+    apiFetch(`/availability?team_id=${selectedTeam}`).then((r) => (r.ok ? r.json() : [])).then((d) => setAvailability(Array.isArray(d) ? d : [])).catch(() => setAvailability([]));
+    apiFetch(`/shifts?team_id=${selectedTeam}&week=${week}`).then((r) => (r.ok ? r.json() : [])).then((data) => {
+      const arr = Array.isArray(data) ? data : [];
+      setOriginalShifts(arr);
+      setShifts(arr);
+    }).catch(() => { setOriginalShifts([]); setShifts([]); });
+    apiFetch(`/shifts/conflicts?team_id=${selectedTeam}&week=${week}`).then((r) => (r.ok ? r.json() : [])).then((d) => setConflicts(Array.isArray(d) ? d : [])).catch(() => setConflicts([]));
   }, [selectedTeam, week]);
 
   function loadTemplates() {
     if (!selectedTeam) return;
     apiFetch(`/templates?team_id=${selectedTeam}`)
-      .then((r) => r.json())
-      .then(setTemplates)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => setTemplates(Array.isArray(d) ? d : []))
       .catch(() => setTemplates([]));
   }
 

@@ -62,8 +62,9 @@ export default function ManagerEmployeesPage() {
     }
 
     apiFetch("/teams")
-      .then((res) => res.json())
-      .then((teams: { id: number; name: string }[]) => {
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        const teams: { id: number; name: string }[] = Array.isArray(data) ? data : [];
         if (teams.length > 0) {
           setTeamId(teams[0].id);
           setTeamName(teams[0].name);
@@ -84,7 +85,9 @@ export default function ManagerEmployeesPage() {
     if (!teamId) return;
     try {
       const res = await apiFetch(`/teams/${teamId}/members`);
+      if (!res.ok) { setEmployees([]); return; }
       const members = await res.json();
+      if (!Array.isArray(members)) { setEmployees([]); return; }
       setEmployees(
         members
           .filter((m: Employee) => m.role === "employee")
