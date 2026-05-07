@@ -14,13 +14,6 @@ interface Employee {
   hourly_rate: number;
 }
 
-interface EditForm {
-  first_name: string;
-  last_name: string;
-  email: string;
-  hourly_rate: string;
-}
-
 interface ClockEntry {
   id: number;
   user_id: number;
@@ -42,13 +35,8 @@ export default function ManagerEmployeesPage() {
   const [teamName, setTeamName] = useState("");
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
-  const [editForm, setEditForm] = useState<EditForm>({
-    first_name: "",
-    last_name: "",
-    email: "",
-    hourly_rate: "",
-  });
+  const [editingRateId, setEditingRateId] = useState<number | null>(null);
+  const [editingRateValue, setEditingRateValue] = useState("");
   const [message, setMessage] = useState<{ type: string; text: string } | null>(null);
   const [search, setSearch] = useState("");
   const [hoursEmployee, setHoursEmployee] = useState<Employee | null>(null);
@@ -103,33 +91,22 @@ export default function ManagerEmployeesPage() {
     }
   };
 
-  const openEdit = (emp: Employee) => {
-    setEditingEmployee(emp);
-    setEditForm({
-      first_name: emp.first_name,
-      last_name: emp.last_name,
-      email: emp.email,
-      hourly_rate: emp.hourly_rate.toString(),
-    });
+  const startEditRate = (emp: Employee) => {
+    setEditingRateId(emp.id);
+    setEditingRateValue(emp.hourly_rate.toString());
   };
 
-  const handleSave = async () => {
-    if (!editingEmployee) return;
-
-    const rate = parseFloat(editForm.hourly_rate);
+  const saveRate = async (emp: Employee) => {
+    const rate = parseFloat(editingRateValue);
     if (isNaN(rate) || rate < 0) {
       setMessage({ type: "error", text: "Please enter a valid hourly rate." });
       return;
     }
 
     try {
-      // Update hourly rate
       const rateRes = await apiFetch("/payroll/set-rate", {
         method: "PUT",
-        body: JSON.stringify({
-          employee_id: editingEmployee.id,
-          hourly_rate: rate,
-        }),
+        body: JSON.stringify({ employee_id: emp.id, hourly_rate: rate }),
       });
 
       if (!rateRes.ok) {
@@ -138,20 +115,15 @@ export default function ManagerEmployeesPage() {
         return;
       }
 
-      // Update local state
       setEmployees((prev) =>
-        prev.map((emp) =>
-          emp.id === editingEmployee.id
-            ? { ...emp, hourly_rate: rate }
-            : emp
-        )
+        prev.map((e) => (e.id === emp.id ? { ...e, hourly_rate: rate } : e))
       );
-
-      setMessage({ type: "success", text: `Updated ${editForm.first_name}'s hourly rate.` });
-      setEditingEmployee(null);
+      setMessage({ type: "success", text: `Updated ${emp.first_name}'s hourly rate.` });
       setTimeout(() => setMessage(null), 3000);
     } catch {
       setMessage({ type: "error", text: "Something went wrong." });
+    } finally {
+      setEditingRateId(null);
     }
   };
 
@@ -299,18 +271,36 @@ export default function ManagerEmployeesPage() {
                 <div className={styles.cardBody}>
                   <div className={styles.stat}>
                     <span className={styles.statLabel}>Hourly Rate</span>
-                    <span className={styles.statValue}>
-                      ${emp.hourly_rate.toFixed(2)}/hr
-                    </span>
+                    {editingRateId === emp.id ? (
+                      <span className={styles.inlineEdit}>
+                        <span className={styles.dollarSign}>$</span>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          className={styles.rateInput}
+                          value={editingRateValue}
+                          onChange={(e) => setEditingRateValue(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") saveRate(emp);
+                            if (e.key === "Escape") setEditingRateId(null);
+                          }}
+                          onBlur={() => saveRate(emp)}
+                          autoFocus
+                        />
+                      </span>
+                    ) : (
+                      <span
+                        className={`${styles.statValue} ${styles.editable}`}
+                        onClick={() => startEditRate(emp)}
+                        title="Click to edit"
+                      >
+                        ${emp.hourly_rate.toFixed(2)}/hr
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className={styles.cardActions}>
-                  <button
-                    className={styles.editBtn}
-                    onClick={() => openEdit(emp)}
-                  >
-                    Edit
-                  </button>
                   <button
                     className={styles.hoursBtn}
                     onClick={() => openHours(emp)}
@@ -328,69 +318,6 @@ export default function ManagerEmployeesPage() {
             ))}
           </div>
         </>
-      )}
-
-      {/* Edit Modal */}
-      {editingEmployee && (
-        <div className={styles.overlay} onClick={() => setEditingEmployee(null)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <h2 className={styles.modalTitle}>Edit Employee</h2>
-            <p className={styles.modalSubtitle}>
-              {editingEmployee.first_name} {editingEmployee.last_name}
-            </p>
-
-            <div className={styles.formGroup}>
-              <label>First Name</label>
-              <input
-                type="text"
-                value={editForm.first_name}
-                onChange={(e) => setEditForm({ ...editForm, first_name: e.target.value })}
-                disabled
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label>Last Name</label>
-              <input
-                type="text"
-                value={editForm.last_name}
-                onChange={(e) => setEditForm({ ...editForm, last_name: e.target.value })}
-                disabled
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label>Email</label>
-              <input
-                type="email"
-                value={editForm.email}
-                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                disabled
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label>Hourly Rate ($)</label>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={editForm.hourly_rate}
-                onChange={(e) => setEditForm({ ...editForm, hourly_rate: e.target.value })}
-                placeholder="e.g., 15.50"
-              />
-            </div>
-
-            <div className={styles.modalActions}>
-              <button
-                className={styles.cancelBtn}
-                onClick={() => setEditingEmployee(null)}
-              >
-                Cancel
-              </button>
-              <button className={styles.saveBtn} onClick={handleSave}>
-                Save Changes
-              </button>
-            </div>
-          </div>
-        </div>
       )}
 
       {/* Hours Modal */}
