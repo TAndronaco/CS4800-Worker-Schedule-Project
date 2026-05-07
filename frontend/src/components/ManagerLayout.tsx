@@ -40,7 +40,6 @@ const NAV_ITEMS = [
   { label: "Requests", icon: "🔄", path: "/manager/requests" },
   { label: "Payroll", icon: "💳", path: "/manager/payroll" },
   { label: "Live", icon: "🟢", path: "/manager/live" },
-  { label: "Reports", icon: "🗂️", path: "/manager/reports" },
   { label: "Messages", icon: "💬", path: "/messages" },
   { label: "Settings", icon: "⚙️", path: "/settings" },
 ];
