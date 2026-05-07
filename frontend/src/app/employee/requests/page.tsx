@@ -14,6 +14,7 @@ interface Shift {
   employee_id: number;
   first_name: string;
   last_name: string;
+  role?: string;
 }
 interface ShiftRequest {
   id: number;
@@ -111,8 +112,10 @@ export default function EmployeeRequestsPage() {
     (r) => r.type === "swap" && r.target_employee_id === userId && r.swap_status === "pending"
   );
 
-  // Coworker shifts (not mine) for swap selection
-  const coworkerShifts = teamShifts.filter((s) => s.employee_id !== userId);
+  // Coworker shifts: exclude my own and any shifts assigned to managers
+  const coworkerShifts = teamShifts.filter(
+    (s) => s.employee_id !== userId && s.role !== "manager"
+  );
 
   async function submitRequest(e: React.FormEvent) {
     e.preventDefault();

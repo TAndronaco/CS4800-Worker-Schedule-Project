@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import Avatar from "./Avatar";
@@ -29,6 +29,15 @@ interface Message {
   created_at: string;
   first_name: string;
   last_name: string;
+}
+
+interface Conversation {
+  id: number;
+  type: string;
+  member_names?: string;
+  last_message_at?: string;
+  last_sender_id?: number;
+  last_sender_name?: string;
 }
 
 const NAV_ITEMS = [
@@ -65,8 +74,15 @@ export default function ManagerLayout({
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-
   const [activeConvId, setActiveConvId] = useState<number | null>(null);
+
+  // Notification state
+  const [unreadContactIds, setUnreadContactIds] = useState<Set<number>>(new Set());
+  const [chatNotif, setChatNotif] = useState<string | null>(null);
+  const selectedContactRef = useRef<Contact | null>(null);
+  const lastSeenRef = useRef<Map<number, string>>(new Map());
+  const initializedRef = useRef(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Fetch contacts
   useEffect(() => {
@@ -94,6 +110,90 @@ export default function ManagerLayout({
       .catch(() => setMessages([]));
   }, [selectedContact, user]);
 
+  // Keep selectedContactRef in sync; clear unread badge when conversation opens
+  useEffect(() => {
+    selectedContactRef.current = selectedContact;
+    if (selectedContact) {
+      setUnreadContactIds((prev) => {
+        if (!prev.has(selectedContact.id)) return prev;
+        const next = new Set(prev);
+        next.delete(selectedContact.id);
+        return next;
+      });
+    }
+  }, [selectedContact]);
+
+  // Auto-dismiss notification after 4s
+  useEffect(() => {
+    if (!chatNotif) return;
+    const t = setTimeout(() => setChatNotif(null), 4000);
+    return () => clearTimeout(t);
+  }, [chatNotif]);
+
+  // Scroll to bottom when messages update
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  // Poll conversations every 15s to detect incoming messages
+  useEffect(() => {
+    if (!user) return;
+    const poll = async () => {
+      const res = await apiFetch("/messages/conversations").catch(() => null);
+      if (!res || !res.ok) return;
+      const convs: Conversation[] = await res.json().catch(() => null);
+      if (!Array.isArray(convs)) return;
+
+      if (!initializedRef.current) {
+        convs.forEach((c) => lastSeenRef.current.set(c.id, c.last_message_at || ""));
+        initializedRef.current = true;
+        return;
+      }
+
+      for (const conv of convs) {
+        if (conv.type !== "dm") continue;
+        const prevAt = lastSeenRef.current.get(conv.id);
+        const newAt = conv.last_message_at;
+
+        if (prevAt === undefined) {
+          lastSeenRef.current.set(conv.id, newAt || "");
+          continue;
+        }
+        if (!newAt || conv.last_sender_id === user.id) {
+          if (newAt) lastSeenRef.current.set(conv.id, newAt);
+          continue;
+        }
+        if (prevAt === "" || new Date(newAt) > new Date(prevAt)) {
+          lastSeenRef.current.set(conv.id, newAt);
+          const contact = contacts.find((c) =>
+            conv.member_names?.includes(`${c.first_name} ${c.last_name}`)
+          );
+          if (contact && selectedContactRef.current?.id !== contact.id) {
+            setUnreadContactIds((prev) => new Set([...prev, contact.id]));
+            setChatNotif(`New message from ${conv.last_sender_name || contact.first_name}`);
+          }
+        }
+      }
+    };
+
+    poll();
+    const interval = setInterval(poll, 15000);
+    return () => clearInterval(interval);
+  }, [user, contacts]);
+
+  // Live-poll active conversation every 5s for real-time updates
+  useEffect(() => {
+    if (!activeConvId || !user) return;
+    const poll = async () => {
+      const res = await apiFetch(`/messages/conversations/${activeConvId}/messages`).catch(() => null);
+      if (!res || !res.ok) return;
+      const data = await res.json().catch(() => null);
+      if (Array.isArray(data)) setMessages(data);
+    };
+    const interval = setInterval(poll, 5000);
+    return () => clearInterval(interval);
+  }, [activeConvId, user]);
+
   const sendMessage = async () => {
     if (!newMessage.trim() || !activeConvId || !user) return;
     const res = await apiFetch(`/messages/conversations/${activeConvId}/messages`, {
@@ -114,7 +214,6 @@ export default function ManagerLayout({
       method: "PUT",
       body: JSON.stringify({ avatar_url: base64 }),
     });
-    // Update localStorage so it persists
     const stored = localStorage.getItem("user");
     if (stored && stored !== "undefined" && stored !== "null") {
       const updated = { ...JSON.parse(stored), avatar_url: base64 };
@@ -199,6 +298,13 @@ export default function ManagerLayout({
             </button>
           </div>
 
+          {chatNotif && (
+            <div key={chatNotif} className={styles.chatNotification}>
+              <span>📨 {chatNotif}</span>
+              <button onClick={() => setChatNotif(null)}>✕</button>
+            </div>
+          )}
+
           {!selectedContact ? (
             /* Contact list */
             <div className={styles.chatContacts}>
@@ -210,7 +316,7 @@ export default function ManagerLayout({
                 contacts.map((c) => (
                   <div
                     key={c.id}
-                    className={styles.chatContactItem}
+                    className={`${styles.chatContactItem}${unreadContactIds.has(c.id) ? ` ${styles.chatContactUnread}` : ""}`}
                     onClick={() => setSelectedContact(c)}
                   >
                     <Avatar
@@ -224,6 +330,9 @@ export default function ManagerLayout({
                       </div>
                       <div className={styles.chatContactRole}>{c.role}</div>
                     </div>
+                    {unreadContactIds.has(c.id) && (
+                      <span className={styles.unreadDot} />
+                    )}
                   </div>
                 ))
               )}
@@ -269,6 +378,7 @@ export default function ManagerLayout({
                     </div>
                   ))
                 )}
+                <div ref={messagesEndRef} />
               </div>
 
               <div className={styles.chatInputArea}>
@@ -294,6 +404,7 @@ export default function ManagerLayout({
           title="Open messages"
         >
           💬
+          {unreadContactIds.size > 0 && <span className={styles.unreadBadge} />}
         </button>
       )}
     </div>

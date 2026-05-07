@@ -444,6 +444,64 @@
   font-size: 0.85rem;
 }
 
+/* ── Message Notification Banner ── */
+
+.chatNotification {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.75rem;
+  background: #d4500a;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 500;
+  gap: 6px;
+  animation: chatNotifIn 0.25s ease;
+  flex-shrink: 0;
+}
+
+.chatNotification span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chatNotification button {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 2px 4px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.chatNotification button:hover {
+  color: white;
+}
+
+@keyframes chatNotifIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Unread indicators ── */
+
+.chatContactUnread {
+  background: rgba(212, 80, 10, 0.06);
+}
+
+.unreadDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #d4500a;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 /* ── Responsive ── */
 
 @media (max-width: 1024px) {

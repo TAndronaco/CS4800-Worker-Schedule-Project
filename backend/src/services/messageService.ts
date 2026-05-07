@@ -10,6 +10,7 @@ interface ConversationRow {
   created_at: string;
   last_message?: string;
   last_message_at?: string;
+  last_sender_id?: number;
   last_sender_name?: string;
   member_names?: string;
   unread_count?: number;
@@ -73,6 +74,7 @@ class MessageService {
         `SELECT c.id, c.type, c.name, c.created_by, c.team_id, c.created_at,
                 lm.content AS last_message,
                 lm.created_at AS last_message_at,
+                lm.sender_id AS last_sender_id,
                 CONCAT(lu.first_name, ' ', lu.last_name) AS last_sender_name,
                 (SELECT STRING_AGG(CONCAT(u2.first_name, ' ', u2.last_name), ', ' ORDER BY u2.first_name)
                  FROM conversation_members cm2
@@ -101,6 +103,7 @@ class MessageService {
       `SELECT c.id, c.type, c.name, c.created_by, c.team_id, c.created_at,
               lm.content AS last_message,
               lm.created_at AS last_message_at,
+              lm.sender_id AS last_sender_id,
               CONCAT(lu.first_name, ' ', lu.last_name) AS last_sender_name,
               (SELECT STRING_AGG(CONCAT(u2.first_name, ' ', u2.last_name), ', ' ORDER BY u2.first_name)
                FROM conversation_members cm2

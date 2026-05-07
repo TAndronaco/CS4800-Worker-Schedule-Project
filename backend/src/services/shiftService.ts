@@ -20,6 +20,7 @@ interface Shift {
   created_at: string;
   first_name?: string;
   last_name?: string;
+  role?: string;
 }
 
 interface ShiftFilters {
@@ -78,7 +79,7 @@ class ShiftService {
   async getShifts(filters: ShiftFilters): Promise<Shift[]> {
     const { team_id, week, employee_id } = filters;
     let query =
-      'SELECT s.*, u.first_name, u.last_name FROM shifts s JOIN users u ON s.employee_id = u.id WHERE 1=1';
+      'SELECT s.*, u.first_name, u.last_name, u.role FROM shifts s JOIN users u ON s.employee_id = u.id WHERE 1=1';
     const params: Array<string> = [];
 
     if (team_id) {
