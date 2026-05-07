@@ -51,8 +51,9 @@ export default function ManagerPayrollPage() {
 
     // Get manager's team
     apiFetch("/teams")
-      .then((res) => res.json())
-      .then((teams: { id: number; name: string }[]) => {
+      .then((res) => (res.ok ? res.json() : []))
+      .then((raw) => {
+        const teams: { id: number; name: string }[] = Array.isArray(raw) ? raw : [];
         if (teams.length > 0) {
           setTeamId(teams[0].id);
         } else {
@@ -85,8 +86,9 @@ export default function ManagerPayrollPage() {
         if (cancelled) return;
         // Fallback: fetch team members directly
         apiFetch(`/teams/${teamId}/members`)
-          .then((res) => res.json())
-          .then((members: { id: number; first_name: string; last_name: string; email: string; hourly_rate?: number }[]) => {
+          .then((res) => (res.ok ? res.json() : []))
+          .then((raw) => {
+            const members: { id: number; first_name: string; last_name: string; email: string; hourly_rate?: number }[] = Array.isArray(raw) ? raw : [];
             if (!cancelled) {
               setEmployees(
                 members

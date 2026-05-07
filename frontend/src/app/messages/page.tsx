@@ -166,9 +166,9 @@ export default function MessagesPage() {
       setModalError("");
       setActiveTab("my-chats");
       const convRes = await apiFetch("/messages/conversations");
-      const convs: Conversation[] = await convRes.json();
+      const convs: Conversation[] = convRes.ok ? await convRes.json() : [];
       setConversations(Array.isArray(convs) ? convs : []);
-      const found = convs.find((c) => c.id === data.conversation_id);
+      const found = (Array.isArray(convs) ? convs : []).find((c) => c.id === data.conversation_id);
       if (found) setSelectedConv(found);
     } catch {
       setModalError("Failed to start conversation.");
@@ -204,9 +204,9 @@ export default function MessagesPage() {
       setGroupMembers([]);
       setActiveTab("my-chats");
       const convRes = await apiFetch("/messages/conversations");
-      const convs: Conversation[] = await convRes.json();
+      const convs: Conversation[] = convRes.ok ? await convRes.json() : [];
       setConversations(Array.isArray(convs) ? convs : []);
-      const found = convs.find((c) => c.id === created.id);
+      const found = (Array.isArray(convs) ? convs : []).find((c) => c.id === created.id);
       if (found) setSelectedConv(found);
     } catch {
       setModalError("Failed to create group.");

@@ -99,12 +99,13 @@ export default function EmployeeLayout({
       method: "POST",
       body: JSON.stringify({ other_user_id: selectedContact.id }),
     })
-      .then((res) => res.json())
+      .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
+        if (!data) return null;
         setActiveConvId(data.conversation_id);
         return apiFetch(`/messages/conversations/${data.conversation_id}/messages`);
       })
-      .then((res) => res.json())
+      .then((res) => (res && res.ok ? res.json() : []))
       .then((data) => setMessages(Array.isArray(data) ? data : []))
       .catch(() => setMessages([]));
   }, [selectedContact, user]);
